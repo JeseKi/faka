@@ -7,7 +7,6 @@ import pytest
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 
-from src.server.activation_code.models import ActivationCode
 from src.server.activation_code.service import (
     create_activation_codes, get_activation_code_by_code,
     get_available_activation_code, mark_activation_code_used,
@@ -23,7 +22,7 @@ def test_create_activation_codes(test_db_session: Session):
     assert len(codes) == 3
     for code in codes:
         assert code.card_name == "月度会员"
-        assert code.is_used == False
+        assert not code.is_used
         assert code.used_at is None
 
 
@@ -51,7 +50,7 @@ def test_get_available_activation_code(test_db_session: Session):
     # 获取可用卡密
     available_code = get_available_activation_code(test_db_session, "年度会员")
     assert available_code is not None
-    assert available_code.is_used == False
+    assert not available_code.is_used
 
 
 def test_mark_activation_code_used(test_db_session: Session):
@@ -60,12 +59,12 @@ def test_mark_activation_code_used(test_db_session: Session):
     codes = create_activation_codes(test_db_session, "测试卡", 1)
     code = codes[0]
 
-    assert code.is_used == False
+    assert not code.is_used
 
     # 标记为已使用
     updated_code = mark_activation_code_used(test_db_session, code)
 
-    assert updated_code.is_used == True
+    assert updated_code.is_used
     assert updated_code.used_at is not None
 
 
@@ -126,7 +125,7 @@ def test_verify_and_use_code(test_db_session: Session):
     used_code = verify_and_use_code(test_db_session, code_value)
 
     assert used_code.code == code_value
-    assert used_code.is_used == True
+    assert used_code.is_used
     assert used_code.used_at is not None
 
     # 再次验证同一个卡密，应该失败

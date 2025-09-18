@@ -18,7 +18,7 @@ from sqlalchemy.orm import Session
 from src.server.database import get_db
 from src.server.auth.router import get_current_user
 from src.server.auth.models import User
-from .schemas import OrderCreate, OrderOut, OrderUpdate, OrderVerify
+from .schemas import OrderOut, OrderUpdate, OrderVerify
 from . import service
 from src.server.dao.dao_base import run_in_thread
 

@@ -9,7 +9,6 @@
 from __future__ import annotations
 
 from sqlalchemy.orm import Session
-from sqlalchemy import or_
 
 from src.server.dao.dao_base import BaseDAO
 from .models import Card
@@ -38,7 +37,7 @@ class CardDAO(BaseDAO):
     def list_all(self, include_inactive: bool = False) -> list[Card]:
         query = self.db_session.query(Card)
         if not include_inactive:
-            query = query.filter(Card.is_active == True)
+            query = query.filter(Card.is_active)
         return query.order_by(Card.id).all()
 
     def update(self, card: Card, name: str | None = None, description: str | None = None,
@@ -69,5 +68,5 @@ class CardDAO(BaseDAO):
         from src.server.activation_code.models import ActivationCode
         return self.db_session.query(ActivationCode).filter(
             ActivationCode.card_name == card_name,
-            ActivationCode.is_used == False
+            ~ActivationCode.is_used
         ).count()

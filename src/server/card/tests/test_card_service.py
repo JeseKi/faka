@@ -23,7 +23,7 @@ def test_create_card(test_db_session: Session):
     assert card.name == "月度会员"
     assert card.description == "月度会员充值卡"
     assert card.price == 29.99
-    assert card.is_active == True
+    assert card.is_active
 
     # 测试重复名称
     with pytest.raises(HTTPException) as exc_info:

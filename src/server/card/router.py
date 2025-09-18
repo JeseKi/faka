@@ -107,7 +107,7 @@ async def generate_activation_codes_for_card(
     """为指定充值卡批量生成卡密（管理员权限）"""
     def _generate():
         # 验证充值卡是否存在
-        card = service.get_card_by_name(db, card_name)
+        _ = service.get_card_by_name(db, card_name)
         # 生成卡密
         from src.server.activation_code import service as activation_service
         return activation_service.create_activation_codes(db, card_name, count)

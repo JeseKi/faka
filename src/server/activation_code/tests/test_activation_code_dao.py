@@ -3,11 +3,9 @@
 卡密模块DAO层测试
 """
 
-import pytest
 from sqlalchemy.orm import Session
 
 from src.server.activation_code.dao import ActivationCodeDAO
-from src.server.activation_code.models import ActivationCode
 
 
 def test_activation_code_dao_create_batch(test_db_session: Session):
@@ -20,7 +18,7 @@ def test_activation_code_dao_create_batch(test_db_session: Session):
     assert len(codes) == 3
     for code in codes:
         assert code.card_name == "月度会员"
-        assert code.is_used == False
+        assert not code.is_used
         assert code.used_at is None
         assert code.code is not None
         assert len(code.code) == 36  # UUID 长度
@@ -50,13 +48,13 @@ def test_activation_code_dao_get_available_by_card_name(test_db_session: Session
     dao = ActivationCodeDAO(test_db_session)
 
     # 创建测试数据
-    codes = dao.create_batch("年度会员", 2)
+    _ = dao.create_batch("年度会员", 2)
 
     # 获取可用卡密
     available_code = dao.get_available_by_card_name("年度会员")
     assert available_code is not None
     assert available_code.card_name == "年度会员"
-    assert available_code.is_used == False
+    assert not available_code.is_used
 
     # 标记为已使用
     dao.mark_as_used(available_code)
@@ -82,13 +80,13 @@ def test_activation_code_dao_mark_as_used(test_db_session: Session):
     codes = dao.create_batch("测试卡", 1)
     code = codes[0]
 
-    assert code.is_used == False
+    assert not code.is_used
     assert code.used_at is None
 
     # 标记为已使用
     updated_code = dao.mark_as_used(code)
 
-    assert updated_code.is_used == True
+    assert updated_code.is_used
     assert updated_code.used_at is not None
 
 
@@ -98,7 +96,7 @@ def test_activation_code_dao_list_by_card_name(test_db_session: Session):
 
     # 创建测试数据
     codes1 = dao.create_batch("卡1", 2)
-    codes2 = dao.create_batch("卡2", 1)
+    _ = dao.create_batch("卡2", 1)
 
     # 只获取未使用的
     unused_codes = dao.list_by_card_name("卡1", include_used=False)
