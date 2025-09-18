@@ -8,7 +8,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 
 from src.server.dao.dao_base import BaseDAO
@@ -60,7 +60,7 @@ class OrderDAO(BaseDAO):
         """更新订单状态"""
         order.status = status
         if status == "completed":
-            order.completed_at = datetime.utcnow()
+            order.completed_at = datetime.now(timezone.utc)
         if remarks is not None:
             order.remarks = remarks
 
@@ -75,7 +75,7 @@ class OrderDAO(BaseDAO):
     def get_recent_orders(self, days: int = 7) -> list[Order]:
         """获取最近几天的订单"""
         from datetime import timedelta
-        cutoff_date = datetime.utcnow() - timedelta(days=days)
+        cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
 
         return self.db_session.query(Order).filter(
             Order.created_at >= cutoff_date

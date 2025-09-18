@@ -9,7 +9,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 
 from src.server.dao.dao_base import BaseDAO
@@ -29,7 +29,7 @@ class ActivationCodeDAO(BaseDAO):
                 card_name=card_name,
                 code=code,
                 is_used=False,
-                created_at=datetime.utcnow()
+                created_at=datetime.now(timezone.utc)
             )
             codes.append(activation_code)
             self.db_session.add(activation_code)
@@ -53,7 +53,7 @@ class ActivationCodeDAO(BaseDAO):
     def mark_as_used(self, activation_code: ActivationCode) -> ActivationCode:
         """标记卡密为已使用"""
         activation_code.is_used = True
-        activation_code.used_at = datetime.utcnow()
+        activation_code.used_at = datetime.now(timezone.utc)
         self.db_session.commit()
         self.db_session.refresh(activation_code)
         return activation_code
