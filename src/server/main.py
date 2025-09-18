@@ -24,6 +24,10 @@ from src.server.database import init_database, get_database_info
 # 路由模块
 from src.server.auth.router import router as auth_router
 from src.server.example_module.router import router as example_router
+from src.server.card.router import router as card_router
+from src.server.activation_code.router import router as activation_code_router
+from src.server.sale.router import router as sale_router
+from src.server.order.router import router as order_router
 
 
 @asynccontextmanager
@@ -55,3 +59,7 @@ app.add_middleware(
 # 挂载路由
 app.include_router(auth_router)
 app.include_router(example_router)
+app.include_router(card_router)
+app.include_router(activation_code_router)
+app.include_router(sale_router)
+app.include_router(order_router)
