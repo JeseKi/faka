@@ -47,3 +47,76 @@ export interface Item {
   id: number
   name: string
 }
+
+// 发卡站相关类型定义
+
+// 充值卡类型
+export interface Card {
+  id: number
+  name: string
+  description: string
+  price: number
+  is_active: boolean
+}
+
+export interface CardCreate {
+  name: string
+  description: string
+  price: number
+  is_active?: boolean
+}
+
+export interface CardUpdate {
+  name?: string
+  description?: string
+  price?: number
+  is_active?: boolean
+}
+
+// 卡密类型
+export interface ActivationCode {
+  id: number
+  card_name: string
+  code: string
+  is_used: boolean
+  created_at: string
+  used_at: string | null
+}
+
+export interface ActivationCodeCreate {
+  card_name: string
+  count: number
+}
+
+// 销售记录类型
+export interface Sale {
+  id: number
+  activation_code: string
+  user_email: string
+  sale_price: number
+  purchased_at: string
+}
+
+export interface SaleCreate {
+  card_name: string
+  user_email: string
+}
+
+// 订单类型
+export interface Order {
+  id: number
+  activation_code: string
+  status: 'pending' | 'completed'
+  created_at: string
+  completed_at: string | null
+  remarks: string | null
+}
+
+export interface OrderVerify {
+  code: string
+}
+
+export interface OrderUpdate {
+  status?: 'pending' | 'completed'
+  remarks?: string
+}

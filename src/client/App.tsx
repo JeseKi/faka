@@ -1,30 +1,65 @@
 import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-dom'
 import MainLayout from './components/layout/MainLayout'
+import AdminLayout from './components/layout/AdminLayout'
+import ProtectedRoute from './components/ui/ProtectedRoute'
 import ExamplePage from './pages/dashboard/ExamplePage'
 import LoginPage from './pages/auth/LoginPage'
 import RegisterPage from './pages/auth/RegisterPage'
-import { AuthProvider, RequireAuth } from './providers/AuthProvider'
+import PurchasePage from './pages/user/PurchasePage'
+import CardManagementPage from './pages/admin/CardManagementPage'
+import ActivationCodeManagementPage from './pages/admin/ActivationCodeManagementPage'
+import OrderProcessingPage from './pages/staff/OrderProcessingPage'
+import { AuthProvider } from './providers/AuthProvider'
+import { SWRProvider } from './providers/SWRProvider'
 
 export default function App() {
   return (
     <Router>
-      <AuthProvider>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route
-            path="/"
-            element={
-              <RequireAuth>
-                <MainLayout />
-              </RequireAuth>
-            }
-          >
-            <Route index element={<ExamplePage />} />
-          </Route>
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </AuthProvider>
+      <SWRProvider>
+        <AuthProvider>
+          <Routes>
+            {/* 认证页面 */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+
+            {/* 用户购买页面（无需登录） */}
+            <Route path="/purchase" element={<MainLayout />}>
+              <Route index element={<PurchasePage />} />
+            </Route>
+
+            {/* 管理员后台（需要 admin 角色） */}
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute requiredRoles={['admin']}>
+                  <AdminLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<div>管理员首页（待实现）</div>} />
+              <Route path="cards" element={<CardManagementPage />} />
+              <Route path="codes" element={<ActivationCodeManagementPage />} />
+              <Route path="sales" element={<div>销售记录（待实现）</div>} />
+            </Route>
+
+            {/* 工作人员后台（需要 staff 或 admin 角色） */}
+            <Route
+              path="/staff"
+              element={
+                <ProtectedRoute requiredRoles={['staff', 'admin']}>
+                  <AdminLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="orders" element={<OrderProcessingPage />} />
+            </Route>
+
+            {/* 默认重定向 */}
+            <Route path="/" element={<Navigate to="/purchase" replace />} />
+            <Route path="*" element={<Navigate to="/purchase" replace />} />
+          </Routes>
+        </AuthProvider>
+      </SWRProvider>
     </Router>
   )
 }

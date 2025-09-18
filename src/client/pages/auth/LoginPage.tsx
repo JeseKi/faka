@@ -52,9 +52,22 @@ export default function LoginPage() {
     setSubmitting(true)
     setError(null)
     try {
-      await login(values)
+      const userProfile = await login(values)
+
+      // 根据用户角色确定重定向路径
+      let redirectPath = '/purchase'
+      if (userProfile.role === 'admin') {
+        redirectPath = '/admin'
+      } else if (userProfile.role === 'staff') {
+        redirectPath = '/staff/orders'
+      }
+
+      // 检查是否有来自其他页面的重定向请求
       const fromState = location.state as { from?: { pathname?: string } } | undefined
-      const redirectPath = fromState?.from?.pathname ?? '/'
+      if (fromState?.from?.pathname) {
+        redirectPath = fromState.from.pathname
+      }
+
       message.success('欢迎回来')
       navigate(redirectPath, { replace: true })
     } catch (err) {

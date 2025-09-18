@@ -34,8 +34,8 @@ export default function MainLayout() {
   const navItems = useMemo<MenuProps['items']>(
     () => [
       {
-        key: 'dashboard',
-        label: <Link to="/">示例模块</Link>,
+        key: 'purchase',
+        label: <Link to="/purchase">购买充值卡</Link>,
       },
     ],
     [],
