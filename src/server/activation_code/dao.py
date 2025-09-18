@@ -29,7 +29,7 @@ class ActivationCodeDAO(BaseDAO):
                 card_name=card_name,
                 code=code,
                 is_used=False,
-                created_at=datetime.now(timezone.utc)
+                created_at=datetime.now(timezone.utc),
             )
             codes.append(activation_code)
             self.db_session.add(activation_code)
@@ -41,14 +41,19 @@ class ActivationCodeDAO(BaseDAO):
 
     def get_by_code(self, code: str) -> ActivationCode | None:
         """通过卡密获取记录"""
-        return self.db_session.query(ActivationCode).filter(ActivationCode.code == code).first()
+        return (
+            self.db_session.query(ActivationCode)
+            .filter(ActivationCode.code == code)
+            .first()
+        )
 
     def get_available_by_card_name(self, card_name: str) -> ActivationCode | None:
         """获取指定充值卡的可用卡密（未使用）"""
-        return self.db_session.query(ActivationCode).filter(
-            ActivationCode.card_name == card_name,
-            ~ActivationCode.is_used
-        ).first()
+        return (
+            self.db_session.query(ActivationCode)
+            .filter(ActivationCode.card_name == card_name, ~ActivationCode.is_used)
+            .first()
+        )
 
     def mark_as_used(self, activation_code: ActivationCode) -> ActivationCode:
         """标记卡密为已使用"""
@@ -58,24 +63,32 @@ class ActivationCodeDAO(BaseDAO):
         self.db_session.refresh(activation_code)
         return activation_code
 
-    def list_by_card_name(self, card_name: str, include_used: bool = False) -> list[ActivationCode]:
+    def list_by_card_name(
+        self, card_name: str, include_used: bool = False
+    ) -> list[ActivationCode]:
         """获取指定充值卡的所有卡密"""
-        query = self.db_session.query(ActivationCode).filter(ActivationCode.card_name == card_name)
+        query = self.db_session.query(ActivationCode).filter(
+            ActivationCode.card_name == card_name
+        )
         if not include_used:
             query = query.filter(~ActivationCode.is_used)
         return query.order_by(ActivationCode.created_at.desc()).all()
 
     def count_by_card_name(self, card_name: str, only_unused: bool = True) -> int:
         """统计指定充值卡的卡密数量"""
-        query = self.db_session.query(ActivationCode).filter(ActivationCode.card_name == card_name)
+        query = self.db_session.query(ActivationCode).filter(
+            ActivationCode.card_name == card_name
+        )
         if only_unused:
             query = query.filter(~ActivationCode.is_used)
         return query.count()
 
     def delete_by_card_name(self, card_name: str) -> int:
         """删除指定充值卡的所有卡密，返回删除的数量"""
-        deleted_count = self.db_session.query(ActivationCode).filter(
-            ActivationCode.card_name == card_name
-        ).delete()
+        deleted_count = (
+            self.db_session.query(ActivationCode)
+            .filter(ActivationCode.card_name == card_name)
+            .delete()
+        )
         self.db_session.commit()
         return deleted_count

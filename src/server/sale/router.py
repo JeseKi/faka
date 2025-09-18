@@ -26,11 +26,10 @@ router = APIRouter(prefix="/api/sales", tags=["sales"])
 @router.post("/purchase", response_model=SaleOut, status_code=status.HTTP_201_CREATED)
 async def purchase_card(sale_data: SaleCreate, db: Session = Depends(get_db)):
     """购买充值卡（前台用户，无需登录）"""
+
     def _purchase():
         sale = service.purchase_card(
-            db=db,
-            card_name=sale_data.card_name,
-            user_email=sale_data.user_email
+            db=db, card_name=sale_data.card_name, user_email=sale_data.user_email
         )
 
         # 发送邮件（这里先返回销售记录，邮件发送逻辑在后续实现）
@@ -42,8 +41,14 @@ async def purchase_card(sale_data: SaleCreate, db: Session = Depends(get_db)):
 
 
 @router.get("", response_model=list[SaleOut])
-async def list_sales(limit: int = 100, offset: int = 0, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+async def list_sales(
+    limit: int = 100,
+    offset: int = 0,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     """获取销售记录列表（管理员权限）"""
+
     def _list():
         return service.list_sales(db, limit, offset)
 
@@ -51,8 +56,11 @@ async def list_sales(limit: int = 100, offset: int = 0, db: Session = Depends(ge
 
 
 @router.get("/stats")
-async def get_sales_stats(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+async def get_sales_stats(
+    db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
+):
     """获取销售统计信息（管理员权限）"""
+
     def _stats():
         return service.get_sales_stats(db)
 
@@ -61,8 +69,13 @@ async def get_sales_stats(db: Session = Depends(get_db), current_user: User = De
 
 
 @router.get("/user/{user_email}", response_model=list[SaleOut])
-async def get_user_sales(user_email: str, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+async def get_user_sales(
+    user_email: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     """获取指定用户的购买记录（管理员权限）"""
+
     def _user_sales():
         return service.get_user_sales(db, user_email)
 

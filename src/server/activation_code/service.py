@@ -27,7 +27,9 @@ from .dao import ActivationCodeDAO
 from .models import ActivationCode
 
 
-def create_activation_codes(db: Session, card_name: str, count: int) -> list[ActivationCode]:
+def create_activation_codes(
+    db: Session, card_name: str, count: int
+) -> list[ActivationCode]:
     """批量创建卡密"""
     dao = ActivationCodeDAO(db)
     return dao.create_batch(card_name, count)
@@ -45,19 +47,25 @@ def get_available_activation_code(db: Session, card_name: str) -> ActivationCode
     return dao.get_available_by_card_name(card_name)
 
 
-def mark_activation_code_used(db: Session, activation_code: ActivationCode) -> ActivationCode:
+def mark_activation_code_used(
+    db: Session, activation_code: ActivationCode
+) -> ActivationCode:
     """标记卡密为已使用"""
     dao = ActivationCodeDAO(db)
     return dao.mark_as_used(activation_code)
 
 
-def list_activation_codes_by_card(db: Session, card_name: str, include_used: bool = False) -> list[ActivationCode]:
+def list_activation_codes_by_card(
+    db: Session, card_name: str, include_used: bool = False
+) -> list[ActivationCode]:
     """获取指定充值卡的所有卡密"""
     dao = ActivationCodeDAO(db)
     return dao.list_by_card_name(card_name, include_used)
 
 
-def count_activation_codes_by_card(db: Session, card_name: str, only_unused: bool = True) -> int:
+def count_activation_codes_by_card(
+    db: Session, card_name: str, only_unused: bool = True
+) -> int:
     """统计指定充值卡的卡密数量"""
     dao = ActivationCodeDAO(db)
     return dao.count_by_card_name(card_name, only_unused)
@@ -76,16 +84,12 @@ def verify_and_use_code(db: Session, code: str) -> ActivationCode:
     # 获取卡密记录
     activation_code = dao.get_by_code(code)
     if not activation_code:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="卡密不存在"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="卡密不存在")
 
     # 检查是否已使用
     if activation_code.is_used:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="卡密已被使用"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="卡密已被使用"
         )
 
     # 标记为已使用

@@ -22,4 +22,6 @@ class Sale(Base):
     activation_code: Mapped[str] = mapped_column(String(36), nullable=False)
     user_email: Mapped[str] = mapped_column(String(255), nullable=False)
     sale_price: Mapped[float] = mapped_column(Float, nullable=False)
-    purchased_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(timezone.utc), nullable=False)
+    purchased_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.now(timezone.utc), nullable=False
+    )

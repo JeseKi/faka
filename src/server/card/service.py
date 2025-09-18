@@ -25,21 +25,23 @@ from .dao import CardDAO
 from .models import Card
 
 
-def create_card(db: Session, name: str, description: str, price: float, is_active: bool = True) -> Card:
+def create_card(
+    db: Session, name: str, description: str, price: float, is_active: bool = True
+) -> Card:
     dao = CardDAO(db)
     try:
         return dao.create(name, description, price, is_active)
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 def get_card(db: Session, card_id: int) -> Card:
     dao = CardDAO(db)
     card = dao.get(card_id)
     if not card:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="充值卡不存在")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="充值卡不存在"
+        )
     return card
 
 
@@ -47,7 +49,9 @@ def get_card_by_name(db: Session, name: str) -> Card:
     dao = CardDAO(db)
     card = dao.get_by_name(name)
     if not card:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="充值卡不存在")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="充值卡不存在"
+        )
     return card
 
 
@@ -56,15 +60,19 @@ def list_cards(db: Session, include_inactive: bool = False) -> list[Card]:
     return dao.list_all(include_inactive)
 
 
-def update_card(db: Session, card: Card, name: str | None = None, description: str | None = None,
-                price: float | None = None, is_active: bool | None = None) -> Card:
+def update_card(
+    db: Session,
+    card: Card,
+    name: str | None = None,
+    description: str | None = None,
+    price: float | None = None,
+    is_active: bool | None = None,
+) -> Card:
     dao = CardDAO(db)
     try:
         return dao.update(card, name, description, price, is_active)
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 def delete_card(db: Session, card: Card) -> None:

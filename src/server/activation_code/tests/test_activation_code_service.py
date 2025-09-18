@@ -8,10 +8,14 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException
 
 from src.server.activation_code.service import (
-    create_activation_codes, get_activation_code_by_code,
-    get_available_activation_code, mark_activation_code_used,
-    list_activation_codes_by_card, count_activation_codes_by_card,
-    delete_activation_codes_by_card, verify_and_use_code
+    create_activation_codes,
+    get_activation_code_by_code,
+    get_available_activation_code,
+    mark_activation_code_used,
+    list_activation_codes_by_card,
+    count_activation_codes_by_card,
+    delete_activation_codes_by_card,
+    verify_and_use_code,
 )
 
 
@@ -74,7 +78,9 @@ def test_list_activation_codes_by_card(test_db_session: Session):
     create_activation_codes(test_db_session, "卡1", 2)
 
     # 只获取未使用的
-    unused_codes = list_activation_codes_by_card(test_db_session, "卡1", include_used=False)
+    unused_codes = list_activation_codes_by_card(
+        test_db_session, "卡1", include_used=False
+    )
     assert len(unused_codes) == 2
 
     # 获取所有
@@ -88,11 +94,15 @@ def test_count_activation_codes_by_card(test_db_session: Session):
     create_activation_codes(test_db_session, "统计测试", 3)
 
     # 统计未使用的
-    count = count_activation_codes_by_card(test_db_session, "统计测试", only_unused=True)
+    count = count_activation_codes_by_card(
+        test_db_session, "统计测试", only_unused=True
+    )
     assert count == 3
 
     # 统计所有
-    count = count_activation_codes_by_card(test_db_session, "统计测试", only_unused=False)
+    count = count_activation_codes_by_card(
+        test_db_session, "统计测试", only_unused=False
+    )
     assert count == 3
 
 

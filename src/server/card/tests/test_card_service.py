@@ -9,8 +9,13 @@ from fastapi import HTTPException
 
 from src.server.card.models import Card
 from src.server.card.service import (
-    create_card, get_card, get_card_by_name, list_cards,
-    update_card, delete_card, get_card_stock
+    create_card,
+    get_card,
+    get_card_by_name,
+    list_cards,
+    update_card,
+    delete_card,
+    get_card_stock,
 )
 
 
@@ -36,7 +41,9 @@ def test_create_card(test_db_session: Session):
 def test_get_card(test_db_session: Session):
     """测试获取充值卡"""
     # 准备测试数据
-    card = Card(name="季度会员", description="季度会员充值卡", price=79.99, is_active=True)
+    card = Card(
+        name="季度会员", description="季度会员充值卡", price=79.99, is_active=True
+    )
     test_db_session.add(card)
     test_db_session.commit()
     test_db_session.refresh(card)
@@ -58,7 +65,9 @@ def test_get_card(test_db_session: Session):
 def test_get_card_by_name(test_db_session: Session):
     """测试通过名称获取充值卡"""
     # 准备测试数据
-    card = Card(name="年度会员", description="年度会员充值卡", price=299.99, is_active=True)
+    card = Card(
+        name="年度会员", description="年度会员充值卡", price=299.99, is_active=True
+    )
     test_db_session.add(card)
     test_db_session.commit()
     test_db_session.refresh(card)

@@ -19,13 +19,11 @@ class OrderDAO(BaseDAO):
     def __init__(self, db_session: Session):
         super().__init__(db_session)
 
-    def create(self, activation_code: str, status: str = "pending", remarks: str | None = None) -> Order:
+    def create(
+        self, activation_code: str, status: str = "pending", remarks: str | None = None
+    ) -> Order:
         """创建订单"""
-        order = Order(
-            activation_code=activation_code,
-            status=status,
-            remarks=remarks
-        )
+        order = Order(activation_code=activation_code, status=status, remarks=remarks)
         self.db_session.add(order)
         self.db_session.commit()
         self.db_session.refresh(order)
@@ -37,17 +35,24 @@ class OrderDAO(BaseDAO):
 
     def get_by_activation_code(self, activation_code: str) -> Order | None:
         """通过卡密获取订单"""
-        return self.db_session.query(Order).filter(
-            Order.activation_code == activation_code
-        ).first()
+        return (
+            self.db_session.query(Order)
+            .filter(Order.activation_code == activation_code)
+            .first()
+        )
 
     def list_pending(self) -> list[Order]:
         """获取所有待处理订单"""
-        return self.db_session.query(Order).filter(
-            Order.status == "pending"
-        ).order_by(Order.created_at.asc()).all()
+        return (
+            self.db_session.query(Order)
+            .filter(Order.status == "pending")
+            .order_by(Order.created_at.asc())
+            .all()
+        )
 
-    def list_all(self, status_filter: str | None = None, limit: int = 100, offset: int = 0) -> list[Order]:
+    def list_all(
+        self, status_filter: str | None = None, limit: int = 100, offset: int = 0
+    ) -> list[Order]:
         """获取所有订单"""
         query = self.db_session.query(Order)
 
@@ -56,7 +61,9 @@ class OrderDAO(BaseDAO):
 
         return query.order_by(Order.created_at.desc()).limit(limit).offset(offset).all()
 
-    def update_status(self, order: Order, status: str, remarks: str | None = None) -> Order:
+    def update_status(
+        self, order: Order, status: str, remarks: str | None = None
+    ) -> Order:
         """更新订单状态"""
         order.status = status
         if status == "completed":
@@ -75,8 +82,12 @@ class OrderDAO(BaseDAO):
     def get_recent_orders(self, days: int = 7) -> list[Order]:
         """获取最近几天的订单"""
         from datetime import timedelta
+
         cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
 
-        return self.db_session.query(Order).filter(
-            Order.created_at >= cutoff_date
-        ).order_by(Order.created_at.desc()).all()
+        return (
+            self.db_session.query(Order)
+            .filter(Order.created_at >= cutoff_date)
+            .order_by(Order.created_at.desc())
+            .all()
+        )

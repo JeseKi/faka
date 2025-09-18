@@ -28,29 +28,29 @@ from .models import Sale
 def purchase_card(db: Session, card_name: str, user_email: str) -> Sale:
     """购买充值卡"""
     from src.server.card.service import get_card_by_name, get_card_stock
-    from src.server.activation_code.service import get_available_activation_code, mark_activation_code_used
+    from src.server.activation_code.service import (
+        get_available_activation_code,
+        mark_activation_code_used,
+    )
 
     # 验证充值卡是否存在且有库存
     card = get_card_by_name(db, card_name)
     if not card.is_active:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="该充值卡已下架"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="该充值卡已下架"
         )
 
     stock = get_card_stock(db, card_name)
     if stock <= 0:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="该充值卡暂时缺货"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="该充值卡暂时缺货"
         )
 
     # 获取可用卡密
     activation_code = get_available_activation_code(db, card_name)
     if not activation_code:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="该充值卡暂时缺货"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="该充值卡暂时缺货"
         )
 
     # 标记卡密为已使用
@@ -87,7 +87,4 @@ def get_sales_stats(db: Session) -> dict:
     total_sales = dao.count_all()
     total_revenue = dao.get_total_revenue()
 
-    return {
-        "total_sales": total_sales,
-        "total_revenue": total_revenue
-    }
+    return {"total_sales": total_sales, "total_revenue": total_revenue}

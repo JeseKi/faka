@@ -18,11 +18,15 @@ class CardDAO(BaseDAO):
     def __init__(self, db_session: Session):
         super().__init__(db_session)
 
-    def create(self, name: str, description: str, price: float, is_active: bool = True) -> Card:
+    def create(
+        self, name: str, description: str, price: float, is_active: bool = True
+    ) -> Card:
         exists = self.db_session.query(Card).filter(Card.name == name).first()
         if exists:
             raise ValueError("充值卡名称已存在")
-        card = Card(name=name, description=description, price=price, is_active=is_active)
+        card = Card(
+            name=name, description=description, price=price, is_active=is_active
+        )
         self.db_session.add(card)
         self.db_session.commit()
         self.db_session.refresh(card)
@@ -40,11 +44,21 @@ class CardDAO(BaseDAO):
             query = query.filter(Card.is_active)
         return query.order_by(Card.id).all()
 
-    def update(self, card: Card, name: str | None = None, description: str | None = None,
-               price: float | None = None, is_active: bool | None = None) -> Card:
+    def update(
+        self,
+        card: Card,
+        name: str | None = None,
+        description: str | None = None,
+        price: float | None = None,
+        is_active: bool | None = None,
+    ) -> Card:
         if name is not None:
             # 检查名称是否已被其他卡使用
-            existing = self.db_session.query(Card).filter(Card.name == name, Card.id != card.id).first()
+            existing = (
+                self.db_session.query(Card)
+                .filter(Card.name == name, Card.id != card.id)
+                .first()
+            )
             if existing:
                 raise ValueError("充值卡名称已存在")
             card.name = name
@@ -66,7 +80,9 @@ class CardDAO(BaseDAO):
     def get_stock_count(self, card_name: str) -> int:
         """获取指定充值卡的库存数量（通过关联的未使用的卡密计算）"""
         from src.server.activation_code.models import ActivationCode
-        return self.db_session.query(ActivationCode).filter(
-            ActivationCode.card_name == card_name,
-            ~ActivationCode.is_used
-        ).count()
+
+        return (
+            self.db_session.query(ActivationCode)
+            .filter(ActivationCode.card_name == card_name, ~ActivationCode.is_used)
+            .count()
+        )

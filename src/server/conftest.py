@@ -114,8 +114,7 @@ def test_admin_token(test_client, init_test_database) -> str:
     """提供管理员 JWT token。"""
     # 登录获取 token
     response = test_client.post(
-        "/api/auth/login",
-        json={"username": "admin", "password": "admin123"}
+        "/api/auth/login", json={"username": "admin", "password": "admin123"}
     )
     assert response.status_code == 200
     data = response.json()

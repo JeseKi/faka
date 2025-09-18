@@ -17,9 +17,9 @@ def test_create_card(test_client, test_admin_token):
             "name": "月度会员",
             "description": "月度会员充值卡",
             "price": 29.99,
-            "is_active": True
+            "is_active": True,
         },
-        headers=headers
+        headers=headers,
     )
     assert resp.status_code == HTTPStatus.CREATED, resp.text
     card = resp.json()
@@ -33,9 +33,9 @@ def test_create_card(test_client, test_admin_token):
             "name": "月度会员",
             "description": "另一个描述",
             "price": 19.99,
-            "is_active": True
+            "is_active": True,
         },
-        headers=headers
+        headers=headers,
     )
     assert resp2.status_code == HTTPStatus.BAD_REQUEST
 
@@ -48,12 +48,12 @@ def test_list_cards(test_client, test_admin_token):
     test_client.post(
         "/api/cards",
         json={"name": "卡1", "description": "描述1", "price": 10.0, "is_active": True},
-        headers=headers
+        headers=headers,
     )
     test_client.post(
         "/api/cards",
         json={"name": "卡2", "description": "描述2", "price": 20.0, "is_active": False},
-        headers=headers
+        headers=headers,
     )
 
     # 获取活跃的充值卡
@@ -76,8 +76,13 @@ def test_get_card(test_client, test_admin_token):
     # 创建测试数据
     resp = test_client.post(
         "/api/cards",
-        json={"name": "季度会员", "description": "季度会员充值卡", "price": 79.99, "is_active": True},
-        headers=headers
+        json={
+            "name": "季度会员",
+            "description": "季度会员充值卡",
+            "price": 79.99,
+            "is_active": True,
+        },
+        headers=headers,
     )
     card_id = resp.json()["id"]
 
@@ -99,16 +104,19 @@ def test_update_card(test_client, test_admin_token):
     # 创建测试数据
     resp = test_client.post(
         "/api/cards",
-        json={"name": "原名", "description": "原描述", "price": 50.0, "is_active": True},
-        headers=headers
+        json={
+            "name": "原名",
+            "description": "原描述",
+            "price": 50.0,
+            "is_active": True,
+        },
+        headers=headers,
     )
     card_id = resp.json()["id"]
 
     # 更新充值卡
     resp2 = test_client.put(
-        f"/api/cards/{card_id}",
-        json={"name": "新名", "price": 60.0},
-        headers=headers
+        f"/api/cards/{card_id}", json={"name": "新名", "price": 60.0}, headers=headers
     )
     assert resp2.status_code == HTTPStatus.OK
     updated_card = resp2.json()
@@ -124,8 +132,13 @@ def test_delete_card(test_client, test_admin_token):
     # 创建测试数据
     resp = test_client.post(
         "/api/cards",
-        json={"name": "待删除", "description": "描述", "price": 10.0, "is_active": True},
-        headers=headers
+        json={
+            "name": "待删除",
+            "description": "描述",
+            "price": 10.0,
+            "is_active": True,
+        },
+        headers=headers,
     )
     card_id = resp.json()["id"]
 
@@ -155,6 +168,6 @@ def test_unauthorized_access(test_client):
     # 没有 token 的请求
     resp = test_client.post(
         "/api/cards",
-        json={"name": "测试", "description": "描述", "price": 10.0, "is_active": True}
+        json={"name": "测试", "description": "描述", "price": 10.0, "is_active": True},
     )
     assert resp.status_code == HTTPStatus.UNAUTHORIZED

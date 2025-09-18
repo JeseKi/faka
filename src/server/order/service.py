@@ -41,7 +41,12 @@ def verify_activation_code(db: Session, code: str) -> Order:
     return order
 
 
-def create_order(db: Session, activation_code: str, status: str = "pending", remarks: str | None = None) -> Order:
+def create_order(
+    db: Session,
+    activation_code: str,
+    status: str = "pending",
+    remarks: str | None = None,
+) -> Order:
     """创建订单"""
     dao = OrderDAO(db)
     return dao.create(activation_code, status, remarks)
@@ -62,7 +67,9 @@ def list_pending_orders(db: Session) -> list[Order]:
     return dao.list_pending()
 
 
-def list_orders(db: Session, status_filter: str | None = None, limit: int = 100, offset: int = 0) -> list[Order]:
+def list_orders(
+    db: Session, status_filter: str | None = None, limit: int = 100, offset: int = 0
+) -> list[Order]:
     """获取订单列表"""
     dao = OrderDAO(db)
     return dao.list_all(status_filter, limit, offset)
@@ -77,8 +84,7 @@ def complete_order(db: Session, order_id: int, remarks: str | None = None) -> Or
 
     if order.status == "completed":
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="订单已完成"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="订单已完成"
         )
 
     return dao.update_status(order, "completed", remarks)
@@ -95,5 +101,5 @@ def get_order_stats(db: Session) -> dict:
     return {
         "total_orders": total_count,
         "pending_orders": pending_count,
-        "completed_orders": completed_count
+        "completed_orders": completed_count,
     }
