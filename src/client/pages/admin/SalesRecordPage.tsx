@@ -10,8 +10,14 @@ import {
   Col,
   Input,
   DatePicker,
+  Tooltip,
 } from 'antd'
-import { ReloadOutlined, SearchOutlined } from '@ant-design/icons'
+import {
+  ReloadOutlined,
+  SearchOutlined,
+  EyeOutlined,
+  CopyOutlined,
+} from '@ant-design/icons'
 import { isAxiosError } from 'axios'
 import api from '../../lib/api'
 import type { Sale } from '../../lib/types'
@@ -127,16 +133,33 @@ export default function SalesRecordPage() {
       dataIndex: 'activation_code',
       key: 'activation_code',
       width: 200,
-      render: (code: string) => (
-        <code style={{
-          background: '#f5f5f5',
-          padding: '2px 4px',
-          borderRadius: '3px',
-          fontFamily: 'monospace'
-        }}>
-          {code}
-        </code>
-      ),
+      render: (activation_code: string) => {
+        const maskedCode = activation_code
+          ? activation_code.replace(/./g, '*').slice(0, 8) + '...'
+          : '-'
+        return (
+          <Space size="middle">
+            <span>{maskedCode}</span>
+            <Tooltip title={activation_code || '-'} placement="topLeft">
+              <Button
+                type="text"
+                icon={<EyeOutlined />}
+                size="small"
+                style={{ padding: 0 }}
+              />
+            </Tooltip>
+            <Button
+              type="text"
+              icon={<CopyOutlined />}
+              size="small"
+              onClick={() => {
+                navigator.clipboard.writeText(activation_code || '')
+                message.success('卡密已复制到剪贴板')
+              }}
+            />
+          </Space>
+        )
+      },
     },
     {
       title: '用户邮箱',
