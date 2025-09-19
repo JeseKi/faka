@@ -13,7 +13,9 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
-from typing import Optional
+import random
+import string
+from typing import Optional, cast
 
 from jose import jwt
 from loguru import logger
@@ -23,6 +25,51 @@ from .config import auth_config
 from .models import User
 from .schemas import UserCreate, UserUpdate
 from .dao import UserDAO
+
+
+# 用于存储验证码的字典，实际项目中建议使用Redis等缓存
+verification_codes: dict[str, dict[str, str | datetime]] = {}
+
+
+def generate_verification_code(length: int = 6) -> str:
+    """生成指定长度的数字验证码"""
+    return ''.join(random.choices(string.digits, k=length))
+
+
+def send_verification_code(email: str) -> str:
+    """生成并发送验证码（这里仅打印到控制台）"""
+    code = generate_verification_code()
+    # 设置验证码5分钟有效期
+    expiry = datetime.now(timezone.utc) + timedelta(minutes=5)
+    
+    # 存储验证码和过期时间
+    verification_codes[email] = {
+        "code": code,
+        "expiry": expiry
+    }
+    
+    # 打印到控制台模拟发送邮件
+    logger.info(f"验证码已发送到 {email}: {code}")
+    
+    return code
+
+
+def verify_code(email: str, code: str) -> bool:
+    """验证邮箱和验证码是否匹配且未过期"""
+    if email not in verification_codes:
+        return False
+    
+    stored_data = verification_codes[email]
+    stored_code = stored_data["code"]
+    expiry = cast(datetime, stored_data["expiry"])
+    
+    # 检查验证码是否正确且未过期
+    if stored_code == code and datetime.now(timezone.utc) < expiry:
+        # 验证成功后删除验证码
+        del verification_codes[email]
+        return True
+    
+    return False
 
 
 def get_user_by_username(db: Session, username: str) -> Optional[User]:

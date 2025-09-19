@@ -37,8 +37,18 @@ export default function MainLayout() {
         key: 'purchase',
         label: <Link to="/purchase">购买充值卡</Link>,
       },
+      ...(user?.role === 'admin' ? [
+        {
+          key: 'admin',
+          label: <Link to="/admin">管理员面板</Link>,
+        }
+      ] : []),
+      {
+        key: 'history',
+        label: <Link to="/history">购买历史</Link>,
+      },
     ],
-    [],
+    [user?.role],
   )
 
   const handleLogout = () => {

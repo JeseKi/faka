@@ -10,12 +10,14 @@ import {
   Space,
   Spin,
   Typography,
+  message,
 } from 'antd'
 import {
   LockOutlined,
   MailOutlined,
   UserAddOutlined,
   UserOutlined,
+  SendOutlined,
 } from '@ant-design/icons'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
@@ -24,23 +26,25 @@ import { useAuth } from '../../hooks/useAuth'
 function resolveErrorMessage(error: unknown): string {
   if (isAxiosError(error)) {
     const payload = error.response?.data as { detail?: string; message?: string } | undefined
-    return payload?.detail ?? payload?.message ?? '注册失败，请稍后再试。'
+    return payload?.detail ?? payload?.message ?? '操作失败，请稍后再试。'
   }
   if (error instanceof Error) {
     return error.message
   }
-  return '注册失败，请稍后再试。'
+  return '操作失败，请稍后再试。'
 }
 
 export default function RegisterPage() {
   const navigate = useNavigate()
-  const { register, loading, isAuthenticated } = useAuth()
-  const { message } = App.useApp()
+  const { registerWithCode, sendVerificationCode, loading, isAuthenticated } = useAuth()
+  const { message: antdMessage } = App.useApp()
 
-  const [form] = Form.useForm<{ username: string; email: string; password: string }>()
+  const [form] = Form.useForm<{ username: string; email: string; password: string; code: string }>()
   const [submitting, setSubmitting] = useState(false)
+  const [sendingCode, setSendingCode] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
+  const [codeSent, setCodeSent] = useState(false)
 
   useEffect(() => {
     if (!loading && isAuthenticated) {
@@ -48,19 +52,36 @@ export default function RegisterPage() {
     }
   }, [isAuthenticated, loading, navigate])
 
-  const handleSubmit = async (values: { username: string; email: string; password: string }) => {
+  const handleSendCode = async (email: string) => {
+    setSendingCode(true)
+    setError(null)
+    try {
+      await sendVerificationCode({ email })
+      setCodeSent(true)
+      message.success('验证码已发送，请查看控制台')
+    } catch (err) {
+      const text = resolveErrorMessage(err)
+      setError(text)
+      antdMessage.error(text)
+    } finally {
+      setSendingCode(false)
+    }
+  }
+
+  const handleSubmit = async (values: { username: string; email: string; password: string; code: string }) => {
     setSubmitting(true)
     setError(null)
     setSuccessMessage(null)
     try {
-      await register(values)
+      await registerWithCode(values)
       setSuccessMessage('注册成功，请使用新账号登录。')
-      message.success('注册成功')
+      antdMessage.success('注册成功')
       form.resetFields()
+      setCodeSent(false)
     } catch (err) {
       const text = resolveErrorMessage(err)
       setError(text)
-      message.error(text)
+      antdMessage.error(text)
     } finally {
       setSubmitting(false)
     }
@@ -137,6 +158,47 @@ export default function RegisterPage() {
                 autoComplete="email"
                 allowClear
               />
+            </Form.Item>
+            <Form.Item
+              label="验证码"
+              name="code"
+              rules={[
+                { required: true, message: '请输入验证码' },
+                { len: 6, message: '验证码为6位数字' },
+              ]}
+            >
+              <Input.Group compact>
+                <Form.Item
+                  name="code"
+                  noStyle
+                  rules={[
+                    { required: true, message: '请输入验证码' },
+                    { len: 6, message: '验证码为6位数字' },
+                  ]}
+                >
+                  <Input
+                    size="large"
+                    style={{ width: 'calc(100% - 100px)' }}
+                    placeholder="请输入验证码"
+                  />
+                </Form.Item>
+                <Button
+                  size="large"
+                  icon={<SendOutlined />}
+                  onClick={() => {
+                    const email = form.getFieldValue('email')
+                    if (email) {
+                      handleSendCode(email)
+                    } else {
+                      antdMessage.error('请先输入邮箱地址')
+                    }
+                  }}
+                  loading={sendingCode}
+                  disabled={codeSent}
+                >
+                  {codeSent ? '已发送' : '发送'}
+                </Button>
+              </Input.Group>
             </Form.Item>
             <Form.Item
               label="密码"

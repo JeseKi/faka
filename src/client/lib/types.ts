@@ -29,6 +29,17 @@ export interface RegisterPayload {
   password: string
 }
 
+export interface VerificationCodePayload {
+  email: string
+}
+
+export interface RegisterWithCodePayload {
+  username: string
+  email: string
+  password: string
+  code: string
+}
+
 export interface UpdateProfilePayload {
   email?: string | null
   name?: string | null

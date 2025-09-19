@@ -3,13 +3,14 @@
 订单模块服务层
 
 公开接口：
-- verify_activation_code(db, code)
-- create_order(db, activation_code, status, remarks)
+- verify_activation_code(db, code, user_id)
+- create_order(db, activation_code, user_id, status, remarks)
 - get_order(db, order_id)
 - list_pending_orders(db)
 - list_orders(db, status_filter, limit, offset)
 - complete_order(db, order_id, remarks)
 - get_order_stats(db)
+- get_orders_by_user_id(db, user_id)
 
 内部方法：
 - 无
@@ -19,6 +20,7 @@
 """
 
 from __future__ import annotations
+from typing import List
 
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
@@ -27,7 +29,7 @@ from .dao import OrderDAO
 from .models import Order
 
 
-def verify_activation_code(db: Session, code: str) -> Order:
+def verify_activation_code(db: Session, code: str, user_id: int) -> Order:
     """验证卡密并创建订单"""
     from src.server.activation_code.service import verify_and_use_code
 
@@ -36,7 +38,11 @@ def verify_activation_code(db: Session, code: str) -> Order:
 
     # 创建订单
     dao = OrderDAO(db)
-    order = dao.create(activation_code.code, status="pending")
+    order = dao.create(activation_code.code, user_id, status="pending")
+
+    # 模拟发送卡密信息到控制台
+    from loguru import logger
+    logger.info(f"卡密信息已发送到用户控制台: {activation_code.code}")
 
     return order
 
@@ -44,12 +50,13 @@ def verify_activation_code(db: Session, code: str) -> Order:
 def create_order(
     db: Session,
     activation_code: str,
+    user_id: int,
     status: str = "pending",
     remarks: str | None = None,
 ) -> Order:
     """创建订单"""
     dao = OrderDAO(db)
-    return dao.create(activation_code, status, remarks)
+    return dao.create(activation_code, user_id, status, remarks)
 
 
 def get_order(db: Session, order_id: int) -> Order:
@@ -103,6 +110,12 @@ def complete_order(db: Session, order_id: int, remarks: str | None = None) -> Or
     mark_activation_code_used(db, activation_code)
 
     return dao.update_status(order, "completed", remarks)
+
+
+def get_orders_by_user_id(db: Session, user_id: int) -> List[Order]:
+    """获取指定用户的所有订单"""
+    dao = OrderDAO(db)
+    return dao.get_orders_by_user_id(user_id)
 
 
 def get_order_stats(db: Session) -> dict:

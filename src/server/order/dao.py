@@ -20,10 +20,10 @@ class OrderDAO(BaseDAO):
         super().__init__(db_session)
 
     def create(
-        self, activation_code: str, status: str = "pending", remarks: str | None = None
+        self, activation_code: str, user_id: int, status: str = "pending", remarks: str | None = None
     ) -> Order:
         """创建订单"""
-        order = Order(activation_code=activation_code, status=status, remarks=remarks)
+        order = Order(activation_code=activation_code, user_id=user_id, status=status, remarks=remarks)
         self.db_session.add(order)
         self.db_session.commit()
         self.db_session.refresh(order)
@@ -39,6 +39,15 @@ class OrderDAO(BaseDAO):
             self.db_session.query(Order)
             .filter(Order.activation_code == activation_code)
             .first()
+        )
+    
+    def get_orders_by_user_id(self, user_id: int) -> list[Order]:
+        """获取指定用户的所有订单"""
+        return (
+            self.db_session.query(Order)
+            .filter(Order.user_id == user_id)
+            .order_by(Order.created_at.desc())
+            .all()
         )
 
     def list_pending(self) -> list[Order]:

@@ -4,6 +4,7 @@
 
 公开接口：
 - `UserProfile`、`UserCreate`、`UserUpdate`、`UserLogin`、`TokenResponse`、`PasswordChange`
+- `VerificationCodeRequest`、`UserRegisterWithCode`
 """
 
 from pydantic import BaseModel, Field, EmailStr, ConfigDict
@@ -46,3 +47,15 @@ class TokenResponse(BaseModel):
 class PasswordChange(BaseModel):
     old_password: str
     new_password: str = Field(..., min_length=8)
+
+
+# 新增用于邮件验证码的模型
+class VerificationCodeRequest(BaseModel):
+    email: EmailStr
+
+
+class UserRegisterWithCode(BaseModel):
+    username: str = Field(..., min_length=3, max_length=50)
+    email: EmailStr
+    password: str = Field(..., min_length=8)
+    code: str = Field(..., min_length=6, max_length=6)

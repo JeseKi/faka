@@ -7,6 +7,8 @@ import type {
   TokenResponse,
   UpdateProfilePayload,
   UserProfile,
+  VerificationCodePayload,
+  RegisterWithCodePayload,
 } from './types'
 
 export async function login(payload: LoginPayload): Promise<TokenResponse> {
@@ -19,6 +21,16 @@ export async function login(payload: LoginPayload): Promise<TokenResponse> {
 
 export async function register(payload: RegisterPayload): Promise<UserProfile> {
   const { data } = await api.post<UserProfile>('/auth/register', payload)
+  return data
+}
+
+export async function sendVerificationCode(payload: VerificationCodePayload): Promise<{ message: string }> {
+  const { data } = await api.post<{ message: string }>('/auth/send-verification-code', payload)
+  return data
+}
+
+export async function registerWithCode(payload: RegisterWithCodePayload): Promise<UserProfile> {
+  const { data } = await api.post<UserProfile>('/auth/register-with-code', payload)
   return data
 }
 

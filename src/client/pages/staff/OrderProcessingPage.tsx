@@ -174,7 +174,7 @@ export default function OrderProcessingPage() {
     {
       title: '操作',
       key: 'action',
-      width: 150,
+      width: 200,
       render: (_: unknown, record: Order) => (
         <Space size="small">
           <Button

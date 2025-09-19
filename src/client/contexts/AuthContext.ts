@@ -7,6 +7,8 @@ interface AuthContextValue {
   isAuthenticated: boolean
   login: (payload: LoginPayload) => Promise<UserProfile>
   register: (payload: RegisterPayload) => Promise<UserProfile>
+  sendVerificationCode: (payload: VerificationCodePayload) => Promise<{ message: string }>
+  registerWithCode: (payload: RegisterWithCodePayload) => Promise<UserProfile>
   refreshProfile: () => Promise<UserProfile | null>
   logout: () => void
   update: (payload: Parameters<typeof updateProfile>[0]) => Promise<UserProfile>
@@ -14,7 +16,7 @@ interface AuthContextValue {
 }
 
 // 注意：这里需要导入相关类型
-import type { LoginPayload, RegisterPayload } from '../lib/types'
+import type { LoginPayload, RegisterPayload, VerificationCodePayload, RegisterWithCodePayload } from '../lib/types'
 import type { updateProfile, changePassword } from '../lib/auth'
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)

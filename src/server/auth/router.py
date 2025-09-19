@@ -9,6 +9,8 @@
 - GET /api/auth/profile
 - PUT /api/auth/profile
 - PUT /api/auth/password
+- POST /api/auth/send-verification-code
+- POST /api/auth/register-with-code
 """
 
 from __future__ import annotations
@@ -30,6 +32,8 @@ from .schemas import (
     UserProfile,
     UserUpdate,
     UserLogin,
+    VerificationCodeRequest,
+    UserRegisterWithCode,
 )
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
@@ -85,6 +89,51 @@ async def login_for_access_token(login_data: UserLogin, db: Session = Depends(ge
         "refresh_token": refresh_token,
         "token_type": "bearer",
     }
+
+
+@router.post("/send-verification-code")
+async def send_verification_code(
+    request: VerificationCodeRequest, db: Session = Depends(get_db)
+):
+    # 检查邮箱是否已被注册
+    existing_user = db.query(User).filter(User.email == request.email).first()
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="邮箱已被注册"
+        )
+    
+    # 生成并发送验证码
+    service.send_verification_code(request.email)
+    return {"message": "验证码已发送"}
+
+
+@router.post(
+    "/register-with-code", response_model=UserProfile, status_code=status.HTTP_201_CREATED
+)
+async def register_user_with_code(
+    user_data: UserRegisterWithCode, db: Session = Depends(get_db)
+):
+    # 检查用户名是否已被注册
+    db_user = service.get_user_by_username(db, username=user_data.username)
+    if db_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="用户名已被注册"
+        )
+    
+    # 验证验证码
+    if not service.verify_code(user_data.email, user_data.code):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="验证码无效或已过期"
+        )
+    
+    # 创建用户
+    user_create = UserCreate(
+        username=user_data.username,
+        email=user_data.email,
+        password=user_data.password
+    )
+    new_user = service.create_user(db=db, user_data=user_create)
+    return new_user
 
 
 @router.post(

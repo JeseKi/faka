@@ -12,6 +12,7 @@ import AdminDashboardPage from './pages/admin/AdminDashboardPage'
 import SalesRecordPage from './pages/admin/SalesRecordPage'
 import { AuthProvider } from './providers/AuthProvider'
 import { SWRProvider } from './providers/SWRProvider'
+import PurchaseHistoryPage from './pages/user/PurchaseHistoryPage'
 
 export default function App() {
   return (
@@ -26,6 +27,18 @@ export default function App() {
             {/* 用户购买页面（无需登录） */}
             <Route path="/purchase" element={<MainLayout />}>
               <Route index element={<PurchasePage />} />
+            </Route>
+
+            {/* 购买历史 */}
+            <Route path="/history" element={<MainLayout />}>
+              <Route
+                index
+                element={
+                  <ProtectedRoute requiredRoles={['user', 'staff', 'admin']}>
+                    <PurchaseHistoryPage />
+                  </ProtectedRoute>
+                }
+              />
             </Route>
 
             {/* 管理员后台（需要 admin 角色） */}

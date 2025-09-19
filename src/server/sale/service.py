@@ -26,7 +26,7 @@ from .dao import SaleDAO
 from .models import Sale
 
 
-def purchase_card(db: Session, card_name: str, user_email: str) -> Sale:
+def purchase_card(db: Session, card_name: str, user_email: str, user_id: int) -> Sale:
     """购买充值卡"""
     from src.server.card.service import get_card_by_name, get_card_stock
     from src.server.activation_code.service import (
@@ -63,7 +63,7 @@ def purchase_card(db: Session, card_name: str, user_email: str) -> Sale:
     sale = dao.create(activation_code.code, user_email, card.price, card_name)
 
     # 创建订单
-    create_order(db, activation_code.code, status="pending")
+    create_order(db, activation_code.code, user_id, status="pending")
 
     return sale
 

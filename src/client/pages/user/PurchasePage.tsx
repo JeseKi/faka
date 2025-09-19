@@ -12,11 +12,14 @@ import {
   Spin,
   Row,
   Col,
+  Modal,
 } from 'antd'
 import { ShoppingCartOutlined, CreditCardOutlined } from '@ant-design/icons'
 import { isAxiosError } from 'axios'
+import { useNavigate } from 'react-router-dom'
 import api from '../../lib/api'
 import { useCards } from '../../hooks/useCardAPI'
+import { useAuth } from '../../hooks/useAuth' // 新增导入
 import type { SaleCreate } from '../../lib/types'
 
 const { Title, Text, Paragraph } = Typography
@@ -47,7 +50,24 @@ export default function PurchasePage() {
   // 使用 SWR hook 获取充值卡数据
   const { cards, isLoading } = useCards(false)
 
+  const navigate = useNavigate()
+  const { isAuthenticated } = useAuth() // 使用 useAuth hook
+  
   const handlePurchase = async (values: PurchaseFormData) => {
+    // 检查用户是否已登录
+    if (!isAuthenticated) {
+      Modal.confirm({
+        title: '需要登录',
+        content: '您需要登录后才能购买充值卡，是否前往登录页面？',
+        okText: '去登录',
+        cancelText: '取消',
+        onOk: () => {
+          navigate('/login')
+        }
+      })
+      return
+    }
+
     setSubmitting(true)
     setError(null)
 
@@ -63,6 +83,21 @@ export default function PurchasePage() {
       form.resetFields()
     } catch (err) {
       console.error('购买失败:', err)
+      
+      // 检查是否是401错误
+      if (isAxiosError(err) && err.response?.status === 401) {
+        Modal.confirm({
+          title: '需要登录',
+          content: '您需要登录后才能购买充值卡，是否前往登录页面？',
+          okText: '去登录',
+          cancelText: '取消',
+          onOk: () => {
+            navigate('/login')
+          }
+        })
+        return
+      }
+      
       const errorMessage = resolveErrorMessage(err)
       setError(errorMessage)
       message.error(errorMessage)

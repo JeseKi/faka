@@ -6,7 +6,7 @@ import {
   useState,
 } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
-import type { LoginPayload, RegisterPayload, UserProfile } from '../lib/types'
+import type { LoginPayload, RegisterPayload, UserProfile, VerificationCodePayload, RegisterWithCodePayload } from '../lib/types'
 import { hasValidTokens } from '../lib/tokenStorage'
 import {
   changePassword,
@@ -15,6 +15,8 @@ import {
   logout as logoutRequest,
   register as registerRequest,
   updateProfile,
+  sendVerificationCode as sendVerificationCodeRequest,
+  registerWithCode as registerWithCodeRequest,
 } from '../lib/auth'
 import { useAuth } from '../hooks/useAuth'
 import { AuthContext } from '../contexts/AuthContext'
@@ -25,6 +27,8 @@ interface AuthContextValue {
   isAuthenticated: boolean
   login: (payload: LoginPayload) => Promise<UserProfile>
   register: (payload: RegisterPayload) => Promise<UserProfile>
+  sendVerificationCode: (payload: VerificationCodePayload) => Promise<{ message: string }>
+  registerWithCode: (payload: RegisterWithCodePayload) => Promise<UserProfile>
   refreshProfile: () => Promise<UserProfile | null>
   logout: () => void
   update: (payload: Parameters<typeof updateProfile>[0]) => Promise<UserProfile>
@@ -66,6 +70,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = useCallback(async (payload: RegisterPayload) => {
     const profile = await registerRequest(payload)
+    return profile
+  }, [])
+
+  const sendVerificationCode = useCallback(async (payload: VerificationCodePayload) => {
+    const result = await sendVerificationCodeRequest(payload)
+    return result
+  }, [])
+
+  const registerWithCode = useCallback(async (payload: RegisterWithCodePayload) => {
+    const profile = await registerWithCodeRequest(payload)
     return profile
   }, [])
 
@@ -111,12 +125,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAuthenticated: Boolean(user),
       login,
       register,
+      sendVerificationCode,
+      registerWithCode,
       refreshProfile,
       logout,
       update: handleUpdate,
       changePassword: handleChangePassword,
     }),
-    [user, loading, login, register, refreshProfile, logout, handleUpdate, handleChangePassword],
+    [user, loading, login, register, sendVerificationCode, registerWithCode, refreshProfile, logout, handleUpdate, handleChangePassword],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

@@ -8,9 +8,11 @@
 - GET /api/orders/{order_id}
 - PUT /api/orders/{order_id}/complete
 - GET /api/orders/stats
+- GET /api/orders/me
 """
 
 from __future__ import annotations
+from typing import List
 
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
@@ -27,12 +29,14 @@ router = APIRouter(prefix="/api/orders", tags=["orders"])
 
 @router.post("/verify", response_model=OrderOut, status_code=status.HTTP_201_CREATED)
 async def verify_activation_code(
-    verify_data: OrderVerify, db: Session = Depends(get_db)
+    verify_data: OrderVerify, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
-    """验证卡密并创建订单（外部服务调用，无需登录）"""
+    """验证卡密并创建订单（需要登录）"""
 
     def _verify():
-        return service.verify_activation_code(db, verify_data.code)
+        return service.verify_activation_code(db, verify_data.code, current_user.id)
 
     return await run_in_thread(_verify)
 
@@ -64,21 +68,6 @@ async def list_pending_orders(
 
     return await run_in_thread(_pending)
 
-
-@router.get("/{order_id}", response_model=OrderOut)
-async def get_order(
-    order_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
-    """获取单个订单（工作人员权限）"""
-
-    def _get():
-        return service.get_order(db, order_id)
-
-    return await run_in_thread(_get)
-
-
 @router.put("/{order_id}/complete", response_model=OrderOut)
 async def complete_order(
     order_id: int,
@@ -95,6 +84,19 @@ async def complete_order(
     return await run_in_thread(_complete)
 
 
+@router.get("/me", response_model=List[OrderOut])
+async def get_my_orders(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """获取当前登录用户的订单列表"""
+
+    def _get_orders():
+        return service.get_orders_by_user_id(db, current_user.id)
+
+    return await run_in_thread(_get_orders)
+
+
 @router.get("/stats")
 async def get_order_stats(
     db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
@@ -106,3 +108,16 @@ async def get_order_stats(
 
     stats = await run_in_thread(_stats)
     return stats
+
+@router.get("/{order_id}", response_model=OrderOut)
+async def get_order(
+    order_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """获取单个订单（工作人员权限）"""
+
+    def _get():
+        return service.get_order(db, order_id)
+
+    return await run_in_thread(_get)

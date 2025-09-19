@@ -26,3 +26,4 @@ class Order(Base):
     )
     completed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     remarks: Mapped[str | None] = mapped_column(Text, nullable=True)
+    user_id: Mapped[int] = mapped_column(Integer, nullable=False, index=True)

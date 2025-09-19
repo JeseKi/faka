@@ -4,11 +4,12 @@
 """
 
 from datetime import timedelta
+from unittest.mock import patch
 
 from sqlalchemy.orm import Session
 
 from src.server.auth.models import User
-from src.server.auth.schemas import UserCreate, UserUpdate
+from src.server.auth.schemas import UserCreate, UserUpdate, VerificationCodeRequest, UserRegisterWithCode
 from src.server.auth.service import (
     get_user_by_username,
     authenticate_user,
@@ -18,6 +19,9 @@ from src.server.auth.service import (
     update_user,
     change_password,
     bootstrap_default_admin,
+    send_verification_code,
+    verify_code,
+    generate_verification_code,
 )
 
 
@@ -163,3 +167,42 @@ def test_bootstrap_default_admin(test_db_session: Session):
 
     user_count = test_db_session.query(User).filter(User.username == "admin").count()
     assert user_count == 1
+
+
+def test_send_verification_code():
+    """测试发送验证码"""
+    with patch("src.server.auth.service.logger") as mock_logger:
+        email = "test@example.com"
+        code = send_verification_code(email)
+        
+        # 验证返回的验证码格式
+        assert isinstance(code, str)
+        assert len(code) == 6
+        assert code.isdigit()
+        
+        # 验证日志被调用
+        mock_logger.info.assert_called_once()
+        
+        # 验证验证码被存储
+        from src.server.auth.service import verification_codes
+        assert email in verification_codes
+        assert verification_codes[email]["code"] == code
+
+
+def test_verify_code():
+    """测试验证码验证"""
+    email = "test@example.com"
+    code = "123456"
+    
+    # 先发送验证码
+    send_verification_code(email)
+    
+    # 测试正确验证码
+    assert verify_code(email, code) is True
+    
+    # 测试错误验证码
+    send_verification_code(email)
+    assert verify_code(email, "654321") is False
+    
+    # 测试不存在的邮箱
+    assert verify_code("wrong@example.com", code) is False
