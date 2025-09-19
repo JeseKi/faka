@@ -15,7 +15,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from src.server.database import get_db
-from src.server.auth.router import get_current_user
+from src.server.auth.router import get_current_admin
 from src.server.auth.models import User
 from .schemas import ActivationCodeCreate, ActivationCodeOut
 from . import service
@@ -32,7 +32,7 @@ router = APIRouter(prefix="/api/activation-codes", tags=["activation-codes"])
 async def generate_activation_codes(
     code_data: ActivationCodeCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_admin),
 ):
     """批量生成卡密（管理员权限）"""
 
@@ -49,7 +49,7 @@ async def list_activation_codes(
     card_name: str,
     include_used: bool = False,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_admin),
 ):
     """获取指定充值卡的所有卡密（管理员权限）"""
 
@@ -66,7 +66,7 @@ async def count_activation_codes(
     card_name: str,
     only_unused: bool = True,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_admin),
 ):
     """获取指定充值卡的卡密数量（管理员权限）"""
 
@@ -83,7 +83,7 @@ async def count_activation_codes(
 async def delete_activation_codes(
     card_name: str,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_admin),
 ):
     """删除指定充值卡的所有卡密（管理员权限）"""
 

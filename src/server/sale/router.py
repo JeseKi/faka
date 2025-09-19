@@ -14,7 +14,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from src.server.database import get_db
-from src.server.auth.router import get_current_user
+from src.server.auth.router import get_current_user, get_current_admin
 from src.server.auth.models import User
 from .schemas import SaleCreate, SaleOut
 from . import service
@@ -29,7 +29,7 @@ async def purchase_card(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """购买充值卡（前台用户，无需登录）"""
+    """购买充值卡"""
 
     def _purchase():
         sale = service.purchase_card(
@@ -52,7 +52,7 @@ async def list_sales(
     limit: int = 100,
     offset: int = 0,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_admin),
 ):
     """获取销售记录列表（管理员权限）"""
 
@@ -64,7 +64,7 @@ async def list_sales(
 
 @router.get("/stats")
 async def get_sales_stats(
-    db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
+    db: Session = Depends(get_db), current_user: User = Depends(get_current_admin)
 ):
     """获取销售统计信息（管理员权限）"""
 
@@ -79,7 +79,7 @@ async def get_sales_stats(
 async def get_user_sales(
     user_email: str,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_admin),
 ):
     """获取指定用户的购买记录（管理员权限）"""
 

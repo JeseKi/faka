@@ -17,7 +17,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from src.server.database import get_db
-from src.server.auth.router import get_current_user
+from src.server.auth.router import get_current_admin
 from src.server.auth.models import User
 from .schemas import CardCreate, CardUpdate, CardOut
 from . import service
@@ -30,7 +30,7 @@ router = APIRouter(prefix="/api/cards", tags=["cards"])
 async def create_card(
     card_data: CardCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_admin),
 ):
     """创建充值卡（管理员权限）"""
 
@@ -77,10 +77,10 @@ async def update_card(
     card_id: int,
     card_data: CardUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_admin),
 ):
     """更新充值卡（管理员权限）"""
-
+    
     def _update():
         card = service.get_card(db, card_id)
         return service.update_card(
@@ -99,10 +99,10 @@ async def update_card(
 async def delete_card(
     card_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_admin),
 ):
     """删除充值卡（管理员权限）"""
-
+    
     def _delete():
         card = service.get_card(db, card_id)
         service.delete_card(db, card)
@@ -115,10 +115,10 @@ async def delete_card(
 async def get_card_stock(
     card_name: str,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_admin),
 ):
     """获取充值卡库存数量（管理员权限）"""
-
+    
     def _get_stock():
         return service.get_card_stock(db, card_name)
 
@@ -131,7 +131,7 @@ async def generate_activation_codes_for_card(
     card_name: str,
     count: int = 10,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_admin),
 ):
     """为指定充值卡批量生成卡密（管理员权限）"""
 

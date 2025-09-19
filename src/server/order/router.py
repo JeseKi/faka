@@ -14,7 +14,7 @@
 from __future__ import annotations
 from typing import List
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 
 from src.server.database import get_db
@@ -34,6 +34,7 @@ async def verify_activation_code(
     current_user: User = Depends(get_current_user),
 ):
     """验证卡密并创建订单（需要登录）"""
+    # TODO: 后续接入卡密消费流程的 API 接口
 
     def _verify():
         return service.verify_activation_code(db, verify_data.code, current_user.id)
@@ -50,6 +51,9 @@ async def list_orders(
     current_user: User = Depends(get_current_user),
 ):
     """获取订单列表（工作人员权限）"""
+    
+    if current_user.role != "admin" or current_user.role != "staff":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权限")
 
     def _list():
         return service.list_orders(db, status_filter, limit, offset)
@@ -62,6 +66,9 @@ async def list_pending_orders(
     db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
 ):
     """获取待处理订单列表（工作人员权限）"""
+
+    if current_user.role != "admin" or current_user.role != "staff":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权限")
 
     def _pending():
         return service.list_pending_orders(db)
@@ -79,6 +86,9 @@ async def complete_order(
     """完成订单（工作人员权限）"""
 
     def _complete():
+        if current_user.role != "admin" or current_user.role != "staff":
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权限")
+
         remarks = order_data.remarks if order_data else None
         return service.complete_order(db, order_id, remarks)
 
@@ -104,6 +114,9 @@ async def get_order_stats(
 ):
     """获取订单统计信息（工作人员权限）"""
 
+    if current_user.role != "admin" or current_user.role != "staff":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权限")
+
     def _stats():
         return service.get_order_stats(db)
 
@@ -118,6 +131,9 @@ async def get_order(
     current_user: User = Depends(get_current_user),
 ):
     """获取单个订单（工作人员权限）"""
+
+    if current_user.role != "admin" or current_user.role != "staff":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权限")
 
     def _get():
         return service.get_order(db, order_id)
