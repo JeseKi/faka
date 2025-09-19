@@ -50,9 +50,8 @@ async def create_card(
 async def list_cards(
     include_inactive: bool = False,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ):
-    """获取充值卡列表（管理员权限）"""
+    """获取充值卡列表"""
 
     def _list():
         return service.list_cards(db, include_inactive)
@@ -64,9 +63,8 @@ async def list_cards(
 async def get_card(
     card_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ):
-    """获取单个充值卡（管理员权限）"""
+    """获取单个充值卡"""
 
     def _get():
         return service.get_card(db, card_id)
