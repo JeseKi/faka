@@ -1,15 +1,11 @@
 import { useState, useEffect } from 'react'
 import {
   Card,
-  Button,
   Table,
-  Space,
   Typography,
   Alert,
   message,
   Spin,
-  Row,
-  Col,
 } from 'antd'
 import { CreditCardOutlined, HistoryOutlined } from '@ant-design/icons'
 import { isAxiosError } from 'axios'
