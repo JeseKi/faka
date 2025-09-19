@@ -21,7 +21,9 @@ class Order(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     activation_code: Mapped[str] = mapped_column(String(36), nullable=False)
-    status: Mapped[str] = mapped_column(String(20), default=OrderStatus.PENDING, nullable=False)
+    status: Mapped[str] = mapped_column(
+        String(20), default=OrderStatus.PENDING, nullable=False
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.now(timezone.utc), nullable=False
     )

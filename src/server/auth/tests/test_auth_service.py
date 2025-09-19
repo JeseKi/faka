@@ -192,17 +192,16 @@ def test_send_verification_code():
 def test_verify_code():
     """测试验证码验证"""
     email = "test@example.com"
-    code = "123456"
 
-    # 先发送验证码
-    send_verification_code(email)
+    # 先发送验证码并获取真实验证码
+    real_code = send_verification_code(email)
 
     # 测试正确验证码
-    assert verify_code(email, code) is True
+    assert verify_code(email, real_code) is True
 
     # 测试错误验证码
     send_verification_code(email)
     assert verify_code(email, "654321") is False
 
     # 测试不存在的邮箱
-    assert verify_code("wrong@example.com", code) is False
+    assert verify_code("wrong@example.com", real_code) is False

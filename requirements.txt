@@ -12,8 +12,12 @@ certifi==2025.8.3
     # via
     #   httpcore
     #   httpx
+cffi==2.0.0
+    # via cryptography
 click==8.2.1
     # via uvicorn
+cryptography==46.0.1
+    # via python-jose
 dnspython==2.8.0
     # via email-validator
 ecdsa==0.19.1
@@ -55,6 +59,8 @@ pyasn1==0.6.1
     # via
     #   python-jose
     #   rsa
+pycparser==2.23
+    # via cffi
 pycryptodome==3.23.0
     # via -r requirements.in
 pydantic==2.9.2

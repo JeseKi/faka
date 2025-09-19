@@ -29,7 +29,10 @@ from .dao import OrderDAO
 from .models import Order
 from .schemas import OrderStatus
 
-def verify_activation_code(db: Session, code: str, user_id: int, remarks: str | None = None) -> Order:
+
+def verify_activation_code(
+    db: Session, code: str, user_id: int, remarks: str | None = None
+) -> Order:
     """验证卡密并创建订单"""
     from src.server.activation_code.service import set_code_consuming
 
@@ -39,12 +42,18 @@ def verify_activation_code(db: Session, code: str, user_id: int, remarks: str | 
     dao = OrderDAO(db)
     order = dao.get_by_activation_code(activation_code.code)
     if not order:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"未找到卡密：{code}")
-    
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"未找到卡密：{code}"
+        )
+
     if order.user_id != user_id:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"卡密不属于用户：{user_id}")
-    
-    order = dao.update_status(order=order, status=OrderStatus.PROCESSING, remarks=remarks)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=f"卡密不属于用户：{user_id}"
+        )
+
+    order = dao.update_status(
+        order=order, status=OrderStatus.PROCESSING, remarks=remarks
+    )
 
     return order
 
@@ -77,7 +86,10 @@ def list_pending_orders(db: Session) -> list[Order]:
 
 
 def list_orders(
-    db: Session, status_filter: OrderStatus | None = None, limit: int = 100, offset: int = 0
+    db: Session,
+    status_filter: OrderStatus | None = None,
+    limit: int = 100,
+    offset: int = 0,
 ) -> list[Order]:
     """获取订单列表"""
     dao = OrderDAO(db)

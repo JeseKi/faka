@@ -3,6 +3,35 @@
 订单路由层测试
 """
 
+from typing import Dict, Any
+
+
+def register_user_helper(
+    test_client, username: str, email: str, password: str
+) -> Dict[str, Any]:
+    """辅助函数：使用新的两步注册流程注册用户"""
+    # 1. 发送验证码
+    resp = test_client.post("/api/auth/send-verification-code", json={"email": email})
+    assert resp.status_code == 200, f"发送验证码失败: {resp.text}"
+
+    # 2. 从服务中获取验证码
+    from src.server.auth.service import verification_codes
+
+    code = verification_codes[email]["code"]
+
+    # 3. 使用验证码注册
+    resp = test_client.post(
+        "/api/auth/register-with-code",
+        json={
+            "username": username,
+            "email": email,
+            "password": password,
+            "code": code,
+        },
+    )
+    assert resp.status_code == 201, f"注册失败: {resp.text}"
+    return resp.json()
+
 
 def test_verify_activation_code_flow(test_client, test_db_session):
     """测试验证卡密并创建订单流程"""
@@ -12,15 +41,9 @@ def test_verify_activation_code_flow(test_client, test_db_session):
     code = create_activation_codes(test_db_session, "Test Card", 1)
 
     # 注册一个用户
-    register_resp = test_client.post(
-        "/api/auth/register",
-        json={
-            "username": "order_user",
-            "email": "order_user@example.com",
-            "password": "Password123",
-        },
+    register_user_helper(
+        test_client, "order_user", "order_user@example.com", "Password123"
     )
-    assert register_resp.status_code == 201
 
     # 用户登录
     login_resp = test_client.post(
@@ -30,7 +53,14 @@ def test_verify_activation_code_flow(test_client, test_db_session):
     access_token = login_resp.json()["access_token"]
     headers = {"Authorization": f"Bearer {access_token}"}
 
-    # 验证卡密并创建订单
+    # 先创建订单（模拟用户购买流程）
+    from src.server.order.service import create_order
+    from src.server.order.schemas import OrderStatus
+
+    user = test_client.get("/api/auth/profile", headers=headers).json()
+    _ = create_order(test_db_session, code[0].code, user["id"], OrderStatus.PENDING)
+
+    # 验证卡密并更新订单状态
     verify_resp = test_client.post(
         "/api/orders/verify", json={"code": code[0].code}, headers=headers
     )
@@ -38,21 +68,15 @@ def test_verify_activation_code_flow(test_client, test_db_session):
     order_data = verify_resp.json()
     assert "id" in order_data
     assert order_data["activation_code"] == code[0].code
-    assert order_data["status"] == "pending"
+    assert order_data["status"] == "processing"
 
 
 def test_get_my_orders(test_client, test_db_session):
     """测试获取当前用户订单列表"""
     # 注册一个用户
-    register_resp = test_client.post(
-        "/api/auth/register",
-        json={
-            "username": "order_user2",
-            "email": "order_user2@example.com",
-            "password": "Password123",
-        },
+    register_user_helper(
+        test_client, "order_user2", "order_user2@example.com", "Password123"
     )
-    assert register_resp.status_code == 201
 
     # 用户登录
     login_resp = test_client.post(
@@ -71,8 +95,13 @@ def test_get_my_orders(test_client, test_db_session):
     assert len(orders_data) == 0
 
 
-def test_get_order_stats(test_client):
+def test_get_order_stats(test_client, test_db_session):
     """测试获取订单统计信息"""
+    # 确保管理员用户存在
+    from src.server.auth.service import bootstrap_default_admin
+
+    bootstrap_default_admin(test_db_session)
+
     # 管理员登录（使用test token）
     import os
 

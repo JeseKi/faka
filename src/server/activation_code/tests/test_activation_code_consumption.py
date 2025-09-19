@@ -39,6 +39,7 @@ def test_consuming_api_invalid_status(test_db_session: Session):
     # 先将卡密状态设置为 consuming
     dao = ActivationCodeDAO(test_db_session)
     code_obj = dao.get_by_code(code_value)
+    assert code_obj
     dao.update_status(code_obj, CardCodeStatus.CONSUMING)
 
     # 尝试再次调用 consuming API，应该失败

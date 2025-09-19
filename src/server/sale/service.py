@@ -63,7 +63,7 @@ def purchase_card(db: Session, card_name: str, user_email: str, user_id: int) ->
     dao = SaleDAO(db)
     sale = dao.create(activation_code.code, user_email, card.price, card_name)
     create_order(db, activation_code.code, user_id, status=OrderStatus.PENDING)
-    
+
     return sale
 
 

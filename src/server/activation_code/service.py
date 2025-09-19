@@ -58,18 +58,18 @@ def mark_activation_code_sold(
 def set_code_consuming(db: Session, code: str) -> ActivationCode:
     """将卡密状态设置为 consuming"""
     dao = ActivationCodeDAO(db)
-    
+
     # 获取卡密记录
     activation_code = dao.get_by_code(code)
     if not activation_code:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="卡密不存在")
-    
+
     # 检查状态是否为 available
     if activation_code.status != CardCodeStatus.AVAILABLE:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="卡密状态不正确"
         )
-    
+
     # 更新状态为 consuming
     return dao.update_status(activation_code, CardCodeStatus.CONSUMING)
 
@@ -77,18 +77,18 @@ def set_code_consuming(db: Session, code: str) -> ActivationCode:
 def set_code_consumed(db: Session, code: str) -> ActivationCode:
     """将卡密状态设置为 consumed"""
     dao = ActivationCodeDAO(db)
-    
+
     # 获取卡密记录
     activation_code = dao.get_by_code(code)
     if not activation_code:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="卡密不存在")
-    
+
     # 检查状态是否为 consuming
     if activation_code.status != CardCodeStatus.CONSUMING:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="卡密状态不正确"
         )
-    
+
     # 更新状态为 consumed
     return dao.update_status(activation_code, CardCodeStatus.CONSUMED)
 

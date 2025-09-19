@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 """
 订单服务层测试
@@ -24,7 +23,9 @@ def test_create_order(test_db_session: Session):
     user_id = 1
     remarks = "测试订单备注"
 
-    order = create_order(test_db_session, activation_code, user_id, OrderStatus.PENDING, remarks)
+    order = create_order(
+        test_db_session, activation_code, user_id, OrderStatus.PENDING, remarks
+    )
 
     assert order is not None
     assert order.activation_code == activation_code
@@ -36,7 +37,9 @@ def test_create_order(test_db_session: Session):
 def test_get_order(test_db_session: Session):
     """测试获取订单"""
     # 准备测试数据
-    order = Order(activation_code="TEST-CODE-002", user_id=1, status=OrderStatus.PENDING)
+    order = Order(
+        activation_code="TEST-CODE-002", user_id=1, status=OrderStatus.PENDING
+    )
     test_db_session.add(order)
     test_db_session.commit()
     test_db_session.refresh(order)
@@ -58,9 +61,15 @@ def test_get_order(test_db_session: Session):
 def test_list_pending_orders(test_db_session: Session):
     """测试获取待处理订单列表"""
     # 准备测试数据
-    order1 = Order(activation_code="TEST-CODE-003", user_id=1, status=OrderStatus.PENDING)
-    order2 = Order(activation_code="TEST-CODE-004", user_id=2, status=OrderStatus.COMPLETED)
-    order3 = Order(activation_code="TEST-CODE-005", user_id=3, status=OrderStatus.PENDING)
+    order1 = Order(
+        activation_code="TEST-CODE-003", user_id=1, status=OrderStatus.PENDING
+    )
+    order2 = Order(
+        activation_code="TEST-CODE-004", user_id=2, status=OrderStatus.COMPLETED
+    )
+    order3 = Order(
+        activation_code="TEST-CODE-005", user_id=3, status=OrderStatus.PENDING
+    )
 
     test_db_session.add_all([order1, order2, order3])
     test_db_session.commit()
@@ -76,9 +85,15 @@ def test_list_pending_orders(test_db_session: Session):
 def test_list_orders(test_db_session: Session):
     """测试获取订单列表"""
     # 准备测试数据
-    order1 = Order(activation_code="TEST-CODE-006", user_id=1, status=OrderStatus.PENDING)
-    order2 = Order(activation_code="TEST-CODE-007", user_id=2, status=OrderStatus.COMPLETED)
-    order3 = Order(activation_code="TEST-CODE-008", user_id=3, status=OrderStatus.PENDING)
+    order1 = Order(
+        activation_code="TEST-CODE-006", user_id=1, status=OrderStatus.PENDING
+    )
+    order2 = Order(
+        activation_code="TEST-CODE-007", user_id=2, status=OrderStatus.COMPLETED
+    )
+    order3 = Order(
+        activation_code="TEST-CODE-008", user_id=3, status=OrderStatus.PENDING
+    )
 
     test_db_session.add_all([order1, order2, order3])
     test_db_session.commit()
@@ -98,14 +113,14 @@ def test_complete_order(test_db_session: Session):
     """测试完成订单"""
     # 准备测试数据
     activation_code = ActivationCode(
-        card_name="测试卡",
-        code="TEST-CODE-009",
-        status=CardCodeStatus.CONSUMING
+        card_name="测试卡", code="TEST-CODE-009", status=CardCodeStatus.CONSUMING
     )
     test_db_session.add(activation_code)
     test_db_session.commit()
 
-    order = Order(activation_code="TEST-CODE-009", user_id=1, status=OrderStatus.PENDING)
+    order = Order(
+        activation_code="TEST-CODE-009", user_id=1, status=OrderStatus.PENDING
+    )
     test_db_session.add(order)
     test_db_session.commit()
     test_db_session.refresh(order)
@@ -125,5 +140,3 @@ def test_get_order_stats(test_db_session: Session):
     _ = Order(activation_code="TEST-CODE-010", user_id=1, status=OrderStatus.PENDING)
     _ = Order(activation_code="TEST-CODE-011", user_id=2, status=OrderStatus.COMPLETED)
     _ = Order(activation_code="TEST-CODE-012", user_id=3, status=OrderStatus.PENDING)
-
-   

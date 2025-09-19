@@ -70,7 +70,10 @@ class OrderDAO(BaseDAO):
         )
 
     def list_all(
-        self, status_filter: OrderStatus | None = None, limit: int = 100, offset: int = 0
+        self,
+        status_filter: OrderStatus | None = None,
+        limit: int = 100,
+        offset: int = 0,
     ) -> list[Order]:
         """获取所有订单"""
         query = self.db_session.query(Order)

@@ -72,6 +72,7 @@ async def get_current_user(
         raise credentials_exception
     return user
 
+
 async def get_current_admin(
     token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
 ) -> User:
@@ -80,6 +81,7 @@ async def get_current_admin(
     if user.role != "admin":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权限")
     return user
+
 
 @router.post("/login", response_model=TokenResponse)
 async def login_for_access_token(login_data: UserLogin, db: Session = Depends(get_db)):
@@ -145,17 +147,17 @@ async def register_user_with_code(
     return new_user
 
 
-#　@router.post(
-#　    "/register", response_model=UserProfile, status_code=status.HTTP_201_CREATED
-#　)
-#　async def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
-#　    db_user = service.get_user_by_username(db, username=user_data.username)
-#　    if db_user:
-#　        raise HTTPException(
-#　            status_code=status.HTTP_400_BAD_REQUEST, detail="用户名已被注册"
-#　        )
-#　    new_user = service.create_user(db=db, user_data=user_data)
-#　    return new_user
+# @router.post(
+# "/register", response_model=UserProfile, status_code=status.HTTP_201_CREATED
+# )
+# async def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
+# db_user = service.get_user_by_username(db, username=user_data.username)
+# if db_user:
+# raise HTTPException(
+# status_code=status.HTTP_400_BAD_REQUEST, detail="用户名已被注册"
+# )
+# new_user = service.create_user(db=db, user_data=user_data)
+# return new_user
 
 
 @router.post("/refresh", response_model=TokenResponse)

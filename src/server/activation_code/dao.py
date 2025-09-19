@@ -29,7 +29,7 @@ class ActivationCodeDAO(BaseDAO):
             original_code = str(uuid.uuid4())
             # 加密数据
             encrypted_code = encrypt(original_code)
-            
+
             activation_code = ActivationCode(
                 card_name=card_name,
                 code=encrypted_code,
@@ -57,11 +57,16 @@ class ActivationCodeDAO(BaseDAO):
         """获取指定充值卡的可用卡密（未使用）"""
         return (
             self.db_session.query(ActivationCode)
-            .filter(ActivationCode.card_name == card_name, ActivationCode.status == CardCodeStatus.AVAILABLE)
+            .filter(
+                ActivationCode.card_name == card_name,
+                ActivationCode.status == CardCodeStatus.AVAILABLE,
+            )
             .first()
         )
 
-    def update_status(self, activation_code: ActivationCode, new_status: CardCodeStatus) -> ActivationCode:
+    def update_status(
+        self, activation_code: ActivationCode, new_status: CardCodeStatus
+    ) -> ActivationCode:
         """更新卡密状态"""
         activation_code.status = new_status
         if new_status == CardCodeStatus.CONSUMED:

@@ -83,6 +83,9 @@ class CardDAO(BaseDAO):
 
         return (
             self.db_session.query(ActivationCode)
-            .filter(ActivationCode.card_name == card_name, ActivationCode.status == CardCodeStatus.AVAILABLE.value)
+            .filter(
+                ActivationCode.card_name == card_name,
+                ActivationCode.status == CardCodeStatus.AVAILABLE.value,
+            )
             .count()
         )

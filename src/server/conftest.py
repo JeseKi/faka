@@ -46,6 +46,8 @@ def test_db_engine() -> Iterator[Connection]:
     import src.server.auth.models  # noqa: F401
     import src.server.activation_code.models  # noqa: F401
     import src.server.card.models  # noqa: F401
+    import src.server.order.models  # noqa: F401
+    import src.server.sale.models  # noqa: F401
 
     Base.metadata.create_all(bind=keep_conn)
 

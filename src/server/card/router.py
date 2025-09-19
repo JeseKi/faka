@@ -80,7 +80,7 @@ async def update_card(
     current_user: User = Depends(get_current_admin),
 ):
     """更新充值卡（管理员权限）"""
-    
+
     def _update():
         card = service.get_card(db, card_id)
         return service.update_card(
@@ -102,7 +102,7 @@ async def delete_card(
     current_user: User = Depends(get_current_admin),
 ):
     """删除充值卡（管理员权限）"""
-    
+
     def _delete():
         card = service.get_card(db, card_id)
         service.delete_card(db, card)
@@ -118,7 +118,7 @@ async def get_card_stock(
     current_user: User = Depends(get_current_admin),
 ):
     """获取充值卡库存数量（管理员权限）"""
-    
+
     def _get_stock():
         return service.get_card_stock(db, card_name)
 
