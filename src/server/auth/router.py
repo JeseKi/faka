@@ -103,7 +103,7 @@ async def send_verification_code(
         )
     
     # 生成并发送验证码
-    service.send_verification_code(request.email)
+    service.send_verification_code(request.email) # TODO: 后续改成实际的邮件服务器
     return {"message": "验证码已发送"}
 
 

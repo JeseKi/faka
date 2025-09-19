@@ -51,20 +51,12 @@ export default function PurchasePage() {
   const { cards, isLoading } = useCards(false)
 
   const navigate = useNavigate()
-  const { isAuthenticated } = useAuth() // 使用 useAuth hook
+  const { isAuthenticated, loading } = useAuth() // 使用 useAuth hook
   
   const handlePurchase = async (values: PurchaseFormData) => {
     // 检查用户是否已登录
     if (!isAuthenticated) {
-      Modal.confirm({
-        title: '需要登录',
-        content: '您需要登录后才能购买充值卡，是否前往登录页面？',
-        okText: '去登录',
-        cancelText: '取消',
-        onOk: () => {
-          navigate('/login')
-        }
-      })
+      navigate('/login')
       return
     }
 
@@ -80,6 +72,7 @@ export default function PurchasePage() {
       await api.post('/sales/purchase', purchaseData)
 
       message.success('购买成功！卡密已发送至您的邮箱，请查收。')
+      navigate('/history')
       form.resetFields()
     } catch (err) {
       console.error('购买失败:', err)
@@ -183,7 +176,7 @@ export default function PurchasePage() {
 
         <Col xs={24} lg={12}>
           {/* 购买表单 */}
-          <Card title="立即购买" bordered={false}>
+          <Card title="立即购买" variant={"outlined"}>
             <Form
               form={form}
               layout="vertical"
@@ -232,7 +225,7 @@ export default function PurchasePage() {
                   icon={<ShoppingCartOutlined />}
                   loading={submitting}
                   block
-                  disabled={cards.length === 0}
+                  disabled={cards.length === 0 || loading}
                 >
                   {submitting ? '处理中...' : '立即购买'}
                 </Button>
@@ -246,7 +239,7 @@ export default function PurchasePage() {
               <ul style={{ marginTop: 8, paddingLeft: 20, color: '#666' }}>
                 <li>购买成功后，卡密将通过邮件发送至您提供的邮箱</li>
                 <li>请确保邮箱地址正确，避免收不到卡密</li>
-                <li>每个邮箱只能购买一次，如有问题请联系客服</li>
+                <li>如有问题请联系客服</li>
               </ul>
             </div>
           </Card>
