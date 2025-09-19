@@ -57,7 +57,7 @@ export default function RegisterPage() {
     try {
       await sendVerificationCode({ email })
       setCodeSent(true)
-      message.success('验证码已发送，请查看控制台')
+      message.success('验证码已发送，请查看您的邮箱')
     } catch (err) {
       const text = resolveErrorMessage(err)
       setError(text)

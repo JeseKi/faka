@@ -25,6 +25,12 @@ from .config import auth_config
 from .models import User
 from .schemas import UserCreate, UserUpdate
 from .dao import UserDAO
+from src.server.mail_sender import (
+    MailAddress,
+    VerificationCodeMailPayload,
+    send_verification_code_email,
+)
+from src.server.config import global_config
 
 
 # 用于存储验证码的字典，实际项目中建议使用Redis等缓存
@@ -37,17 +43,29 @@ def generate_verification_code(length: int = 6) -> str:
 
 
 def send_verification_code(email: str) -> str:
-    """生成并发送验证码（这里仅打印到控制台）"""
+    """生成并发送验证码邮件"""
     code = generate_verification_code()
-    # 设置验证码5分钟有效期
-    expiry = datetime.now(timezone.utc) + timedelta(minutes=5)
+    expires_minutes = 5
+    expiry = datetime.now(timezone.utc) + timedelta(minutes=expires_minutes)
 
-    # 存储验证码和过期时间
     verification_codes[email] = {"code": code, "expiry": expiry}
 
-    # 打印到控制台模拟发送邮件
-    logger.info(f"验证码已发送到 {email}: {code}")
+    mail_result = send_verification_code_email(
+        VerificationCodeMailPayload(
+            recipient=MailAddress(email=email),
+            code=code,
+            expires_in_minutes=expires_minutes,
+        )
+    )
 
+    if not mail_result.success:
+        logger.error(f"验证码邮件发送失败：{mail_result.error}")
+        if global_config.app_env not in {"dev", "test"}:
+            verification_codes.pop(email, None)
+            raise RuntimeError("验证码邮件发送失败")
+        logger.warning("开发/测试环境忽略邮件发送失败，验证码仍可使用")
+
+    logger.info(f"验证码已发送到 {email}")
     return code
 
 

@@ -1,27 +1,28 @@
 # -*- coding: utf-8 -*-
-"""
-认证服务层测试
-"""
+"""认证服务层测试"""
 
 from datetime import timedelta
 from unittest.mock import patch
 
+import pytest
 from sqlalchemy.orm import Session
 
 from src.server.auth.models import User
 from src.server.auth.schemas import UserCreate, UserUpdate
 from src.server.auth.service import (
-    get_user_by_username,
     authenticate_user,
+    bootstrap_default_admin,
+    change_password,
     create_access_token,
     create_refresh_token,
     create_user,
-    update_user,
-    change_password,
-    bootstrap_default_admin,
+    get_user_by_username,
     send_verification_code,
+    update_user,
     verify_code,
+    verification_codes,
 )
+from src.server.mail_sender import MailSendResult
 
 
 def test_get_user_by_username(test_db_session: Session):
@@ -169,39 +170,88 @@ def test_bootstrap_default_admin(test_db_session: Session):
 
 
 def test_send_verification_code():
-    """测试发送验证码"""
-    with patch("src.server.auth.service.logger") as mock_logger:
-        email = "test@example.com"
+    """测试发送验证码成功场景"""
+    verification_codes.clear()
+    email = "test@example.com"
+
+    with (
+        patch("src.server.auth.service.send_verification_code_email") as mock_mail,
+        patch("src.server.auth.service.logger") as mock_logger,
+    ):
+        mock_mail.return_value = MailSendResult(success=True, error=None)
+
         code = send_verification_code(email)
 
-        # 验证返回的验证码格式
         assert isinstance(code, str)
         assert len(code) == 6
         assert code.isdigit()
 
-        # 验证日志被调用
-        mock_logger.info.assert_called_once()
-
-        # 验证验证码被存储
-        from src.server.auth.service import verification_codes
+        mock_mail.assert_called_once()
+        mock_logger.info.assert_called_once_with(f"验证码已发送到 {email}")
 
         assert email in verification_codes
         assert verification_codes[email]["code"] == code
 
+    verification_codes.clear()
+
+
+def test_send_verification_code_mail_failure_in_test_env():
+    """测试在测试环境下发送失败不会抛异常"""
+    verification_codes.clear()
+    email = "test@example.com"
+
+    with (
+        patch("src.server.auth.service.send_verification_code_email") as mock_mail,
+        patch("src.server.auth.service.logger") as mock_logger,
+    ):
+        mock_mail.return_value = MailSendResult(success=False, error="smtp error")
+
+        code = send_verification_code(email)
+
+        mock_mail.assert_called_once()
+        mock_logger.error.assert_called_once()
+        mock_logger.warning.assert_called_once()
+        assert email in verification_codes
+        assert verification_codes[email]["code"] == code
+
+
+def test_send_verification_code_mail_failure_in_prod_env(monkeypatch):
+    """测试生产环境失败会抛出异常"""
+    verification_codes.clear()
+    email = "prod@example.com"
+
+    with (
+        patch("src.server.auth.service.send_verification_code_email") as mock_mail,
+        patch("src.server.auth.service.logger") as mock_logger,
+    ):
+        mock_mail.return_value = MailSendResult(success=False, error="smtp error")
+        monkeypatch.setattr(
+            "src.server.auth.service.global_config",
+            type("Cfg", (), {"app_env": "prod"})(),
+            raising=False,
+        )
+
+        with pytest.raises(RuntimeError):
+            send_verification_code(email)
+
+        mock_mail.assert_called_once()
+        mock_logger.error.assert_called_once()
+        mock_logger.warning.assert_not_called()
+        assert email not in verification_codes
+
 
 def test_verify_code():
     """测试验证码验证"""
+    verification_codes.clear()
     email = "test@example.com"
 
-    # 先发送验证码并获取真实验证码
-    real_code = send_verification_code(email)
+    with patch("src.server.auth.service.send_verification_code_email") as mock_mail:
+        mock_mail.return_value = MailSendResult(success=True, error=None)
 
-    # 测试正确验证码
-    assert verify_code(email, real_code) is True
+        real_code = send_verification_code(email)
+        assert verify_code(email, real_code) is True
 
-    # 测试错误验证码
-    send_verification_code(email)
-    assert verify_code(email, "654321") is False
+        send_verification_code(email)
+        assert verify_code(email, "654321") is False
 
-    # 测试不存在的邮箱
     assert verify_code("wrong@example.com", real_code) is False

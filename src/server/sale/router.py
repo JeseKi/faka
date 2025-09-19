@@ -11,11 +11,17 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, status
+from loguru import logger
 from sqlalchemy.orm import Session
 
 from src.server.database import get_db
 from src.server.auth.router import get_current_user, get_current_admin
 from src.server.auth.models import User
+from src.server.mail_sender import (
+    MailAddress,
+    PurchaseMailPayload,
+    send_purchase_confirmation_email,
+)
 from .schemas import SaleCreate, SaleOut
 from . import service
 from src.server.dao.dao_base import run_in_thread
@@ -39,8 +45,24 @@ async def purchase_card(
             user_id=current_user.id,
         )
 
-        # 发送邮件（这里先返回销售记录，邮件发送逻辑在后续实现）
-        # TODO: 实现邮件发送功能
+        recipient = MailAddress(
+            email=sale.user_email,
+            name=current_user.name or current_user.username,
+        )
+        mail_result = send_purchase_confirmation_email(
+            PurchaseMailPayload(
+                recipient=recipient,
+                card_name=sale.card_name,
+                activation_code=sale.activation_code,
+                sale_price=sale.sale_price,
+                purchased_at=sale.purchased_at,
+            )
+        )
+
+        if not mail_result.success:
+            logger.error(
+                f"购买成功邮件发送失败，销售编号 {sale.id}，错误：{mail_result.error}"
+            )
 
         return sale
 

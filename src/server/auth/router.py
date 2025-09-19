@@ -16,6 +16,7 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from loguru import logger
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
@@ -114,7 +115,13 @@ async def send_verification_code(
         )
 
     # 生成并发送验证码
-    service.send_verification_code(request.email)  # TODO: 后续改成实际的邮件服务器
+    try:
+        service.send_verification_code(request.email)
+    except RuntimeError as exc:
+        logger.error(f"发送验证码邮件失败：{exc}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="验证码发送失败"
+        )
     return {"message": "验证码已发送"}
 
 
