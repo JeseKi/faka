@@ -18,6 +18,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 
@@ -30,8 +31,9 @@ def purchase_card(db: Session, card_name: str, user_email: str) -> Sale:
     from src.server.card.service import get_card_by_name, get_card_stock
     from src.server.activation_code.service import (
         get_available_activation_code,
-        mark_activation_code_used,
+        mark_activation_code_sold,
     )
+    from src.server.order.service import create_order
 
     # 验证充值卡是否存在且有库存
     card = get_card_by_name(db, card_name)
@@ -53,12 +55,15 @@ def purchase_card(db: Session, card_name: str, user_email: str) -> Sale:
             status_code=status.HTTP_400_BAD_REQUEST, detail="该充值卡暂时缺货"
         )
 
-    # 标记卡密为已使用
-    mark_activation_code_used(db, activation_code)
+    # 标记卡密为已售出
+    mark_activation_code_sold(db, activation_code)
 
     # 创建销售记录
     dao = SaleDAO(db)
-    sale = dao.create(activation_code.code, user_email, card.price)
+    sale = dao.create(activation_code.code, user_email, card.price, card_name)
+
+    # 创建订单
+    create_order(db, activation_code.code, status="pending")
 
     return sale
 
@@ -83,8 +88,35 @@ def list_sales(db: Session, limit: int = 100, offset: int = 0) -> list[Sale]:
 
 def get_sales_stats(db: Session) -> dict:
     """获取销售统计信息"""
+    from src.server.order.service import get_order_stats
+    from src.server.activation_code.service import count_activation_codes_by_card
+    from src.server.card.service import list_cards
+
     dao = SaleDAO(db)
     total_sales = dao.count_all()
     total_revenue = dao.get_total_revenue()
 
-    return {"total_sales": total_sales, "total_revenue": total_revenue}
+    # 获取今日销售额和销量
+    today = datetime.now(timezone.utc).date()
+    today_sales_count = dao.count_today(today)
+    today_revenue = dao.get_today_revenue(today)
+
+    # 获取总库存
+    cards = list_cards(db)
+    total_stock = 0
+    for card in cards:
+        stock = count_activation_codes_by_card(db, card.name, only_unused=True)
+        total_stock += stock
+
+    # 获取订单统计
+    order_stats = get_order_stats(db)
+    pending_orders = order_stats["pending_orders"]
+
+    return {
+        "total_sales": total_sales,
+        "total_revenue": total_revenue,
+        "today_sales": today_sales_count,
+        "today_revenue": today_revenue,
+        "total_stock": total_stock,
+        "pending_orders": pending_orders,
+    }

@@ -29,6 +29,7 @@ class ActivationCodeDAO(BaseDAO):
                 card_name=card_name,
                 code=code,
                 is_used=False,
+                is_sold=False,
                 created_at=datetime.now(timezone.utc),
             )
             codes.append(activation_code)
@@ -59,6 +60,13 @@ class ActivationCodeDAO(BaseDAO):
         """标记卡密为已使用"""
         activation_code.is_used = True
         activation_code.used_at = datetime.now(timezone.utc)
+        self.db_session.commit()
+        self.db_session.refresh(activation_code)
+        return activation_code
+
+    def mark_as_sold(self, activation_code: ActivationCode) -> ActivationCode:
+        """标记卡密为已售出"""
+        activation_code.is_sold = True
         self.db_session.commit()
         self.db_session.refresh(activation_code)
         return activation_code

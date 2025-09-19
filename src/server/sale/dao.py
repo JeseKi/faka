@@ -18,12 +18,15 @@ class SaleDAO(BaseDAO):
     def __init__(self, db_session: Session):
         super().__init__(db_session)
 
-    def create(self, activation_code: str, user_email: str, sale_price: float) -> Sale:
+    def create(
+        self, activation_code: str, user_email: str, sale_price: float, card_name: str
+    ) -> Sale:
         """创建销售记录"""
         sale = Sale(
             activation_code=activation_code,
             user_email=user_email,
             sale_price=sale_price,
+            card_name=card_name,
         )
         self.db_session.add(sale)
         self.db_session.commit()
@@ -75,4 +78,25 @@ class SaleDAO(BaseDAO):
         from sqlalchemy import func
 
         result = self.db_session.query(func.sum(Sale.sale_price)).scalar()
+        return result or 0.0
+
+    def count_today(self, today) -> int:
+        """统计今日销售记录数"""
+        from sqlalchemy import func
+
+        return (
+            self.db_session.query(Sale)
+            .filter(func.date(Sale.purchased_at) == today)
+            .count()
+        )
+
+    def get_today_revenue(self, today) -> float:
+        """计算今日销售额"""
+        from sqlalchemy import func
+
+        result = (
+            self.db_session.query(func.sum(Sale.sale_price))
+            .filter(func.date(Sale.purchased_at) == today)
+            .scalar()
+        )
         return result or 0.0

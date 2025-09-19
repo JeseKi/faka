@@ -67,6 +67,7 @@ app.include_router(activation_code_router)
 app.include_router(sale_router)
 app.include_router(order_router)
 
+
 @app.get("/{_}", response_class=HTMLResponse)
 async def get_index(_: str):
     """
@@ -79,9 +80,12 @@ async def get_index(_: str):
     except FileNotFoundError:
         return HTMLResponse(content="<h1>错误：找不到 index.html</h1>", status_code=404)
 
+
 try:
     app.mount(
-        "/", StaticFiles(directory=global_config.project_root / "dist", html=True), name="project_root_static"
+        "/",
+        StaticFiles(directory=global_config.project_root / "dist", html=True),
+        name="project_root_static",
     )
 except Exception as e:
     logger.error(f"挂载前端目录失败: {e}")

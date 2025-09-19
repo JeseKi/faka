@@ -77,6 +77,11 @@ def list_orders(
 
 def complete_order(db: Session, order_id: int, remarks: str | None = None) -> Order:
     """完成订单"""
+    from src.server.activation_code.service import (
+        mark_activation_code_used,
+        get_activation_code_by_code,
+    )
+
     dao = OrderDAO(db)
     order = dao.get(order_id)
     if not order:
@@ -86,6 +91,16 @@ def complete_order(db: Session, order_id: int, remarks: str | None = None) -> Or
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="订单已完成"
         )
+
+    # 获取对应的卡密记录
+    activation_code = get_activation_code_by_code(db, order.activation_code)
+    if not activation_code:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="关联的卡密不存在"
+        )
+
+    # 标记卡密为已使用
+    mark_activation_code_used(db, activation_code)
 
     return dao.update_status(order, "completed", remarks)
 

@@ -55,6 +55,14 @@ def mark_activation_code_used(
     return dao.mark_as_used(activation_code)
 
 
+def mark_activation_code_sold(
+    db: Session, activation_code: ActivationCode
+) -> ActivationCode:
+    """标记卡密为已售出"""
+    dao = ActivationCodeDAO(db)
+    return dao.mark_as_sold(activation_code)
+
+
 def list_activation_codes_by_card(
     db: Session, card_name: str, include_used: bool = False
 ) -> list[ActivationCode]:

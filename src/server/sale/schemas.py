@@ -21,5 +21,6 @@ class SaleOut(BaseModel):
     user_email: str
     sale_price: float
     purchased_at: datetime
+    card_name: str  # 添加充值卡名称字段
 
     model_config = ConfigDict(from_attributes=True)

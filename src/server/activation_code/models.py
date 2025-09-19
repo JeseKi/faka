@@ -22,6 +22,7 @@ class ActivationCode(Base):
     card_name: Mapped[str] = mapped_column(String(100), nullable=False)
     code: Mapped[str] = mapped_column(String(36), unique=True, nullable=False)
     is_used: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    is_sold: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.now(timezone.utc), nullable=False
     )

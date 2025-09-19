@@ -25,3 +25,4 @@ class Sale(Base):
     purchased_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.now(timezone.utc), nullable=False
     )
+    card_name: Mapped[str] = mapped_column(String(100), nullable=False)
