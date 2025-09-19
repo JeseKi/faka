@@ -16,7 +16,6 @@ import {
   Row,
   Col,
   Statistic,
-  Tooltip,
 } from 'antd'
 import {
   PlusOutlined,
@@ -24,8 +23,6 @@ import {
   DeleteOutlined,
   KeyOutlined,
   ReloadOutlined,
-  EyeOutlined,
-  CopyOutlined,
 } from '@ant-design/icons'
 import { isAxiosError } from 'axios'
 import api from '../../lib/api'
@@ -85,7 +82,7 @@ export default function CardManagementPage() {
     } finally {
       setLoading(false)
     }
-  }, [includeInactive])
+  }, [includeInactive, message])
 
   useEffect(() => {
     fetchCards()

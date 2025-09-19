@@ -78,7 +78,7 @@ export default function OrderProcessingPage() {
     } finally {
       setLoading(false)
     }
-  }, [statusFilter])
+  }, [statusFilter, message])
 
   useEffect(() => {
     fetchOrders()
@@ -117,7 +117,7 @@ export default function OrderProcessingPage() {
       console.error('获取待处理订单失败:', error)
       message.error(resolveErrorMessage(error))
     }
-  }, [])
+  }, [message])
 
   const columns = [
     {

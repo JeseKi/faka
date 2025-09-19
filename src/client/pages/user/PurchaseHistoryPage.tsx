@@ -60,7 +60,7 @@ export default function PurchaseHistoryPage({ userId }: PurchaseHistoryPageProps
     }
 
     fetchOrders()
-  }, [userId])
+  }, [userId, message])
 
   const columns = [
     {

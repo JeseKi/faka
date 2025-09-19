@@ -99,7 +99,7 @@ export default function ActivationCodeManagementPage() {
     } finally {
       setLoading(false)
     }
-  }, [searchCard, includeUsed])
+  }, [searchCard, includeUsed, message])
 
   useEffect(() => {
     fetchCards()

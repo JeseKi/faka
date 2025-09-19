@@ -102,7 +102,7 @@ export default function MainLayout() {
       >
         <Flex align="center" gap={16}>
           <Link to="/" className="text-base font-semibold text-slate-900">
-            Fullstack Template
+            发卡站
           </Link>
           <Menu
             mode="horizontal"
