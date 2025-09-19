@@ -24,12 +24,19 @@ router = APIRouter(prefix="/api/sales", tags=["sales"])
 
 
 @router.post("/purchase", response_model=SaleOut, status_code=status.HTTP_201_CREATED)
-async def purchase_card(sale_data: SaleCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+async def purchase_card(
+    sale_data: SaleCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     """购买充值卡（前台用户，无需登录）"""
 
     def _purchase():
         sale = service.purchase_card(
-            db=db, card_name=sale_data.card_name, user_email=sale_data.user_email, user_id=current_user.id
+            db=db,
+            card_name=sale_data.card_name,
+            user_email=sale_data.user_email,
+            user_id=current_user.id,
         )
 
         # 发送邮件（这里先返回销售记录，邮件发送逻辑在后续实现）

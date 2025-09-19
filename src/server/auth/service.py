@@ -33,7 +33,7 @@ verification_codes: dict[str, dict[str, str | datetime]] = {}
 
 def generate_verification_code(length: int = 6) -> str:
     """生成指定长度的数字验证码"""
-    return ''.join(random.choices(string.digits, k=length))
+    return "".join(random.choices(string.digits, k=length))
 
 
 def send_verification_code(email: str) -> str:
@@ -41,16 +41,13 @@ def send_verification_code(email: str) -> str:
     code = generate_verification_code()
     # 设置验证码5分钟有效期
     expiry = datetime.now(timezone.utc) + timedelta(minutes=5)
-    
+
     # 存储验证码和过期时间
-    verification_codes[email] = {
-        "code": code,
-        "expiry": expiry
-    }
-    
+    verification_codes[email] = {"code": code, "expiry": expiry}
+
     # 打印到控制台模拟发送邮件
     logger.info(f"验证码已发送到 {email}: {code}")
-    
+
     return code
 
 
@@ -58,17 +55,17 @@ def verify_code(email: str, code: str) -> bool:
     """验证邮箱和验证码是否匹配且未过期"""
     if email not in verification_codes:
         return False
-    
+
     stored_data = verification_codes[email]
     stored_code = stored_data["code"]
     expiry = cast(datetime, stored_data["expiry"])
-    
+
     # 检查验证码是否正确且未过期
     if stored_code == code and datetime.now(timezone.utc) < expiry:
         # 验证成功后删除验证码
         del verification_codes[email]
         return True
-    
+
     return False
 
 

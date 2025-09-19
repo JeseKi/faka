@@ -42,6 +42,7 @@ def verify_activation_code(db: Session, code: str, user_id: int) -> Order:
 
     # 模拟发送卡密信息到控制台
     from loguru import logger
+
     logger.info(f"卡密信息已发送到用户控制台: {activation_code.code}")
 
     return order

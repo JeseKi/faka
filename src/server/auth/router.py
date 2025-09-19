@@ -101,14 +101,16 @@ async def send_verification_code(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="邮箱已被注册"
         )
-    
+
     # 生成并发送验证码
-    service.send_verification_code(request.email) # TODO: 后续改成实际的邮件服务器
+    service.send_verification_code(request.email)  # TODO: 后续改成实际的邮件服务器
     return {"message": "验证码已发送"}
 
 
 @router.post(
-    "/register-with-code", response_model=UserProfile, status_code=status.HTTP_201_CREATED
+    "/register-with-code",
+    response_model=UserProfile,
+    status_code=status.HTTP_201_CREATED,
 )
 async def register_user_with_code(
     user_data: UserRegisterWithCode, db: Session = Depends(get_db)
@@ -119,18 +121,16 @@ async def register_user_with_code(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="用户名已被注册"
         )
-    
+
     # 验证验证码
     if not service.verify_code(user_data.email, user_data.code):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="验证码无效或已过期"
         )
-    
+
     # 创建用户
     user_create = UserCreate(
-        username=user_data.username,
-        email=user_data.email,
-        password=user_data.password
+        username=user_data.username, email=user_data.email, password=user_data.password
     )
     new_user = service.create_user(db=db, user_data=user_create)
     return new_user

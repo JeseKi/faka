@@ -29,7 +29,7 @@ router = APIRouter(prefix="/api/orders", tags=["orders"])
 
 @router.post("/verify", response_model=OrderOut, status_code=status.HTTP_201_CREATED)
 async def verify_activation_code(
-    verify_data: OrderVerify, 
+    verify_data: OrderVerify,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -67,6 +67,7 @@ async def list_pending_orders(
         return service.list_pending_orders(db)
 
     return await run_in_thread(_pending)
+
 
 @router.put("/{order_id}/complete", response_model=OrderOut)
 async def complete_order(
@@ -108,6 +109,7 @@ async def get_order_stats(
 
     stats = await run_in_thread(_stats)
     return stats
+
 
 @router.get("/{order_id}", response_model=OrderOut)
 async def get_order(

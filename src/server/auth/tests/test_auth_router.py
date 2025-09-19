@@ -84,8 +84,7 @@ def test_change_password_flow(test_client):
 def test_send_verification_code_flow(test_client):
     # 发送验证码
     resp = test_client.post(
-        "/api/auth/send-verification-code",
-        json={"email": "verify@example.com"}
+        "/api/auth/send-verification-code", json={"email": "verify@example.com"}
     )
     assert resp.status_code == 200
     data = resp.json()
@@ -103,11 +102,10 @@ def test_send_verification_code_already_registered(test_client):
             "password": "Password123",
         },
     )
-    
+
     # 尝试向已注册的邮箱发送验证码
     resp = test_client.post(
-        "/api/auth/send-verification-code",
-        json={"email": "charlie@example.com"}
+        "/api/auth/send-verification-code", json={"email": "charlie@example.com"}
     )
     assert resp.status_code == 400
     data = resp.json()
@@ -117,14 +115,14 @@ def test_send_verification_code_already_registered(test_client):
 def test_register_with_code_flow(test_client):
     # 先发送验证码
     test_client.post(
-        "/api/auth/send-verification-code",
-        json={"email": "register@example.com"}
+        "/api/auth/send-verification-code", json={"email": "register@example.com"}
     )
-    
+
     # 从服务中获取验证码（在实际测试中，这会打印到控制台）
     from src.server.auth.service import verification_codes
+
     code = verification_codes["register@example.com"]["code"]
-    
+
     # 使用验证码注册
     resp = test_client.post(
         "/api/auth/register-with-code",
@@ -132,8 +130,8 @@ def test_register_with_code_flow(test_client):
             "username": "david",
             "email": "register@example.com",
             "password": "Password123",
-            "code": code
-        }
+            "code": code,
+        },
     )
     assert resp.status_code == 201
     data = resp.json()
@@ -149,8 +147,8 @@ def test_register_with_code_wrong_code(test_client):
             "username": "eve",
             "email": "eve@example.com",
             "password": "Password123",
-            "code": "000000"
-        }
+            "code": "000000",
+        },
     )
     assert resp.status_code == 400
     data = resp.json()
