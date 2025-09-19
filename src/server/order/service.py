@@ -29,21 +29,22 @@ from .dao import OrderDAO
 from .models import Order
 from .schemas import OrderStatus
 
-def verify_activation_code(db: Session, code: str, user_id: int) -> Order:
+def verify_activation_code(db: Session, code: str, user_id: int, remarks: str | None = None) -> Order:
     """验证卡密并创建订单"""
     from src.server.activation_code.service import set_code_consuming
 
-    # 将卡密状态设置为 consuming
     activation_code = set_code_consuming(db, code)
 
-    # 创建订单
+    # 设置订单状态
     dao = OrderDAO(db)
-    order = dao.create(activation_code.code, user_id, status=OrderStatus.PROCESSING)
-
-    # 模拟发送卡密信息到控制台
-    from loguru import logger
-
-    logger.info(f"卡密信息已发送到用户控制台: {activation_code.code}")
+    order = dao.get_by_activation_code(activation_code)
+    if not order:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"未找到卡密：{code}")
+    
+    if order.user_id != user_id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"卡密不属于用户：{user_id}")
+    
+    order = dao.update_status(order=order, status=OrderStatus.PROCESSING, remarks=remarks)
 
     return order
 

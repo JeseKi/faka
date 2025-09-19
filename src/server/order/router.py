@@ -38,7 +38,7 @@ async def verify_activation_code(
     # TODO: 后续接入卡密消费流程的 API 接口
 
     def _verify():
-        return service.verify_activation_code(db, verify_data.code, current_user.id)
+        return service.verify_activation_code(db, verify_data.code, current_user.id, verify_data.remarks)
 
     return await run_in_thread(_verify)
 
@@ -53,7 +53,7 @@ async def list_orders(
 ):
     """获取订单列表（工作人员权限）"""
     
-    if current_user.role != "admin" or current_user.role != "staff":
+    if current_user.role != "admin" and current_user.role != "staff":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权限")
 
     def _list():
@@ -68,7 +68,7 @@ async def list_pending_orders(
 ):
     """获取待处理订单列表（工作人员权限）"""
 
-    if current_user.role != "admin" or current_user.role != "staff":
+    if current_user.role != "admin" and current_user.role != "staff":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权限")
 
     def _pending():
@@ -87,7 +87,7 @@ async def complete_order(
     """完成订单（工作人员权限）"""
 
     def _complete():
-        if current_user.role != "admin" or current_user.role != "staff":
+        if current_user.role != "admin" and current_user.role != "staff":
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权限")
 
         remarks = order_data.remarks if order_data else None
@@ -115,7 +115,7 @@ async def get_order_stats(
 ):
     """获取订单统计信息（工作人员权限）"""
 
-    if current_user.role != "admin" or current_user.role != "staff":
+    if current_user.role != "admin" and current_user.role != "staff":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权限")
 
     def _stats():
@@ -133,7 +133,7 @@ async def get_order(
 ):
     """获取单个订单（工作人员权限）"""
 
-    if current_user.role != "admin" or current_user.role != "staff":
+    if current_user.role != "admin" and current_user.role != "staff":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权限")
 
     def _get():

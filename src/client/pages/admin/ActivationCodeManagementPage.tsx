@@ -15,12 +15,15 @@ import {
   Row,
   Col,
   Statistic,
+  Tooltip,
 } from 'antd'
 import {
   PlusOutlined,
   DeleteOutlined,
   ReloadOutlined,
   SearchOutlined,
+  EyeOutlined,
+  CopyOutlined,
 } from '@ant-design/icons'
 import { isAxiosError } from 'axios'
 import api from '../../lib/api'
@@ -167,16 +170,33 @@ export default function ActivationCodeManagementPage() {
       dataIndex: 'code',
       key: 'code',
       width: 200,
-      render: (code: string) => (
-        <code style={{
-          background: '#f5f5f5',
-          padding: '2px 4px',
-          borderRadius: '3px',
-          fontFamily: 'monospace'
-        }}>
-          {code}
-        </code>
-      ),
+      render: (code: string) => {
+        const maskedCode = code
+          ? code.replace(/./g, '*').slice(0, 8) + '...'
+          : '-'
+        return (
+          <Space size="middle">
+            <span>{maskedCode}</span>
+            <Tooltip title={code || '-'} placement="topLeft">
+              <Button
+                type="text"
+                icon={<EyeOutlined />}
+                size="small"
+                style={{ padding: 0 }}
+              />
+            </Tooltip>
+            <Button
+              type="text"
+              icon={<CopyOutlined />}
+              size="small"
+              onClick={() => {
+                navigator.clipboard.writeText(code || '')
+                message.success('卡密已复制到剪贴板')
+              }}
+            />
+          </Space>
+        )
+      },
     },
     {
       title: '状态',

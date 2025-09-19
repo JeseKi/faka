@@ -12,11 +12,13 @@ import {
   Col,
   Statistic,
   Select,
+  Tooltip,
 } from 'antd'
 import {
   CheckCircleOutlined,
   EyeOutlined,
   ReloadOutlined,
+  CopyOutlined,
 } from '@ant-design/icons'
 import { isAxiosError } from 'axios'
 import api from '../../lib/api'
@@ -128,16 +130,33 @@ export default function OrderProcessingPage() {
       dataIndex: 'activation_code',
       key: 'activation_code',
       width: 200,
-      render: (code: string) => (
-        <code style={{
-          background: '#f5f5f5',
-          padding: '2px 4px',
-          borderRadius: '3px',
-          fontFamily: 'monospace'
-        }}>
-          {code}
-        </code>
-      ),
+      render: (activation_code: string) => {
+        const maskedCode = activation_code
+          ? activation_code.replace(/./g, '*').slice(0, 8) + '...'
+          : '-'
+        return (
+          <Space size="middle">
+            <span>{maskedCode}</span>
+            <Tooltip title={activation_code || '-'} placement="topLeft">
+              <Button
+                type="text"
+                icon={<EyeOutlined />}
+                size="small"
+                style={{ padding: 0 }}
+              />
+            </Tooltip>
+            <Button
+              type="text"
+              icon={<CopyOutlined />}
+              size="small"
+              onClick={() => {
+                navigator.clipboard.writeText(activation_code || '')
+                message.success('卡密已复制到剪贴板')
+              }}
+            />
+          </Space>
+        )
+      },
     },
     {
       title: '状态',
@@ -146,8 +165,8 @@ export default function OrderProcessingPage() {
       width: 100,
       render: (status: string) => {
         const statusMap = {
-          pending: { color: 'orange', text: '待处理' },
-          processing: { color: 'blue', text: '处理中' },
+          pending: { color: 'default', text: '未消费' },
+          processing: { color: 'orange', text: '处理中' },
           completed: { color: 'green', text: '已完成' },
         }
         const statusInfo = statusMap[status as keyof typeof statusMap] || { color: 'default', text: status }
@@ -259,7 +278,8 @@ export default function OrderProcessingPage() {
             onChange={setStatusFilter}
             allowClear
           >
-            <Option value="pending">待处理</Option>
+            <Option value="pending">未消费</Option>
+            <Option value="processing">处理中</Option>
             <Option value="completed">已完成</Option>
           </Select>
         </Space>
@@ -331,7 +351,7 @@ export default function OrderProcessingPage() {
                 <div style={{ marginBottom: 16 }}>
                   <Text strong>状态：</Text>
                   <Tag color={selectedOrder.status === 'pending' || selectedOrder.status === 'processing' ? 'orange' : 'green'}>
-                    {selectedOrder.status === 'pending' ? '待处理' : '已完成'}
+                    {selectedOrder.status === 'pending' ? '未消费' : selectedOrder.status === 'processing' ? '处理中' : '已完成'}
                   </Tag>
                 </div>
               </Col>
@@ -340,16 +360,27 @@ export default function OrderProcessingPage() {
             <div style={{ marginBottom: 16 }}>
               <Text strong>卡密：</Text>
               <br />
-              <code style={{
-                background: '#f5f5f5',
-                padding: '8px',
-                borderRadius: '4px',
-                fontFamily: 'monospace',
-                display: 'block',
-                marginTop: '4px'
-              }}>
-                {selectedOrder.activation_code}
-              </code>
+              <Space>
+                <code style={{
+                  background: '#f5f5f5',
+                  padding: '8px',
+                  borderRadius: '4px',
+                  fontFamily: 'monospace',
+                  display: 'inline-block',
+                  marginTop: '4px'
+                }}>
+                  {selectedOrder.activation_code}
+                </code>
+                <Button
+                  type="text"
+                  icon={<CopyOutlined />}
+                  size="small"
+                  onClick={() => {
+                    navigator.clipboard.writeText(selectedOrder.activation_code || '')
+                    message.success('卡密已复制到剪贴板')
+                  }}
+                />
+              </Space>
             </div>
 
             <Row gutter={16}>

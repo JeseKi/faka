@@ -35,8 +35,9 @@ class OrderOut(BaseModel):
 
 class OrderUpdate(BaseModel):
     status: Optional[OrderStatus] = Field(None)
-    remarks: Optional[str] = Field(None, max_length=1000)
+    remarks: Optional[str] = Field(default=None)
 
 
 class OrderVerify(BaseModel):
-    code: str = Field(..., min_length=1, max_length=36)
+    code: str = Field(..., min_length=1, max_length=88)
+    remarks: Optional[str] = Field(default=None)
