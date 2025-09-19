@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import {
   Card,
   Button,
@@ -17,7 +17,7 @@ import { ShoppingCartOutlined, CreditCardOutlined } from '@ant-design/icons'
 import { isAxiosError } from 'axios'
 import api from '../../lib/api'
 import { useCards } from '../../hooks/useCardAPI'
-import type { Card as CardType, SaleCreate } from '../../lib/types'
+import type { SaleCreate } from '../../lib/types'
 
 const { Title, Text, Paragraph } = Typography
 const { Option } = Select

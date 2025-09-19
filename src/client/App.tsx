@@ -2,7 +2,6 @@ import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-d
 import MainLayout from './components/layout/MainLayout'
 import AdminLayout from './components/layout/AdminLayout'
 import ProtectedRoute from './components/ui/ProtectedRoute'
-import ExamplePage from './pages/dashboard/ExamplePage'
 import LoginPage from './pages/auth/LoginPage'
 import RegisterPage from './pages/auth/RegisterPage'
 import PurchasePage from './pages/user/PurchasePage'

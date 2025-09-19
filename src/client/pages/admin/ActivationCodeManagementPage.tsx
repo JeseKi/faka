@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   Table,
   Button,
@@ -15,7 +15,6 @@ import {
   Row,
   Col,
   Statistic,
-  Input,
 } from 'antd'
 import {
   PlusOutlined,
@@ -51,7 +50,6 @@ export default function ActivationCodeManagementPage() {
   const [cards, setCards] = useState<Card[]>([])
   const [loading, setLoading] = useState(false)
   const [modalVisible, setModalVisible] = useState(false)
-  const [selectedCard, setSelectedCard] = useState<string>('')
   const [searchCard, setSearchCard] = useState<string>('')
   const [includeUsed, setIncludeUsed] = useState(false)
   const [stats, setStats] = useState({
@@ -63,17 +61,17 @@ export default function ActivationCodeManagementPage() {
   const [form] = Form.useForm<CodeFormData>()
 
   // 获取充值卡列表
-  const fetchCards = async () => {
+  const fetchCards = useCallback(async () => {
     try {
       const { data } = await api.get<Card[]>('/cards?include_inactive=false')
       setCards(data)
     } catch (error) {
       console.error('获取充值卡列表失败:', error)
     }
-  }
+  }, [])
 
   // 获取卡密列表
-  const fetchCodes = async (cardName?: string) => {
+  const fetchCodes = useCallback(async (cardName?: string) => {
     if (!cardName && !searchCard) return
 
     const targetCard = cardName || searchCard
@@ -97,17 +95,17 @@ export default function ActivationCodeManagementPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [searchCard, includeUsed])
 
   useEffect(() => {
     fetchCards()
-  }, [])
+  }, [fetchCards])
 
   useEffect(() => {
     if (searchCard) {
       fetchCodes()
     }
-  }, [includeUsed])
+  }, [includeUsed, searchCard, fetchCodes])
 
   // 处理表单提交
   const handleSubmit = async (values: CodeFormData) => {

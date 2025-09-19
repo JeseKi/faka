@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   Table,
   Button,
@@ -12,13 +12,11 @@ import {
   Col,
   Statistic,
   Select,
-  Input,
 } from 'antd'
 import {
   CheckCircleOutlined,
   EyeOutlined,
   ReloadOutlined,
-  SearchOutlined,
 } from '@ant-design/icons'
 import { isAxiosError } from 'axios'
 import api from '../../lib/api'
@@ -51,7 +49,7 @@ export default function OrderProcessingPage() {
   })
 
   // 获取订单列表
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       setLoading(true)
       const params = new URLSearchParams()
@@ -75,11 +73,11 @@ export default function OrderProcessingPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [statusFilter])
 
   useEffect(() => {
     fetchOrders()
-  }, [statusFilter])
+  }, [fetchOrders])
 
   // 完成订单
   const handleCompleteOrder = async (orderId: number) => {
@@ -100,7 +98,7 @@ export default function OrderProcessingPage() {
   }
 
   // 获取待处理订单
-  const fetchPendingOrders = async () => {
+  const fetchPendingOrders = useCallback(async () => {
     try {
       const { data } = await api.get<Order[]>('/orders/pending')
       setOrders(data)
@@ -113,7 +111,7 @@ export default function OrderProcessingPage() {
       console.error('获取待处理订单失败:', error)
       message.error(resolveErrorMessage(error))
     }
-  }
+  }, [])
 
   const columns = [
     {
@@ -177,7 +175,7 @@ export default function OrderProcessingPage() {
       title: '操作',
       key: 'action',
       width: 150,
-      render: (_: any, record: Order) => (
+      render: (_: unknown, record: Order) => (
         <Space size="small">
           <Button
             type="link"

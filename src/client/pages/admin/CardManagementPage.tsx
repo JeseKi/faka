@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   Table,
   Button,
@@ -64,7 +64,7 @@ export default function CardManagementPage() {
   const [form] = Form.useForm<CardFormData>()
 
   // 获取充值卡列表
-  const fetchCards = async () => {
+  const fetchCards = useCallback(async () => {
     try {
       setLoading(true)
       const { data } = await api.get<Card[]>(`/cards?include_inactive=${includeInactive}`)
@@ -81,22 +81,13 @@ export default function CardManagementPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [includeInactive])
 
   useEffect(() => {
     fetchCards()
-  }, [includeInactive])
+  }, [fetchCards])
 
-  // 获取卡密库存
-  const getCardStock = async (cardName: string) => {
-    try {
-      const { data } = await api.get(`/cards/${cardName}/stock`)
-      return data
-    } catch (error) {
-      console.error('获取卡密库存失败:', error)
-      return { total: 0, unused: 0 }
-    }
-  }
+  
 
   // 处理表单提交
   const handleSubmit = async (values: CardFormData) => {
@@ -217,7 +208,7 @@ export default function CardManagementPage() {
       title: '操作',
       key: 'action',
       width: 200,
-      render: (_: any, record: Card) => (
+      render: (_: unknown, record: Card) => (
         <Space size="small">
           <Button
             type="link"
