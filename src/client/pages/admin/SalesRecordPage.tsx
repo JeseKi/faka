@@ -17,11 +17,6 @@ import api from '../../lib/api'
 import type { Sale } from '../../lib/types'
 import dayjs from 'dayjs'
 
-interface SalesResponse {
-  sales: Sale[]
-  total: number
-}
-
 const { Title } = Typography
 const { RangePicker } = DatePicker
 
@@ -64,15 +59,17 @@ export default function SalesRecordPage() {
         params.append('end_date', dateRange[1].format('YYYY-MM-DD'))
       }
 
-      const { data } = await api.get<SalesResponse>(`/sales?${params.toString()}`)
-      setSales(data.sales)
+      const response = await api.get<Sale[]>(`/sales?${params.toString()}`)
+      const total = parseInt(response.headers['x-total-count'] || '0', 10)
+
+      setSales(response.data)
       setPagination(prev => {
-        if (prev.total === data.total) {
+        if (prev.total === total) {
           return prev
         }
         return {
           ...prev,
-          total: data.total
+          total: total
         }
       })
     } catch (error) {
