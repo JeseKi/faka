@@ -7,8 +7,16 @@ import {
   message,
   Spin,
   Tag,
+  Tooltip,
+  Button,
+  Space,
 } from 'antd'
-import { CreditCardOutlined, HistoryOutlined } from '@ant-design/icons'
+import {
+  CreditCardOutlined,
+  HistoryOutlined,
+  EyeOutlined,
+  CopyOutlined,
+} from '@ant-design/icons'
 import { isAxiosError } from 'axios'
 import api from '../../lib/api'
 import type { Order } from '../../lib/types'
@@ -64,34 +72,61 @@ export default function PurchaseHistoryPage({ userId }: PurchaseHistoryPageProps
       title: '卡密',
       dataIndex: 'activation_code',
       key: 'activation_code',
+      render: (activation_code: string) => {
+        const maskedCode = activation_code
+          ? activation_code.replace(/./g, '*').slice(0, 8) + '...'
+          : '-'
+        return (
+          <Space size="middle">
+            <span>{maskedCode}</span>
+            <Tooltip title={activation_code || '-'} placement="topLeft">
+              <Button
+                type="text"
+                icon={<EyeOutlined />}
+                size="small"
+                style={{ padding: 0 }}
+              />
+            </Tooltip>
+            <Button
+              type="text"
+              icon={<CopyOutlined />}
+              size="small"
+              onClick={() => {
+                navigator.clipboard.writeText(activation_code || '')
+                message.success('卡密已复制到剪贴板')
+              }}
+            />
+          </Space>
+        )
+      },
     },
     {
       title: '状态',
       dataIndex: 'status',
       key: 'status',
       render: (status: string) => {
-        let color: string;
-        let text: string;
-    
+        let color: string
+        let text: string
+
         switch (status) {
           case 'pending':
-            color = 'warning'; // 黄色
-            text = '待消费';
-            break;
+            color = 'warning' // 黄色
+            text = '待消费'
+            break
           case 'processing':
-            color = 'processing'; // 蓝色
-            text = '处理中';
-            break;
+            color = 'processing' // 蓝色
+            text = '处理中'
+            break
           case 'completed':
-            color = 'success'; // 绿色
-            text = '已完成';
-            break;
+            color = 'success' // 绿色
+            text = '已完成'
+            break
           default:
-            color = 'default';
-            text = '未知状态';
+            color = 'default'
+            text = '未知状态'
         }
-    
-        return <Tag color={color}>{text}</Tag>;
+
+        return <Tag color={color}>{text}</Tag>
       },
     },
     {
@@ -104,7 +139,7 @@ export default function PurchaseHistoryPage({ userId }: PurchaseHistoryPageProps
       title: '完成时间',
       dataIndex: 'completed_at',
       key: 'completed_at',
-      render: (date: string | null) => 
+      render: (date: string | null) =>
         date ? new Date(date).toLocaleString('zh-CN') : '-',
       width: 180,
     },
