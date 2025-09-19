@@ -9,6 +9,13 @@
 from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
+from enum import Enum
+
+
+class OrderStatus(str, Enum):
+    PENDING = "pending"
+    PROCESSING = "processing"
+    COMPLETED = "completed"
 
 
 class OrderCreate(BaseModel):
@@ -18,7 +25,7 @@ class OrderCreate(BaseModel):
 class OrderOut(BaseModel):
     id: int
     activation_code: str
-    status: str
+    status: OrderStatus
     created_at: datetime
     completed_at: Optional[datetime] = None
     remarks: Optional[str] = None
@@ -27,7 +34,7 @@ class OrderOut(BaseModel):
 
 
 class OrderUpdate(BaseModel):
-    status: Optional[str] = Field(None, pattern=r"^(pending|completed)$")
+    status: Optional[OrderStatus] = Field(None)
     remarks: Optional[str] = Field(None, max_length=1000)
 
 

@@ -128,7 +128,7 @@ export interface SaleCreate {
 export interface Order {
   id: number
   activation_code: string
-  status: 'pending' | 'completed'
+  status: 'pending' | 'processing' | 'completed'
   created_at: string
   completed_at: string | null
   remarks: string | null
@@ -139,6 +139,6 @@ export interface OrderVerify {
 }
 
 export interface OrderUpdate {
-  status?: 'pending' | 'completed'
+  status?: 'pending' | 'processing' | 'completed'
   remarks?: string
 }

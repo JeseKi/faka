@@ -45,6 +45,7 @@ export default function OrderProcessingPage() {
   const [stats, setStats] = useState({
     total: 0,
     pending: 0,
+    processing: 0,
     completed: 0,
   })
 
@@ -65,8 +66,9 @@ export default function OrderProcessingPage() {
       // 计算统计信息
       const total = data.length
       const pending = data.filter(order => order.status === 'pending').length
+      const processing = data.filter(order => order.status === 'processing').length
       const completed = data.filter(order => order.status === 'completed').length
-      setStats({ total, pending, completed })
+      setStats({ total, pending, processing, completed })
     } catch (error) {
       console.error('获取订单列表失败:', error)
       message.error(resolveErrorMessage(error))
@@ -105,6 +107,7 @@ export default function OrderProcessingPage() {
       setStats({
         total: data.length,
         pending: data.length,
+        processing: 0,
         completed: 0,
       })
     } catch (error) {
@@ -144,6 +147,7 @@ export default function OrderProcessingPage() {
       render: (status: string) => {
         const statusMap = {
           pending: { color: 'orange', text: '待处理' },
+          processing: { color: 'blue', text: '处理中' },
           completed: { color: 'green', text: '已完成' },
         }
         const statusInfo = statusMap[status as keyof typeof statusMap] || { color: 'default', text: status }
@@ -185,7 +189,7 @@ export default function OrderProcessingPage() {
           >
             详情
           </Button>
-          {record.status === 'pending' && (
+          {record.status === 'pending' || record.status === 'processing' && (
             <Button
               type="link"
               size="small"
@@ -216,7 +220,12 @@ export default function OrderProcessingPage() {
         </Col>
         <Col span={8}>
           <AntCard>
-            <Statistic title="待处理" value={stats.pending} />
+            <Statistic title="待消费" value={stats.pending} />
+          </AntCard>
+        </Col>
+        <Col span={8}>
+          <AntCard>
+            <Statistic title="处理中" value={stats.processing} />
           </AntCard>
         </Col>
         <Col span={8}>
@@ -290,7 +299,7 @@ export default function OrderProcessingPage() {
           >
             关闭
           </Button>,
-          selectedOrder?.status === 'pending' && (
+          selectedOrder?.status === 'pending' || selectedOrder?.status === 'processing' && (
             <Button
               key="complete"
               type="primary"
@@ -321,7 +330,7 @@ export default function OrderProcessingPage() {
               <Col span={12}>
                 <div style={{ marginBottom: 16 }}>
                   <Text strong>状态：</Text>
-                  <Tag color={selectedOrder.status === 'pending' ? 'orange' : 'green'}>
+                  <Tag color={selectedOrder.status === 'pending' || selectedOrder.status === 'processing' ? 'orange' : 'green'}>
                     {selectedOrder.status === 'pending' ? '待处理' : '已完成'}
                   </Tag>
                 </div>

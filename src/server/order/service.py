@@ -27,7 +27,7 @@ from fastapi import HTTPException, status
 
 from .dao import OrderDAO
 from .models import Order
-
+from .schemas import OrderStatus
 
 def verify_activation_code(db: Session, code: str, user_id: int) -> Order:
     """验证卡密并创建订单"""
@@ -38,7 +38,7 @@ def verify_activation_code(db: Session, code: str, user_id: int) -> Order:
 
     # 创建订单
     dao = OrderDAO(db)
-    order = dao.create(activation_code.code, user_id, status="pending")
+    order = dao.create(activation_code.code, user_id, status=OrderStatus.PROCESSING)
 
     # 模拟发送卡密信息到控制台
     from loguru import logger
@@ -52,7 +52,7 @@ def create_order(
     db: Session,
     activation_code: str,
     user_id: int,
-    status: str = "pending",
+    status: OrderStatus = OrderStatus.PROCESSING,
     remarks: str | None = None,
 ) -> Order:
     """创建订单"""
@@ -76,7 +76,7 @@ def list_pending_orders(db: Session) -> list[Order]:
 
 
 def list_orders(
-    db: Session, status_filter: str | None = None, limit: int = 100, offset: int = 0
+    db: Session, status_filter: OrderStatus | None = None, limit: int = 100, offset: int = 0
 ) -> list[Order]:
     """获取订单列表"""
     dao = OrderDAO(db)
@@ -95,7 +95,7 @@ def complete_order(db: Session, order_id: int, remarks: str | None = None) -> Or
     if not order:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="订单不存在")
 
-    if order.status == "completed":
+    if order.status == OrderStatus.COMPLETED:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="订单已完成"
         )
@@ -110,7 +110,7 @@ def complete_order(db: Session, order_id: int, remarks: str | None = None) -> Or
     # 将卡密状态设置为 consumed
     set_code_consumed(db, activation_code.code)
 
-    return dao.update_status(order, "completed", remarks)
+    return dao.update_status(order, OrderStatus.COMPLETED, remarks)
 
 
 def get_orders_by_user_id(db: Session, user_id: int) -> List[Order]:
@@ -123,8 +123,8 @@ def get_order_stats(db: Session) -> dict:
     """获取订单统计信息"""
     dao = OrderDAO(db)
 
-    pending_count = dao.count_by_status("pending")
-    completed_count = dao.count_by_status("completed")
+    pending_count = dao.count_by_status(OrderStatus.PENDING)
+    completed_count = dao.count_by_status(OrderStatus.COMPLETED)
     total_count = pending_count + completed_count
 
     return {

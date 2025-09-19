@@ -13,6 +13,7 @@ from sqlalchemy import Integer, String, DateTime, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from src.server.database import Base
+from src.server.order.schemas import OrderStatus
 
 
 class Order(Base):
@@ -20,7 +21,7 @@ class Order(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     activation_code: Mapped[str] = mapped_column(String(36), nullable=False)
-    status: Mapped[str] = mapped_column(String(20), default="pending", nullable=False)
+    status: Mapped[str] = mapped_column(String(20), default=OrderStatus.PENDING.value, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.now(timezone.utc), nullable=False
     )

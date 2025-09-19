@@ -24,6 +24,7 @@ from fastapi import HTTPException, status
 
 from .dao import SaleDAO
 from .models import Sale
+from src.server.order.schemas import OrderStatus
 
 
 def purchase_card(db: Session, card_name: str, user_email: str, user_id: int) -> Sale:
@@ -61,7 +62,7 @@ def purchase_card(db: Session, card_name: str, user_email: str, user_id: int) ->
     # 创建销售记录
     dao = SaleDAO(db)
     sale = dao.create(activation_code.code, user_email, card.price, card_name)
-    create_order(db, activation_code.code, user_id, status="pending")
+    create_order(db, activation_code.code, user_id, status=OrderStatus.PENDING)
     
     return sale
 

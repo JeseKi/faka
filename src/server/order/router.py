@@ -23,6 +23,7 @@ from src.server.auth.models import User
 from .schemas import OrderOut, OrderUpdate, OrderVerify
 from . import service
 from src.server.dao.dao_base import run_in_thread
+from src.server.order.schemas import OrderStatus
 
 router = APIRouter(prefix="/api/orders", tags=["orders"])
 
@@ -44,7 +45,7 @@ async def verify_activation_code(
 
 @router.get("", response_model=list[OrderOut])
 async def list_orders(
-    status_filter: str | None = None,
+    status_filter: OrderStatus | None = None,
     limit: int = 100,
     offset: int = 0,
     db: Session = Depends(get_db),

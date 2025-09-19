@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 
 from src.server.dao.dao_base import BaseDAO
 from .models import Order
+from .schemas import OrderStatus
 
 
 class OrderDAO(BaseDAO):
@@ -23,7 +24,7 @@ class OrderDAO(BaseDAO):
         self,
         activation_code: str,
         user_id: int,
-        status: str = "pending",
+        status: OrderStatus = OrderStatus.PENDING,
         remarks: str | None = None,
     ) -> Order:
         """创建订单"""
@@ -63,28 +64,28 @@ class OrderDAO(BaseDAO):
         """获取所有待处理订单"""
         return (
             self.db_session.query(Order)
-            .filter(Order.status == "pending")
+            .filter(Order.status == OrderStatus.PENDING.value)
             .order_by(Order.created_at.asc())
             .all()
         )
 
     def list_all(
-        self, status_filter: str | None = None, limit: int = 100, offset: int = 0
+        self, status_filter: OrderStatus | None = None, limit: int = 100, offset: int = 0
     ) -> list[Order]:
         """获取所有订单"""
         query = self.db_session.query(Order)
 
         if status_filter:
-            query = query.filter(Order.status == status_filter)
+            query = query.filter(Order.status == status_filter.value)
 
         return query.order_by(Order.created_at.desc()).limit(limit).offset(offset).all()
 
     def update_status(
-        self, order: Order, status: str, remarks: str | None = None
+        self, order: Order, status: OrderStatus, remarks: str | None = None
     ) -> Order:
         """更新订单状态"""
         order.status = status
-        if status == "completed":
+        if status == OrderStatus.COMPLETED:
             order.completed_at = datetime.now(timezone.utc)
         if remarks is not None:
             order.remarks = remarks
@@ -93,9 +94,9 @@ class OrderDAO(BaseDAO):
         self.db_session.refresh(order)
         return order
 
-    def count_by_status(self, status: str) -> int:
+    def count_by_status(self, status: OrderStatus) -> int:
         """统计指定状态的订单数量"""
-        return self.db_session.query(Order).filter(Order.status == status).count()
+        return self.db_session.query(Order).filter(Order.status == status.value).count()
 
     def get_recent_orders(self, days: int = 7) -> list[Order]:
         """获取最近几天的订单"""

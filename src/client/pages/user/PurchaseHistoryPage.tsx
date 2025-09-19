@@ -6,6 +6,7 @@ import {
   Alert,
   message,
   Spin,
+  Tag,
 } from 'antd'
 import { CreditCardOutlined, HistoryOutlined } from '@ant-design/icons'
 import { isAxiosError } from 'axios'
@@ -68,11 +69,30 @@ export default function PurchaseHistoryPage({ userId }: PurchaseHistoryPageProps
       title: '状态',
       dataIndex: 'status',
       key: 'status',
-      render: (status: string) => (
-        <Text type={status === 'completed' ? 'success' : 'warning'}>
-          {status === 'completed' ? '已完成' : '待处理'}
-        </Text>
-      ),
+      render: (status: string) => {
+        let color: string;
+        let text: string;
+    
+        switch (status) {
+          case 'pending':
+            color = 'warning'; // 黄色
+            text = '待消费';
+            break;
+          case 'processing':
+            color = 'processing'; // 蓝色
+            text = '处理中';
+            break;
+          case 'completed':
+            color = 'success'; // 绿色
+            text = '已完成';
+            break;
+          default:
+            color = 'default';
+            text = '未知状态';
+        }
+    
+        return <Tag color={color}>{text}</Tag>;
+      },
     },
     {
       title: '创建时间',
@@ -86,11 +106,13 @@ export default function PurchaseHistoryPage({ userId }: PurchaseHistoryPageProps
       key: 'completed_at',
       render: (date: string | null) => 
         date ? new Date(date).toLocaleString('zh-CN') : '-',
+      width: 180,
     },
     {
       title: '备注',
       dataIndex: 'remarks',
       key: 'remarks',
+      width: 180,
       render: (remarks: string | null) => remarks || '-',
     },
   ]
@@ -107,7 +129,7 @@ export default function PurchaseHistoryPage({ userId }: PurchaseHistoryPageProps
   }
 
   return (
-    <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px' }}>
+    <div style={{ margin: '0 auto', padding: '24px' }}>
       <div style={{ textAlign: 'center', marginBottom: 32 }}>
         <Title level={2}>
           <HistoryOutlined style={{ marginRight: 8 }} />
@@ -128,7 +150,7 @@ export default function PurchaseHistoryPage({ userId }: PurchaseHistoryPageProps
         />
       )}
 
-      <Card bordered={false}>
+      <Card variant={"borderless"} style={{ width: "100%" }}>
         {orders.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '40px' }}>
             <CreditCardOutlined style={{ fontSize: 48, color: '#999' }} />
