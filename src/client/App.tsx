@@ -8,6 +8,8 @@ import PurchasePage from './pages/user/PurchasePage'
 import CardManagementPage from './pages/admin/CardManagementPage'
 import ActivationCodeManagementPage from './pages/admin/ActivationCodeManagementPage'
 import OrderProcessingPage from './pages/staff/OrderProcessingPage'
+import AdminDashboardPage from './pages/admin/AdminDashboardPage'
+import SalesRecordPage from './pages/admin/SalesRecordPage'
 import { AuthProvider } from './providers/AuthProvider'
 import { SWRProvider } from './providers/SWRProvider'
 
@@ -35,10 +37,10 @@ export default function App() {
                 </ProtectedRoute>
               }
             >
-              <Route index element={<div>管理员首页（待实现）</div>} />
+              <Route index element={<AdminDashboardPage />} />
               <Route path="cards" element={<CardManagementPage />} />
               <Route path="codes" element={<ActivationCodeManagementPage />} />
-              <Route path="sales" element={<div>销售记录（待实现）</div>} />
+              <Route path="sales" element={<SalesRecordPage />} />
             </Route>
 
             {/* 工作人员后台（需要 staff 或 admin 角色） */}

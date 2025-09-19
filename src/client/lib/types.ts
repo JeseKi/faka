@@ -95,6 +95,17 @@ export interface Sale {
   user_email: string
   sale_price: number
   purchased_at: string
+  card_name: string
+}
+
+// 销售统计类型
+export interface SalesStats {
+  total_sales: number
+  total_revenue: number
+  today_sales: number
+  today_revenue: number
+  total_stock: number
+  pending_orders: number
 }
 
 export interface SaleCreate {
