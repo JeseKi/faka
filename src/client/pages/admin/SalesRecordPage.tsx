@@ -17,6 +17,11 @@ import api from '../../lib/api'
 import type { Sale } from '../../lib/types'
 import dayjs from 'dayjs'
 
+interface SalesResponse {
+  sales: Sale[]
+  total: number
+}
+
 const { Title } = Typography
 const { RangePicker } = DatePicker
 
@@ -49,31 +54,35 @@ export default function SalesRecordPage() {
       const params = new URLSearchParams()
       params.append('limit', pagination.pageSize.toString())
       params.append('offset', ((pagination.current - 1) * pagination.pageSize).toString())
-      
+
       if (cardNameFilter) {
         params.append('card_name', cardNameFilter)
       }
-      
+
       if (dateRange[0] && dateRange[1]) {
         params.append('start_date', dateRange[0].format('YYYY-MM-DD'))
         params.append('end_date', dateRange[1].format('YYYY-MM-DD'))
       }
 
-      const { data } = await api.get<Sale[]>(`/sales?${params.toString()}`)
-      // 注意：这里假设后端会返回总数，实际需要根据后端API调整
-      // 暂时设置一个固定的总数用于演示
-      setSales(data)
-      setPagination(prev => ({
-        ...prev,
-        total: prev.total // 需要从后端获取总数
-      }))
+      const { data } = await api.get<SalesResponse>(`/sales?${params.toString()}`)
+      setSales(data.sales)
+      setPagination(prev => {
+        if (prev.total === data.total) {
+          return prev
+        }
+        return {
+          ...prev,
+          total: data.total
+        }
+      })
     } catch (error) {
       console.error('获取销售记录失败:', error)
       message.error(resolveErrorMessage(error))
     } finally {
       setLoading(false)
     }
-  }, [pagination, cardNameFilter, dateRange])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pagination.current, pagination.pageSize, cardNameFilter, dateRange])
 
   useEffect(() => {
     fetchSales()
