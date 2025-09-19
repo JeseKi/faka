@@ -31,10 +31,10 @@ from .models import Order
 
 def verify_activation_code(db: Session, code: str, user_id: int) -> Order:
     """验证卡密并创建订单"""
-    from src.server.activation_code.service import verify_and_use_code
+    from src.server.activation_code.service import set_code_consuming
 
-    # 验证并使用卡密
-    activation_code = verify_and_use_code(db, code)
+    # 将卡密状态设置为 consuming
+    activation_code = set_code_consuming(db, code)
 
     # 创建订单
     dao = OrderDAO(db)
@@ -86,7 +86,7 @@ def list_orders(
 def complete_order(db: Session, order_id: int, remarks: str | None = None) -> Order:
     """完成订单"""
     from src.server.activation_code.service import (
-        mark_activation_code_used,
+        set_code_consumed,
         get_activation_code_by_code,
     )
 
@@ -107,8 +107,8 @@ def complete_order(db: Session, order_id: int, remarks: str | None = None) -> Or
             status_code=status.HTTP_404_NOT_FOUND, detail="关联的卡密不存在"
         )
 
-    # 标记卡密为已使用
-    mark_activation_code_used(db, activation_code)
+    # 将卡密状态设置为 consumed
+    set_code_consumed(db, activation_code.code)
 
     return dao.update_status(order, "completed", remarks)
 

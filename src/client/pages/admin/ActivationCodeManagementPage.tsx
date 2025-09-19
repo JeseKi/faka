@@ -84,7 +84,7 @@ export default function ActivationCodeManagementPage() {
 
       // 计算统计信息
       const total = data.length
-      const used = data.filter(code => code.is_used).length
+      const used = data.filter(code => code.status !== 'available').length
       const unused = total - used
       setStats({ total, used, unused })
     } catch (error) {
@@ -180,14 +180,21 @@ export default function ActivationCodeManagementPage() {
     },
     {
       title: '状态',
-      dataIndex: 'is_used',
-      key: 'is_used',
+      dataIndex: 'status',
+      key: 'status',
       width: 100,
-      render: (isUsed: boolean) => (
-        <Tag color={isUsed ? 'red' : 'green'}>
-          {isUsed ? '已使用' : '未使用'}
-        </Tag>
-      ),
+      render: (status: 'available' | 'consuming' | 'consumed') => {
+        let color = 'green'
+        let text = '未使用'
+        if (status === 'consuming') {
+          color = 'orange'
+          text = '消费中'
+        } else if (status === 'consumed') {
+          color = 'red'
+          text = '已消费'
+        }
+        return <Tag color={color}>{text}</Tag>
+      },
     },
     {
       title: '创建时间',

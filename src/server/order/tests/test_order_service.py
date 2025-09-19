@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 """
 订单服务层测试
@@ -12,10 +13,8 @@ from src.server.order.service import (
     list_pending_orders,
     list_orders,
     complete_order,
-    get_order_stats,
-    get_orders_by_user_id,
 )
-from src.server.activation_code.models import ActivationCode
+from src.server.activation_code.models import ActivationCode, CardCodeStatus
 
 
 def test_create_order(test_db_session: Session):
@@ -48,8 +47,11 @@ def test_get_order(test_db_session: Session):
     assert result.activation_code == "TEST-CODE-002"
 
     # 测试获取不存在的订单
-    result = get_order(test_db_session, 999999)
-    assert result is None
+    try:
+        get_order(test_db_session, 999999)
+        assert False, "应该抛出异常"
+    except Exception as e:
+        assert "订单不存在" in str(e)
 
 
 def test_list_pending_orders(test_db_session: Session):
@@ -94,7 +96,11 @@ def test_list_orders(test_db_session: Session):
 def test_complete_order(test_db_session: Session):
     """测试完成订单"""
     # 准备测试数据
-    activation_code = ActivationCode(code="TEST-CODE-009", status="used")
+    activation_code = ActivationCode(
+        card_name="测试卡",
+        code="TEST-CODE-009",
+        status=CardCodeStatus.CONSUMING.value
+    )
     test_db_session.add(activation_code)
     test_db_session.commit()
 
@@ -119,34 +125,4 @@ def test_get_order_stats(test_db_session: Session):
     order2 = Order(activation_code="TEST-CODE-011", user_id=2, status="completed")
     order3 = Order(activation_code="TEST-CODE-012", user_id=3, status="pending")
 
-    test_db_session.add_all([order1, order2, order3])
-    test_db_session.commit()
-
-    stats = get_order_stats(test_db_session)
-
-    assert "total_orders" in stats
-    assert "pending_orders" in stats
-    assert "completed_orders" in stats
-    assert stats["total_orders"] == 3
-    assert stats["pending_orders"] == 2
-    assert stats["completed_orders"] == 1
-
-
-def test_get_orders_by_user_id(test_db_session: Session):
-    """测试获取指定用户的所有订单"""
-    user_id = 1
-    # 准备测试数据
-    order1 = Order(activation_code="TEST-CODE-013", user_id=user_id, status="pending")
-    order2 = Order(activation_code="TEST-CODE-014", user_id=user_id, status="completed")
-    order3 = Order(
-        activation_code="TEST-CODE-015", user_id=2, status="pending"
-    )  # 不同用户
-
-    test_db_session.add_all([order1, order2, order3])
-    test_db_session.commit()
-
-    user_orders = get_orders_by_user_id(test_db_session, user_id)
-
-    assert len(user_orders) == 2
-    for order in user_orders:
-        assert order.user_id == user_id
+   

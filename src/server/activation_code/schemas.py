@@ -9,6 +9,13 @@
 from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
+from enum import Enum
+
+
+class CardCodeStatus(str, Enum):
+    AVAILABLE = "available"
+    CONSUMING = "consuming"
+    CONSUMED = "consumed"
 
 
 class ActivationCodeCreate(BaseModel):
@@ -20,7 +27,7 @@ class ActivationCodeOut(BaseModel):
     id: int
     card_name: str
     code: str
-    is_used: bool
+    status: CardCodeStatus
     created_at: datetime
     used_at: Optional[datetime] = None
 

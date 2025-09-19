@@ -89,7 +89,7 @@ export interface ActivationCode {
   id: number
   card_name: string
   code: string
-  is_used: boolean
+  status: 'available' | 'consuming' | 'consumed'
   created_at: string
   used_at: string | null
 }

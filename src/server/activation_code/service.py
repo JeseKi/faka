@@ -6,11 +6,11 @@
 - create_activation_codes(db, card_name, count)
 - get_activation_code_by_code(db, code)
 - get_available_activation_code(db, card_name)
-- mark_activation_code_used(db, activation_code)
+- set_code_consuming(db, code)
+- set_code_consumed(db, code)
 - list_activation_codes_by_card(db, card_name, include_used)
 - count_activation_codes_by_card(db, card_name, only_unused)
 - delete_activation_codes_by_card(db, card_name)
-- verify_and_use_code(db, code)
 
 内部方法：
 - 无
@@ -24,7 +24,7 @@ from __future__ import annotations
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from .dao import ActivationCodeDAO
-from .models import ActivationCode
+from .models import ActivationCode, CardCodeStatus
 
 
 def create_activation_codes(
@@ -47,20 +47,50 @@ def get_available_activation_code(db: Session, card_name: str) -> ActivationCode
     return dao.get_available_by_card_name(card_name)
 
 
-def mark_activation_code_used(
-    db: Session, activation_code: ActivationCode
-) -> ActivationCode:
-    """标记卡密为已使用"""
-    dao = ActivationCodeDAO(db)
-    return dao.mark_as_used(activation_code)
-
-
 def mark_activation_code_sold(
     db: Session, activation_code: ActivationCode
 ) -> ActivationCode:
     """标记卡密为已售出"""
     dao = ActivationCodeDAO(db)
     return dao.mark_as_sold(activation_code)
+
+
+def set_code_consuming(db: Session, code: str) -> ActivationCode:
+    """将卡密状态设置为 consuming"""
+    dao = ActivationCodeDAO(db)
+    
+    # 获取卡密记录
+    activation_code = dao.get_by_code(code)
+    if not activation_code:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="卡密不存在")
+    
+    # 检查状态是否为 available
+    if activation_code.status != CardCodeStatus.AVAILABLE.value:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="卡密状态不正确"
+        )
+    
+    # 更新状态为 consuming
+    return dao.update_status(activation_code, CardCodeStatus.CONSUMING)
+
+
+def set_code_consumed(db: Session, code: str) -> ActivationCode:
+    """将卡密状态设置为 consumed"""
+    dao = ActivationCodeDAO(db)
+    
+    # 获取卡密记录
+    activation_code = dao.get_by_code(code)
+    if not activation_code:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="卡密不存在")
+    
+    # 检查状态是否为 consuming
+    if activation_code.status != CardCodeStatus.CONSUMING.value:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="卡密状态不正确"
+        )
+    
+    # 更新状态为 consumed
+    return dao.update_status(activation_code, CardCodeStatus.CONSUMED)
 
 
 def list_activation_codes_by_card(
@@ -83,22 +113,3 @@ def delete_activation_codes_by_card(db: Session, card_name: str) -> int:
     """删除指定充值卡的所有卡密"""
     dao = ActivationCodeDAO(db)
     return dao.delete_by_card_name(card_name)
-
-
-def verify_and_use_code(db: Session, code: str) -> ActivationCode:
-    """验证卡密并标记为已使用"""
-    dao = ActivationCodeDAO(db)
-
-    # 获取卡密记录
-    activation_code = dao.get_by_code(code)
-    if not activation_code:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="卡密不存在")
-
-    # 检查是否已使用
-    if activation_code.is_used:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="卡密已被使用"
-        )
-
-    # 标记为已使用
-    return dao.mark_as_used(activation_code)

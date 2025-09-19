@@ -7,6 +7,8 @@
 - GET /api/activation-codes/{card_name}
 - GET /api/activation-codes/{card_name}/count
 - DELETE /api/activation-codes/{card_name}
+- POST /api/activation-codes/{code}/consuming
+- POST /api/activation-codes/{code}/consumed
 """
 
 from __future__ import annotations
@@ -15,7 +17,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from src.server.database import get_db
-from src.server.auth.router import get_current_admin
+from src.server.auth.router import get_current_admin, get_current_user
 from src.server.auth.models import User
 from .schemas import ActivationCodeCreate, ActivationCodeOut
 from . import service
@@ -92,3 +94,29 @@ async def delete_activation_codes(
 
     deleted_count = await run_in_thread(_delete)
     return {"message": f"已删除 {deleted_count} 个卡密"}
+
+
+@router.post("/consuming", response_model=ActivationCodeOut)
+async def set_code_consuming(
+    code: str,
+    db: Session = Depends(get_db),
+):
+    """将卡密状态设置为 consuming"""
+
+    def _consume():
+        return service.set_code_consuming(db, code)
+
+    return await run_in_thread(_consume)
+
+
+@router.post("/consumed", response_model=ActivationCodeOut)
+async def set_code_consumed(
+    code: str,
+    db: Session = Depends(get_db),
+):
+    """将卡密状态设置为 consumed"""
+
+    def _consume():
+        return service.set_code_consumed(db, code)
+
+    return await run_in_thread(_consume)

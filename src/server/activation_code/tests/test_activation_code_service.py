@@ -11,12 +11,13 @@ from src.server.activation_code.service import (
     create_activation_codes,
     get_activation_code_by_code,
     get_available_activation_code,
-    mark_activation_code_used,
     list_activation_codes_by_card,
     count_activation_codes_by_card,
     delete_activation_codes_by_card,
-    verify_and_use_code,
+    set_code_consuming,
+    set_code_consumed,
 )
+from src.server.activation_code.models import CardCodeStatus
 
 
 def test_create_activation_codes(test_db_session: Session):
@@ -26,7 +27,7 @@ def test_create_activation_codes(test_db_session: Session):
     assert len(codes) == 3
     for code in codes:
         assert code.card_name == "月度会员"
-        assert not code.is_used
+        assert code.status == CardCodeStatus.AVAILABLE.value
         assert code.used_at is None
 
 
@@ -54,22 +55,7 @@ def test_get_available_activation_code(test_db_session: Session):
     # 获取可用卡密
     available_code = get_available_activation_code(test_db_session, "年度会员")
     assert available_code is not None
-    assert not available_code.is_used
-
-
-def test_mark_activation_code_used(test_db_session: Session):
-    """测试标记卡密为已使用"""
-    # 创建测试数据
-    codes = create_activation_codes(test_db_session, "测试卡", 1)
-    code = codes[0]
-
-    assert not code.is_used
-
-    # 标记为已使用
-    updated_code = mark_activation_code_used(test_db_session, code)
-
-    assert updated_code.is_used
-    assert updated_code.used_at is not None
+    assert available_code.status == CardCodeStatus.AVAILABLE.value
 
 
 def test_list_activation_codes_by_card(test_db_session: Session):
@@ -77,7 +63,7 @@ def test_list_activation_codes_by_card(test_db_session: Session):
     # 创建测试数据
     create_activation_codes(test_db_session, "卡1", 2)
 
-    # 只获取未使用的
+    # 只获取未使用的 (available 状态)
     unused_codes = list_activation_codes_by_card(
         test_db_session, "卡1", include_used=False
     )
@@ -93,7 +79,7 @@ def test_count_activation_codes_by_card(test_db_session: Session):
     # 创建测试数据
     create_activation_codes(test_db_session, "统计测试", 3)
 
-    # 统计未使用的
+    # 统计未使用的 (available 状态)
     count = count_activation_codes_by_card(
         test_db_session, "统计测试", only_unused=True
     )
@@ -125,29 +111,79 @@ def test_delete_activation_codes_by_card(test_db_session: Session):
     assert count == 1
 
 
-def test_verify_and_use_code(test_db_session: Session):
-    """测试验证并使用卡密"""
+def test_set_code_consuming_success(test_db_session: Session):
+    """测试成功设置卡密为 consuming 状态"""
     # 创建测试数据
-    codes = create_activation_codes(test_db_session, "验证测试", 1)
+    codes = create_activation_codes(test_db_session, "消费测试", 1)
     code_value = codes[0].code
 
-    # 验证并使用卡密
-    used_code = verify_and_use_code(test_db_session, code_value)
+    # 设置为 consuming 状态
+    consuming_code = set_code_consuming(test_db_session, code_value)
 
-    assert used_code.code == code_value
-    assert used_code.is_used
-    assert used_code.used_at is not None
+    assert consuming_code.status == CardCodeStatus.CONSUMING.value
+    assert consuming_code.used_at is None
 
-    # 再次验证同一个卡密，应该失败
+
+def test_set_code_consuming_not_found(test_db_session: Session):
+    """测试对不存在的卡密调用 consuming 接口失败"""
     with pytest.raises(HTTPException) as exc_info:
-        verify_and_use_code(test_db_session, code_value)
-
-    assert exc_info.value.status_code == 400
-    assert "已被使用" in exc_info.value.detail
-
-    # 验证不存在的卡密
-    with pytest.raises(HTTPException) as exc_info:
-        verify_and_use_code(test_db_session, "non-existent-code")
+        set_code_consuming(test_db_session, "non-existent-code")
 
     assert exc_info.value.status_code == 404
     assert "不存在" in exc_info.value.detail
+
+
+def test_set_code_consuming_invalid_status(test_db_session: Session):
+    """测试对非 available 状态的卡密调用 consuming 接口失败"""
+    # 创建测试数据
+    codes = create_activation_codes(test_db_session, "消费测试", 1)
+    code_value = codes[0].code
+
+    # 先将卡密状态设置为 consuming
+    set_code_consuming(test_db_session, code_value)
+
+    # 再次调用 consuming API，应该失败
+    with pytest.raises(HTTPException) as exc_info:
+        set_code_consuming(test_db_session, code_value)
+
+    assert exc_info.value.status_code == 400
+    assert "状态不正确" in exc_info.value.detail
+
+
+def test_set_code_consumed_success(test_db_session: Session):
+    """测试成功设置卡密为 consumed 状态"""
+    # 创建测试数据
+    codes = create_activation_codes(test_db_session, "消费测试", 1)
+    code_value = codes[0].code
+
+    # 先设置为 consuming 状态
+    set_code_consuming(test_db_session, code_value)
+
+    # 设置为 consumed 状态
+    consumed_code = set_code_consumed(test_db_session, code_value)
+
+    assert consumed_code.status == CardCodeStatus.CONSUMED.value
+    assert consumed_code.used_at is not None
+
+
+def test_set_code_consumed_not_found(test_db_session: Session):
+    """测试对不存在的卡密调用 consumed 接口失败"""
+    with pytest.raises(HTTPException) as exc_info:
+        set_code_consumed(test_db_session, "non-existent-code")
+
+    assert exc_info.value.status_code == 404
+    assert "不存在" in exc_info.value.detail
+
+
+def test_set_code_consumed_invalid_status(test_db_session: Session):
+    """测试对非 consuming 状态的卡密调用 consumed 接口失败"""
+    # 创建测试数据
+    codes = create_activation_codes(test_db_session, "消费测试", 1)
+    code_value = codes[0].code
+
+    # 直接调用 consumed API，应该失败（因为状态是 available）
+    with pytest.raises(HTTPException) as exc_info:
+        set_code_consumed(test_db_session, code_value)
+
+    assert exc_info.value.status_code == 400
+    assert "状态不正确" in exc_info.value.detail

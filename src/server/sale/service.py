@@ -33,6 +33,7 @@ def purchase_card(db: Session, card_name: str, user_email: str, user_id: int) ->
         get_available_activation_code,
         mark_activation_code_sold,
     )
+    from src.server.order.service import create_order
 
     # 验证充值卡是否存在且有库存
     card = get_card_by_name(db, card_name)
@@ -60,7 +61,8 @@ def purchase_card(db: Session, card_name: str, user_email: str, user_id: int) ->
     # 创建销售记录
     dao = SaleDAO(db)
     sale = dao.create(activation_code.code, user_email, card.price, card_name)
-
+    create_order(db, activation_code.code, user_id, status="pending")
+    
     return sale
 
 

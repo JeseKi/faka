@@ -79,10 +79,10 @@ class CardDAO(BaseDAO):
 
     def get_stock_count(self, card_name: str) -> int:
         """获取指定充值卡的库存数量（通过关联的未使用的卡密计算）"""
-        from src.server.activation_code.models import ActivationCode
+        from src.server.activation_code.models import ActivationCode, CardCodeStatus
 
         return (
             self.db_session.query(ActivationCode)
-            .filter(ActivationCode.card_name == card_name, ~ActivationCode.is_used)
+            .filter(ActivationCode.card_name == card_name, ActivationCode.status == CardCodeStatus.AVAILABLE.value)
             .count()
         )

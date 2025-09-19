@@ -139,3 +139,39 @@ def test_card_dao_delete(test_db_session: Session):
     # 验证已删除
     deleted_card = test_db_session.query(Card).filter(Card.id == card.id).first()
     assert deleted_card is None
+
+
+def test_get_stock_count(test_db_session: Session):
+    """测试获取充值卡库存数量"""
+    from src.server.activation_code.dao import ActivationCodeDAO
+    from src.server.card.dao import CardDAO
+    from src.server.activation_code.models import CardCodeStatus
+    
+    # 准备测试数据
+    card = Card(name="库存测试卡", description="描述", price=10.0, is_active=True)
+    test_db_session.add(card)
+    test_db_session.commit()
+    test_db_session.refresh(card)
+    
+    # 创建卡密数据
+    activation_dao = ActivationCodeDAO(test_db_session)
+    codes = activation_dao.create_batch("库存测试卡", 5)
+    
+    # 测试库存数量
+    card_dao = CardDAO(test_db_session)
+    stock_count = card_dao.get_stock_count("库存测试卡")
+    assert stock_count == 5
+    
+    # 更新一个卡密状态为 consuming
+    activation_dao.update_status(codes[0], CardCodeStatus.CONSUMING)
+    
+    # 再次测试库存数量
+    stock_count = card_dao.get_stock_count("库存测试卡")
+    assert stock_count == 4
+    
+    # 更新一个卡密状态为 consumed
+    activation_dao.update_status(codes[1], CardCodeStatus.CONSUMED)
+    
+    # 再次测试库存数量
+    stock_count = card_dao.get_stock_count("库存测试卡")
+    assert stock_count == 3
