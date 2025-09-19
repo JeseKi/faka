@@ -27,7 +27,7 @@ def test_create_activation_codes(test_db_session: Session):
     assert len(codes) == 3
     for code in codes:
         assert code.card_name == "月度会员"
-        assert code.status == CardCodeStatus.AVAILABLE.value
+        assert code.status == CardCodeStatus.AVAILABLE
         assert code.used_at is None
 
 
@@ -55,7 +55,7 @@ def test_get_available_activation_code(test_db_session: Session):
     # 获取可用卡密
     available_code = get_available_activation_code(test_db_session, "年度会员")
     assert available_code is not None
-    assert available_code.status == CardCodeStatus.AVAILABLE.value
+    assert available_code.status == CardCodeStatus.AVAILABLE
 
 
 def test_list_activation_codes_by_card(test_db_session: Session):
@@ -120,7 +120,7 @@ def test_set_code_consuming_success(test_db_session: Session):
     # 设置为 consuming 状态
     consuming_code = set_code_consuming(test_db_session, code_value)
 
-    assert consuming_code.status == CardCodeStatus.CONSUMING.value
+    assert consuming_code.status == CardCodeStatus.CONSUMING
     assert consuming_code.used_at is None
 
 
@@ -162,7 +162,7 @@ def test_set_code_consumed_success(test_db_session: Session):
     # 设置为 consumed 状态
     consumed_code = set_code_consumed(test_db_session, code_value)
 
-    assert consumed_code.status == CardCodeStatus.CONSUMED.value
+    assert consumed_code.status == CardCodeStatus.CONSUMED
     assert consumed_code.used_at is not None
 
 

@@ -4,7 +4,7 @@ import {
   Table,
   Typography,
   Alert,
-  message,
+  App,
   Spin,
   Tag,
   Tooltip,
@@ -39,6 +39,7 @@ function resolveErrorMessage(error: unknown): string {
 }
 
 export default function PurchaseHistoryPage({ userId }: PurchaseHistoryPageProps) {
+  const { message } = App.useApp()
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

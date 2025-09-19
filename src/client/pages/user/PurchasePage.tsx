@@ -8,7 +8,7 @@ import {
   Space,
   Typography,
   Alert,
-  message,
+  App,
   Spin,
   Row,
   Col,
@@ -42,6 +42,7 @@ function resolveErrorMessage(error: unknown): string {
 }
 
 export default function PurchasePage() {
+  const { message } = App.useApp()
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 

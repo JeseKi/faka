@@ -100,7 +100,7 @@ def test_complete_order(test_db_session: Session):
     activation_code = ActivationCode(
         card_name="测试卡",
         code="TEST-CODE-009",
-        status=CardCodeStatus.CONSUMING.value
+        status=CardCodeStatus.CONSUMING
     )
     test_db_session.add(activation_code)
     test_db_session.commit()

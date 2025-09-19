@@ -37,7 +37,7 @@ def verify_activation_code(db: Session, code: str, user_id: int, remarks: str | 
 
     # 设置订单状态
     dao = OrderDAO(db)
-    order = dao.get_by_activation_code(activation_code)
+    order = dao.get_by_activation_code(activation_code.code)
     if not order:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"未找到卡密：{code}")
     

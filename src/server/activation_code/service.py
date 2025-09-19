@@ -65,7 +65,7 @@ def set_code_consuming(db: Session, code: str) -> ActivationCode:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="卡密不存在")
     
     # 检查状态是否为 available
-    if activation_code.status != CardCodeStatus.AVAILABLE.value:
+    if activation_code.status != CardCodeStatus.AVAILABLE:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="卡密状态不正确"
         )
@@ -84,7 +84,7 @@ def set_code_consumed(db: Session, code: str) -> ActivationCode:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="卡密不存在")
     
     # 检查状态是否为 consuming
-    if activation_code.status != CardCodeStatus.CONSUMING.value:
+    if activation_code.status != CardCodeStatus.CONSUMING:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="卡密状态不正确"
         )

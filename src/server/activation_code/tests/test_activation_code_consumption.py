@@ -26,7 +26,7 @@ def test_consuming_api_success(test_db_session: Session):
     consuming_code = set_code_consuming(test_db_session, code_value)
 
     # 验证状态已更新为 consuming
-    assert consuming_code.status == CardCodeStatus.CONSUMING.value
+    assert consuming_code.status == CardCodeStatus.CONSUMING
     assert consuming_code.used_at is None
 
 
@@ -62,7 +62,7 @@ def test_consumed_api_success(test_db_session: Session):
     consumed_code = set_code_consumed(test_db_session, code_value)
 
     # 验证状态已更新为 consumed
-    assert consumed_code.status == CardCodeStatus.CONSUMED.value
+    assert consumed_code.status == CardCodeStatus.CONSUMED
     assert consumed_code.used_at is not None
 
 

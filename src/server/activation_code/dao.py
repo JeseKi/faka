@@ -34,7 +34,7 @@ class ActivationCodeDAO(BaseDAO):
                 card_name=card_name,
                 code=encrypted_code,
                 is_sold=False,
-                status=CardCodeStatus.AVAILABLE.value,
+                status=CardCodeStatus.AVAILABLE,
                 created_at=datetime.now(timezone.utc),
             )
             codes.append(activation_code)
@@ -57,13 +57,13 @@ class ActivationCodeDAO(BaseDAO):
         """获取指定充值卡的可用卡密（未使用）"""
         return (
             self.db_session.query(ActivationCode)
-            .filter(ActivationCode.card_name == card_name, ActivationCode.status == CardCodeStatus.AVAILABLE.value)
+            .filter(ActivationCode.card_name == card_name, ActivationCode.status == CardCodeStatus.AVAILABLE)
             .first()
         )
 
     def update_status(self, activation_code: ActivationCode, new_status: CardCodeStatus) -> ActivationCode:
         """更新卡密状态"""
-        activation_code.status = new_status.value
+        activation_code.status = new_status
         if new_status == CardCodeStatus.CONSUMED:
             activation_code.used_at = datetime.now(timezone.utc)
         self.db_session.commit()
@@ -85,7 +85,7 @@ class ActivationCodeDAO(BaseDAO):
             ActivationCode.card_name == card_name
         )
         if not include_used:
-            query = query.filter(ActivationCode.status == CardCodeStatus.AVAILABLE.value)
+            query = query.filter(ActivationCode.status == CardCodeStatus.AVAILABLE)
         return query.order_by(ActivationCode.created_at.desc()).all()
 
     def count_by_card_name(self, card_name: str, only_unused: bool = True) -> int:
@@ -94,7 +94,7 @@ class ActivationCodeDAO(BaseDAO):
             ActivationCode.card_name == card_name
         )
         if only_unused:
-            query = query.filter(ActivationCode.status == CardCodeStatus.AVAILABLE.value)
+            query = query.filter(ActivationCode.status == CardCodeStatus.AVAILABLE)
         return query.count()
 
     def delete_by_card_name(self, card_name: str) -> int:

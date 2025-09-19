@@ -29,7 +29,7 @@ class ActivationCode(Base):
     card_name: Mapped[str] = mapped_column(String(100), nullable=False)
     code: Mapped[str] = mapped_column(Text, unique=True, nullable=False)  # 改为 Text
     is_sold: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    status: Mapped[str] = mapped_column(String(20), default=CardCodeStatus.AVAILABLE.value, nullable=False)  # 新增 status
+    status: Mapped[str] = mapped_column(String(20), default=CardCodeStatus.AVAILABLE, nullable=False)  # 新增 status
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.now(timezone.utc), nullable=False
     )

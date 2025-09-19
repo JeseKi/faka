@@ -9,7 +9,7 @@ import {
   Switch,
   Space,
   Typography,
-  message,
+  App,
   Popconfirm,
   Tag,
   Card as AntCard,
@@ -53,6 +53,7 @@ function resolveErrorMessage(error: unknown): string {
 }
 
 export default function CardManagementPage() {
+  const { message } = App.useApp()
   const [cards, setCards] = useState<Card[]>([])
   const [loading, setLoading] = useState(false)
   const [modalVisible, setModalVisible] = useState(false)

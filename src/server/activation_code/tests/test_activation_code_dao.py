@@ -19,7 +19,7 @@ def test_activation_code_dao_create_batch(test_db_session: Session):
     assert len(codes) == 3
     for code in codes:
         assert code.card_name == "月度会员"
-        assert code.status == CardCodeStatus.AVAILABLE.value
+        assert code.status == CardCodeStatus.AVAILABLE
         assert code.used_at is None
         assert code.code is not None
         # 加密后的代码长度会更长
@@ -56,7 +56,7 @@ def test_activation_code_dao_get_available_by_card_name(test_db_session: Session
     available_code = dao.get_available_by_card_name("年度会员")
     assert available_code is not None
     assert available_code.card_name == "年度会员"
-    assert available_code.status == CardCodeStatus.AVAILABLE.value
+    assert available_code.status == CardCodeStatus.AVAILABLE
 
     # 更新状态为 consuming
     dao.update_status(available_code, CardCodeStatus.CONSUMING)
@@ -82,17 +82,17 @@ def test_activation_code_dao_update_status(test_db_session: Session):
     codes = dao.create_batch("状态测试", 1)
     code = codes[0]
 
-    assert code.status == CardCodeStatus.AVAILABLE.value
+    assert code.status == CardCodeStatus.AVAILABLE
     assert code.used_at is None
 
     # 更新状态为 consuming
     updated_code = dao.update_status(code, CardCodeStatus.CONSUMING)
-    assert updated_code.status == CardCodeStatus.CONSUMING.value
+    assert updated_code.status == CardCodeStatus.CONSUMING
     assert updated_code.used_at is None
 
     # 更新状态为 consumed
     updated_code = dao.update_status(code, CardCodeStatus.CONSUMED)
-    assert updated_code.status == CardCodeStatus.CONSUMED.value
+    assert updated_code.status == CardCodeStatus.CONSUMED
     assert updated_code.used_at is not None
 
 
@@ -106,7 +106,7 @@ def test_activation_code_dao_list_by_card_name(test_db_session: Session):
     # 只获取未使用的 (available 状态)
     unused_codes = dao.list_by_card_name("卡1", include_used=False)
     assert len(unused_codes) == 3
-    assert all(code.status == CardCodeStatus.AVAILABLE.value for code in unused_codes)
+    assert all(code.status == CardCodeStatus.AVAILABLE for code in unused_codes)
 
     # 更新一个为 consuming 状态
     dao.update_status(codes1[0], CardCodeStatus.CONSUMING)

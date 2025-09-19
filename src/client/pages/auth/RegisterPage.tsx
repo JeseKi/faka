@@ -10,7 +10,6 @@ import {
   Space,
   Spin,
   Typography,
-  message,
 } from 'antd'
 import {
   LockOutlined,
@@ -37,7 +36,7 @@ function resolveErrorMessage(error: unknown): string {
 export default function RegisterPage() {
   const navigate = useNavigate()
   const { registerWithCode, sendVerificationCode, loading, isAuthenticated } = useAuth()
-  const { message: antdMessage } = App.useApp()
+  const { message } = App.useApp()
 
   const [form] = Form.useForm<{ username: string; email: string; password: string; code: string }>()
   const [submitting, setSubmitting] = useState(false)
@@ -62,7 +61,7 @@ export default function RegisterPage() {
     } catch (err) {
       const text = resolveErrorMessage(err)
       setError(text)
-      antdMessage.error(text)
+      message.error(text)
     } finally {
       setSendingCode(false)
     }
@@ -75,13 +74,13 @@ export default function RegisterPage() {
     try {
       await registerWithCode(values)
       setSuccessMessage('注册成功，请使用新账号登录。')
-      antdMessage.success('注册成功')
+      message.success('注册成功')
       form.resetFields()
       setCodeSent(false)
     } catch (err) {
       const text = resolveErrorMessage(err)
       setError(text)
-      antdMessage.error(text)
+      message.error(text)
     } finally {
       setSubmitting(false)
     }
@@ -190,7 +189,7 @@ export default function RegisterPage() {
                     if (email) {
                       handleSendCode(email)
                     } else {
-                      antdMessage.error('请先输入邮箱地址')
+                      message.error('请先输入邮箱地址')
                     }
                   }}
                   loading={sendingCode}

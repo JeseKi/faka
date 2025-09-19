@@ -8,7 +8,7 @@ import {
   Select,
   Space,
   Typography,
-  message,
+  App,
   Popconfirm,
   Tag,
   Card as AntCard,
@@ -49,6 +49,7 @@ function resolveErrorMessage(error: unknown): string {
 }
 
 export default function ActivationCodeManagementPage() {
+  const { message } = App.useApp()
   const [codes, setCodes] = useState<ActivationCode[]>([])
   const [cards, setCards] = useState<Card[]>([])
   const [loading, setLoading] = useState(false)

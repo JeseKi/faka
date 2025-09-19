@@ -4,7 +4,7 @@ import {
   Button,
   Space,
   Typography,
-  message,
+  App,
   Card as AntCard,
   Row,
   Col,
@@ -38,6 +38,7 @@ function resolveErrorMessage(error: unknown): string {
 }
 
 export default function SalesRecordPage() {
+  const { message } = App.useApp()
   const [sales, setSales] = useState<Sale[]>([])
   const [loading, setLoading] = useState(false)
   const [cardNameFilter, setCardNameFilter] = useState('')

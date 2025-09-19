@@ -64,7 +64,7 @@ class OrderDAO(BaseDAO):
         """获取所有待处理订单"""
         return (
             self.db_session.query(Order)
-            .filter(Order.status == OrderStatus.PENDING.value)
+            .filter(Order.status == OrderStatus.PENDING)
             .order_by(Order.created_at.asc())
             .all()
         )
@@ -76,7 +76,7 @@ class OrderDAO(BaseDAO):
         query = self.db_session.query(Order)
 
         if status_filter:
-            query = query.filter(Order.status == status_filter.value)
+            query = query.filter(Order.status == status_filter)
 
         return query.order_by(Order.created_at.desc()).limit(limit).offset(offset).all()
 
@@ -96,7 +96,7 @@ class OrderDAO(BaseDAO):
 
     def count_by_status(self, status: OrderStatus) -> int:
         """统计指定状态的订单数量"""
-        return self.db_session.query(Order).filter(Order.status == status.value).count()
+        return self.db_session.query(Order).filter(Order.status == status).count()
 
     def get_recent_orders(self, days: int = 7) -> list[Order]:
         """获取最近几天的订单"""

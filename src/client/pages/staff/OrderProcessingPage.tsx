@@ -5,7 +5,7 @@ import {
   Modal,
   Space,
   Typography,
-  message,
+  App,
   Tag,
   Card as AntCard,
   Row,
@@ -39,6 +39,7 @@ function resolveErrorMessage(error: unknown): string {
 }
 
 export default function OrderProcessingPage() {
+  const { message } = App.useApp()
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(false)
   const [detailModalVisible, setDetailModalVisible] = useState(false)
