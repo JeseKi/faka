@@ -3,7 +3,7 @@
 订单路由
 
 公开接口：
-- POST /api/orders/verify
+- POST /api/orders/create
 - GET /api/orders
 - GET /api/orders/{order_id}
 - PUT /api/orders/{order_id}/complete
@@ -20,7 +20,7 @@ from sqlalchemy.orm import Session
 from src.server.database import get_db
 from src.server.auth.router import get_current_user
 from src.server.auth.models import User
-from .schemas import OrderOut, OrderUpdate, OrderVerify
+from .schemas import OrderOut, OrderUpdate, OrderCreate
 from . import service
 from src.server.dao.dao_base import run_in_thread
 from src.server.order.schemas import OrderStatus
@@ -28,14 +28,13 @@ from src.server.order.schemas import OrderStatus
 router = APIRouter(prefix="/api/orders", tags=["orders"])
 
 
-@router.post("/verify", response_model=OrderOut, status_code=status.HTTP_201_CREATED)
-async def verify_activation_code(
-    verify_data: OrderVerify,
+@router.post("/create", response_model=OrderOut, status_code=status.HTTP_201_CREATED)
+async def create_order(
+    verify_data: OrderCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     """验证卡密并创建订单（需要登录）"""
-    # TODO: 后续接入卡密消费流程的 API 接口
 
     def _verify():
         return service.verify_activation_code(

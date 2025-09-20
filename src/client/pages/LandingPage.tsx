@@ -57,6 +57,7 @@ const LandingPage: React.FC = () => {
       showToast('微信号已复制到剪贴板！');
     } catch (err) {
       showToast('复制失败，请手动复制: ' + text);
+      console.log(err)
     }
     document.body.removeChild(textArea);
   };

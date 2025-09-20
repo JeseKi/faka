@@ -16,6 +16,7 @@ from src.server.activation_code.service import (
     delete_activation_codes_by_card,
     set_code_consuming,
     set_code_consumed,
+    is_code_available,
 )
 from src.server.activation_code.models import CardCodeStatus
 
@@ -187,3 +188,46 @@ def test_set_code_consumed_invalid_status(test_db_session: Session):
 
     assert exc_info.value.status_code == 400
     assert "状态不正确" in exc_info.value.detail
+
+
+def test_is_code_available_success(test_db_session: Session):
+    """测试成功检查卡密是否可用"""
+    # 创建测试数据
+    codes = create_activation_codes(test_db_session, "可用性测试", 1)
+    code_value = codes[0].code
+
+    # 检查卡密是否可用
+    assert is_code_available(test_db_session, code_value) is True
+
+
+def test_is_code_available_not_found(test_db_session: Session):
+    """测试检查不存在的卡密"""
+    # 检查不存在的卡密
+    assert is_code_available(test_db_session, "non-existent-code") is False
+
+
+def test_is_code_available_consumed(test_db_session: Session):
+    """测试检查已消费的卡密"""
+    # 创建测试数据
+    codes = create_activation_codes(test_db_session, "可用性测试", 1)
+    code_value = codes[0].code
+
+    # 将卡密状态设置为 consuming
+    set_code_consuming(test_db_session, code_value)
+
+    # 检查卡密是否可用
+    assert is_code_available(test_db_session, code_value) is False
+
+
+def test_is_code_available_consuming(test_db_session: Session):
+    """测试检查正在消费的卡密"""
+    # 创建测试数据
+    codes = create_activation_codes(test_db_session, "可用性测试", 1)
+    code_value = codes[0].code
+
+    # 将卡密状态设置为 consuming
+    set_code_consuming(test_db_session, code_value)
+    set_code_consumed(test_db_session, code_value)
+
+    # 检查卡密是否可用
+    assert is_code_available(test_db_session, code_value) is False

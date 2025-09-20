@@ -9,6 +9,7 @@
 - DELETE /api/activation-codes/{card_name}
 - POST /api/activation-codes/{code}/consuming
 - POST /api/activation-codes/{code}/consumed
+- GET /api/activation-codes/check
 """
 
 from __future__ import annotations
@@ -44,6 +45,22 @@ async def generate_activation_codes(
         )
 
     return await run_in_thread(_generate)
+
+@router.get("/check")
+async def check_code_availability(
+    code: str,
+    db: Session = Depends(get_db),
+):
+    """检查卡密是否可用"""
+
+    def _check():
+        result = service.is_code_available(db, code)
+        print(f"Service result: {result}")  # 添加调试信息
+        return result
+
+    is_available = await run_in_thread(_check)
+    print(f"Final result: {is_available}")  # 添加调试信息
+    return {"available": is_available}
 
 
 @router.get("/{card_name}", response_model=list[ActivationCodeOut])

@@ -17,11 +17,6 @@ class OrderStatus(str, Enum):
     PROCESSING = "processing"
     COMPLETED = "completed"
 
-
-class OrderCreate(BaseModel):
-    activation_code: str = Field(..., min_length=1, max_length=36)
-
-
 class OrderOut(BaseModel):
     id: int
     activation_code: str
@@ -38,6 +33,6 @@ class OrderUpdate(BaseModel):
     remarks: Optional[str] = Field(default=None)
 
 
-class OrderVerify(BaseModel):
+class OrderCreate(BaseModel):
     code: str = Field(..., min_length=1, max_length=88)
     remarks: Optional[str] = Field(default=None)

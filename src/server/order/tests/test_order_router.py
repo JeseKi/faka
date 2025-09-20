@@ -62,7 +62,7 @@ def test_verify_activation_code_flow(test_client, test_db_session):
 
     # 验证卡密并更新订单状态
     verify_resp = test_client.post(
-        "/api/orders/verify", json={"code": code[0].code}, headers=headers
+        "/api/orders/create", json={"code": code[0].code}, headers=headers
     )
     assert verify_resp.status_code == 201
     order_data = verify_resp.json()

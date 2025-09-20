@@ -11,6 +11,7 @@
 - list_activation_codes_by_card(db, card_name, include_used)
 - count_activation_codes_by_card(db, card_name, only_unused)
 - delete_activation_codes_by_card(db, card_name)
+- is_code_available(db, code)
 
 内部方法：
 - 无
@@ -113,3 +114,12 @@ def delete_activation_codes_by_card(db: Session, card_name: str) -> int:
     """删除指定充值卡的所有卡密"""
     dao = ActivationCodeDAO(db)
     return dao.delete_by_card_name(card_name)
+
+
+def is_code_available(db: Session, code: str) -> bool:
+    """检查卡密是否可用"""
+    dao = ActivationCodeDAO(db)
+    activation_code = dao.get_by_code(code)
+    if not activation_code:
+        return False
+    return activation_code.status == CardCodeStatus.AVAILABLE
