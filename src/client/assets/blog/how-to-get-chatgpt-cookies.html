@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- 页面性能优化 -->
+    <meta http-equiv="Cache-Control" content="max-age=31536000, must-revalidate">
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <title>如何获取ChatGPT Cookies完整教程 | AIchongzhi博客</title>
+    <meta name="description" content="详细教程：如何通过浏览器插件获取ChatGPT Cookies，用于API调用或自动化操作。适用于ChatGPT Plus和免费用户。">
+
+    <!-- 关键词优化 -->
+    <meta name="keywords" content="ChatGPT Cookies获取,ChatGPT API调用,EditThisCookie插件,ChatGPT自动化,ChatGPT开发">
+
+    <!-- Google Search Console验证 -->
+    <meta name="google-site-verification" content="dMGoYkxPFvvqbA4sY2-s2w5C2-DHAaOAVTv4dLZPwMY" />
+
+    <!-- 百度站长验证 -->
+    <meta name="baidu-site-verification" content="codeva-8xrTKJIWan" />
+
+    <!-- Open Graph标签 -->
+    <meta property="og:title" content="如何获取ChatGPT Cookies完整教程">
+    <meta property="og:description" content="详细教程：如何通过浏览器插件获取ChatGPT Cookies，用于API调用或自动化操作">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://aichongzhi.org/blog/how-to-get-chatgpt-cookies.html">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .gradient-bg { background: linear-gradient(135deg, #14B8A6 0%, #6366F1 100%); }
+        .toc-item:hover { background-color: #f3f4f6; }
+        .toc-active { background-color: #e0e7ff; border-left: 3px solid #6366f1; }
+        .prose h2 { scroll-margin-top: 120px; }
+        .prose h3 { scroll-margin-top: 120px; }
+    </style>
+
+    <!-- Article结构化数据 -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "如何获取ChatGPT Cookies完整教程",
+        "description": "详细教程：如何通过浏览器插件获取ChatGPT Cookies，用于API调用或自动化操作。适用于ChatGPT Plus和免费用户。",
+        "author": {
+            "@type": "Organization",
+            "name": "AIchongzhi"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "AIchongzhi",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "https://aichongzhi.org/logo.png"
+            }
+        },
+        "datePublished": "2025-09-20",
+        "dateModified": "2025-09-20",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https://aichongzhi.org/blog/how-to-get-chatgpt-cookies.html"
+        }
+    }
+    </script>
+</head>
+<body class="font-sans bg-gray-50 text-gray-900">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <nav class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <a href="../index.html" class="text-2xl font-bold gradient-bg bg-clip-text text-transparent">AIchongzhi</a>
+                    <span class="text-gray-400">|</span>
+                    <a href="index.html" class="text-lg font-medium text-gray-700 hover:text-indigo-600 transition-colors">博客</a>
+                </div>
+                <div class="flex items-center space-x-6">
+                    <a href="../index.html" class="text-gray-600 hover:text-indigo-600 transition-colors">首页</a>
+                    <a href="../index.html#faq" class="text-gray-600 hover:text-indigo-600 transition-colors">常见问题</a>
+                    <a href="../index.html#features" class="text-gray-600 hover:text-indigo-600 transition-colors">服务特色</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Article Content -->
+    <main class="py-8">
+        <div class="container mx-auto px-4">
+            <div class="max-w-6xl mx-auto flex gap-8">
+                <!-- Table of Contents -->
+                <aside class="w-80 flex-shrink-0 hidden lg:block">
+                    <div class="sticky top-24">
+                        <div class="bg-white rounded-2xl p-6 shadow-lg">
+                            <h3 class="text-lg font-semibold mb-4 text-gray-900">目录</h3>
+                            <nav class="space-y-2">
+                                <a href="how-to-get-chatgpt-cookies.html#introduction" class="toc-item block px-3 py-2 rounded-lg text-sm text-gray-700 hover:text-indigo-600 transition-colors">什么是ChatGPT Cookies</a>
+                                <a href="how-to-get-chatgpt-cookies.html#prerequisites" class="toc-item block px-3 py-2 rounded-lg text-sm text-gray-700 hover:text-indigo-600 transition-colors">准备工作</a>
+                                <a href="how-to-get-chatgpt-cookies.html#step-by-step" class="toc-item block px-3 py-2 rounded-lg text-sm text-gray-700 hover:text-indigo-600 transition-colors">获取步骤详解</a>
+                                <div class="ml-4 space-y-1">
+                                    <a href="how-to-get-chatgpt-cookies.html#step1" class="toc-item block px-3 py-2 rounded-lg text-xs text-gray-600 hover:text-indigo-600 transition-colors">步骤1：打开插件菜单</a>
+                                    <a href="how-to-get-chatgpt-cookies.html#step2" class="toc-item block px-3 py-2 rounded-lg text-xs text-gray-600 hover:text-indigo-600 transition-colors">步骤2：打开EditThisCookie插件</a>
+                                    <a href="how-to-get-chatgpt-cookies.html#step3" class="toc-item block px-3 py-2 rounded-lg text-xs text-gray-600 hover:text-indigo-600 transition-colors">步骤3：复制Cookies</a>
+                                </div>
+                                <a href="how-to-get-chatgpt-cookies.html#usage" class="toc-item block px-3 py-2 rounded-lg text-sm text-gray-700 hover:text-indigo-600 transition-colors">Cookies使用方法</a>
+                                <a href="how-to-get-chatgpt-cookies.html#security" class="toc-item block px-3 py-2 rounded-lg text-sm text-gray-700 hover:text-indigo-600 transition-colors">安全注意事项</a>
+                                <a href="how-to-get-chatgpt-cookies.html#faq" class="toc-item block px-3 py-2 rounded-lg text-sm text-gray-700 hover:text-indigo-600 transition-colors">常见问题</a>
+                            </nav>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Main Content -->
+                <article class="flex-1 max-w-4xl">
+                    <div class="bg-white rounded-2xl p-8 shadow-lg">
+                        <!-- Article Header -->
+                        <header class="mb-8">
+                            <div class="flex items-center gap-3 mb-4">
+                                <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">技术教程</span>
+                                <span class="text-gray-400 text-sm">2025年9月20日</span>
+                                <span class="text-gray-400 text-sm">约8分钟阅读</span>
+                            </div>
+                            <h1 class="text-4xl font-bold mb-4 text-gray-900">如何获取ChatGPT Cookies完整教程</h1>
+                            <p class="text-xl text-gray-600 leading-relaxed">
+                                本教程将详细介绍如何通过浏览器插件获取ChatGPT的Cookies，用于API调用、自动化脚本或其他开发用途。适用于ChatGPT Plus和免费用户。
+                            </p>
+                        </header>
+
+                        <!-- Article Content -->
+                        <div class="prose prose-lg max-w-none">
+                            <section id="introduction">
+                                <h2 class="text-3xl font-bold mb-6 text-gray-900">什么是ChatGPT Cookies</h2>
+
+                                <p class="mb-6">ChatGPT Cookies是浏览器在您登录ChatGPT网站时存储的小型数据文件。这些Cookies包含了您的身份验证信息，可以让浏览器记住您的登录状态，无需每次都重新登录。</p>
+
+                                <div class="bg-blue-50 border-l-4 border-blue-400 p-6 mb-6">
+                                    <h3 class="text-lg font-semibold mb-3 text-blue-900">Cookies的主要作用</h3>
+                                    <ul class="list-disc list-inside space-y-2 text-blue-800">
+                                        <li>身份验证和会话管理</li>
+                                        <li>保持登录状态</li>
+                                        <li>个性化设置保存</li>
+                                        <li>API调用的身份验证</li>
+                                    </ul>
+                                </div>
+
+                                <p class="mb-6">在开发自动化脚本或进行API调用时，您可能需要获取这些Cookies来模拟已登录的用户状态。</p>
+                            </section>
+
+                            <section id="prerequisites">
+                                <h2 class="text-3xl font-bold mb-6 text-gray-900">准备工作</h2>
+
+                                <p class="mb-6">在开始获取Cookies之前，请确保您已完成以下准备工作：</p>
+
+                                <div class="bg-gray-50 p-6 rounded-lg mb-6">
+                                    <h3 class="font-semibold mb-3">必需工具</h3>
+                                    <ul class="list-disc list-inside space-y-2">
+                                        <li><strong>浏览器</strong>：推荐使用Chrome或Edge浏览器</li>
+                                        <li><strong>EditThisCookie插件</strong>：用于查看和管理浏览器Cookies</li>
+                                        <li><strong>ChatGPT账号</strong>：已登录的ChatGPT账号（免费版或Plus均可）</li>
+                                    </ul>
+                                </div>
+
+                                <div class="bg-green-50 border-l-4 border-green-400 p-6 mb-6">
+                                    <h3 class="text-lg font-semibold mb-3 text-green-900">安装EditThisCookie插件</h3>
+                                    <ol class="list-decimal list-inside space-y-2 text-green-800">
+                                        <li>打开Chrome网上应用店</li>
+                                        <li>搜索"EditThisCookie"</li>
+                                        <li>点击"添加至Chrome"按钮</li>
+                                        <li>确认安装插件</li>
+                                    </ol>
+                                </div>
+                            </section>
+
+                            <section id="step-by-step">
+                                <h2 class="text-3xl font-bold mb-6 text-gray-900">获取步骤详解</h2>
+
+                                <div id="step1" class="mb-8">
+                                    <h3 class="text-2xl font-semibold mb-4 text-gray-900">步骤1：打开插件菜单</h3>
+                                    <p class="mb-4">在浏览器中打开ChatGPT网站并确保您已登录。然后按照以下步骤操作：</p>
+                                    <ol class="list-decimal list-inside space-y-3 mb-4">
+                                        <li>确保您已成功登录ChatGPT账号</li>
+                                        <li>点击浏览器右上角的插件菜单按钮</li>
+                                        <li>在弹出的菜单中找到EditThisCookie插件</li>
+                                    </ol>
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <img src="https://tuchuang-1317479375.cos.ap-beijing.myqcloud.com/step1.png" alt="打开插件菜单" class="w-full rounded-lg">
+                                    </div>
+                                </div>
+
+                                <div id="step2" class="mb-8">
+                                    <h3 class="text-2xl font-semibold mb-4 text-gray-900">步骤2：打开EditThisCookie插件</h3>
+                                    <p class="mb-4">在插件菜单中找到并打开<strong>EditThisCookie(V3)</strong>插件：</p>
+                                    <ol class="list-decimal list-inside space-y-3 mb-4">
+                                        <li>在插件列表中找到EditThisCookie(V3)</li>
+                                        <li>点击插件图标以打开插件界面</li>
+                                        <li>插件会自动显示当前网站（chatgpt.com）的Cookies</li>
+                                    </ol>
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <img src="https://tuchuang-1317479375.cos.ap-beijing.myqcloud.com/step2.png" alt="打开EditThisCookie插件" class="w-full rounded-lg">
+                                    </div>
+                                </div>
+
+                                <div id="step3">
+                                    <h3 class="text-2xl font-semibold mb-4 text-gray-900">步骤3：复制Cookies</h3>
+                                    <p class="mb-4">在EditThisCookie插件界面中，您可以查看所有Cookies信息：</p>
+                                    <ol class="list-decimal list-inside space-y-3 mb-4">
+                                        <li>插件界面会显示chatgpt.com域名下的所有Cookies</li>
+                                        <li>点击界面中的向下箭头图标，即可复制所有Cookies信息</li>
+                                    </ol>
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <img src="https://tuchuang-1317479375.cos.ap-beijing.myqcloud.com/202509201406483.png" alt="复制Cookies" class="w-full rounded-lg">
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section id="usage">
+                                <h2 class="text-3xl font-bold mb-6 text-gray-900">Cookies使用方法</h2>
+
+                                <p class="mb-6">获取到Cookies后，您可以将其用于各种开发场景：</p>
+
+                                <div class="grid md:grid-cols-2 gap-6 mb-6">
+                                    <div class="bg-blue-50 p-4 rounded-lg">
+                                        <h3 class="font-semibold text-blue-900 mb-2">API调用</h3>
+                                        <p class="text-sm text-blue-800">在HTTP请求头中添加Cookies信息以进行身份验证</p>
+                                    </div>
+                                    <div class="bg-green-50 p-4 rounded-lg">
+                                        <h3 class="font-semibold text-green-900 mb-2">自动化脚本</h3>
+                                        <p class="text-sm text-green-800">在Selenium等自动化工具中使用Cookies保持登录状态</p>
+                                    </div>
+                                    <div class="bg-purple-50 p-4 rounded-lg">
+                                        <h3 class="font-semibold text-purple-900 mb-2">开发调试</h3>
+                                        <p class="text-sm text-purple-800">在Postman等工具中测试ChatGPT相关API</p>
+                                    </div>
+                                    <div class="bg-orange-50 p-4 rounded-lg">
+                                        <h3 class="font-semibold text-orange-900 mb-2">数据备份</h3>
+                                        <p class="text-sm text-orange-800">获取个人ChatGPT对话历史等数据</p>
+                                    </div>
+                                </div>
+
+                                <div class="bg-gray-50 p-6 rounded-lg">
+                                    <h3 class="font-semibold mb-3">示例代码（Python）</h3>
+                                    <pre class="bg-gray-800 text-gray-100 p-4 rounded-lg text-sm overflow-x-auto">
+import requests
+
+# 使用获取到的Cookies
+cookies = {
+    "__Secure-next-auth.session-token": "your_session_token_here"
+}
+
+# 发送请求到ChatGPT
+response = requests.get(
+    "https://chat.openai.com/api/auth/session",
+    cookies=cookies
+)
+
+print(response.json())
+                                    </pre>
+                                </div>
+                            </section>
+
+                            <section id="security">
+                                <h2 class="text-3xl font-bold mb-6 text-gray-900">安全注意事项</h2>
+
+                                <div class="bg-red-50 border-l-4 border-red-400 p-6 mb-6">
+                                    <h3 class="text-lg font-semibold mb-3 text-red-900">⚠️ 重要提醒</h3>
+                                    <p class="text-red-800 mb-4">Cookies包含敏感的身份验证信息，请务必妥善保管：</p>
+                                    <ul class="list-disc list-inside space-y-2 text-red-800">
+                                        <li>切勿将Cookies分享给他人</li>
+                                        <li>避免将Cookies信息提交到代码仓库</li>
+                                        <li>定期更换密码以更新Cookies</li>
+                                        <li>在公共设备上使用后及时清除Cookies</li>
+                                    </ul>
+                                </div>
+
+                                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6">
+                                    <h3 class="text-lg font-semibold mb-3 text-yellow-900">🔒 安全建议</h3>
+                                    <ul class="list-disc list-inside space-y-2 text-yellow-800">
+                                        <li>仅在可信的设备和网络环境中获取Cookies</li>
+                                        <li>使用完毕后及时删除或更新Cookies</li>
+                                        <li>考虑使用环境变量存储敏感信息</li>
+                                        <li>定期检查账户安全设置</li>
+                                    </ul>
+                                </div>
+                            </section>
+
+                            <section id="faq">
+                                <h2 class="text-3xl font-bold mb-6 text-gray-900">常见问题解答</h2>
+
+                                <div class="space-y-6">
+                                    <div class="bg-gray-50 p-6 rounded-lg">
+                                        <h3 class="text-lg font-semibold mb-3 text-gray-900">Q: 获取的Cookies会过期吗？</h3>
+                                        <p class="text-gray-700">是的，Cookies通常有有效期限制。当您更改密码、长时间未登录或出于安全考虑时，Cookies会失效。失效后需要重新获取。</p>
+                                    </div>
+
+                                    <div class="bg-gray-50 p-6 rounded-lg">
+                                        <h3 class="text-lg font-semibold mb-3 text-gray-900">Q: 可以获取其他人的Cookies吗？</h3>
+                                        <p class="text-gray-700">不可以。获取他人的Cookies属于非法行为，违反了用户隐私和网络安全法规。您只能获取自己账户的Cookies。</p>
+                                    </div>
+
+                                    <div class="bg-gray-50 p-6 rounded-lg">
+                                        <h3 class="text-lg font-semibold mb-3 text-gray-900">Q: 为什么找不到EditThisCookie插件？</h3>
+                                        <p class="text-gray-700">请确保已正确安装插件。某些浏览器可能需要在扩展管理页面启用插件。如果仍然找不到，可以尝试其他类似的Cookies管理插件。</p>
+                                    </div>
+
+                                    <div class="bg-gray-50 p-6 rounded-lg">
+                                        <h3 class="text-lg font-semibold mb-3 text-gray-900">Q: 获取Cookies后可以做什么？</h3>
+                                        <p class="text-gray-700">获取的Cookies主要用于开发和测试目的，如API调用、自动化脚本等。请遵守OpenAI的使用条款，不要用于任何非法用途。</p>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+
+                        <!-- Article Footer -->
+                        <footer class="mt-12 pt-8 border-t border-gray-200">
+                            <div class="flex flex-wrap gap-2 mb-6">
+                                <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">ChatGPT</span>
+                                <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">Cookies</span>
+                                <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">技术教程</span>
+                                <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">开发工具</span>
+                            </div>
+
+                            <div class="text-center">
+                                <p class="text-gray-600 mb-4">觉得这篇文章有用吗？分享给更多朋友吧！</p>
+                                <div class="flex justify-center space-x-4">
+                                    <button onclick="copyURL()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                                        📋 复制链接
+                                    </button>
+                                    <a href="index.html" class="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors">
+                                        📚 阅读更多文章
+                                    </a>
+                                </div>
+                            </div>
+                        </footer>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-3 gap-8">
+                <div>
+                    <h4 class="text-xl font-bold mb-4">AIchongzhi</h4>
+                    <p class="text-gray-400">专业的ChatGPT Plus充值服务，安全快速，价格优惠</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">快速链接</h4>
+                    <ul class="space-y-2">
+                        <li><a href="../index.html" class="text-gray-400 hover:text-white transition-colors">首页</a></li>
+                        <li><a href="index.html" class="text-gray-400 hover:text-white transition-colors">博客</a></li>
+                        <li><a href="../index.html#faq" class="text-gray-400 hover:text-white transition-colors">常见问题</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">联系我们</h4>
+                    <p class="text-gray-400">客服微信: J2175839853</p>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center">
+                <p class="text-gray-500">© 2024 AIchongzhi. 专业ChatGPT充值服务</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 目录跟踪
+        document.addEventListener('DOMContentLoaded', function() {
+            const tocLinks = document.querySelectorAll('.toc-item');
+            const sections = document.querySelectorAll('section[id]');
+
+            function updateActiveLink() {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.clientHeight;
+                    if (window.pageYOffset >= sectionTop - 200) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                tocLinks.forEach(link => {
+                    link.classList.remove('toc-active');
+                    if (link.getAttribute('href') === '#' + current) {
+                        link.classList.add('toc-active');
+                    }
+                });
+            }
+
+            window.addEventListener('scroll', updateActiveLink);
+            updateActiveLink();
+        });
+
+        // 复制URL功能
+        function copyURL() {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                alert('链接已复制到剪贴板！');
+            });
+        }
+    </script>
+</body>
+</html>

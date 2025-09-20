@@ -224,7 +224,7 @@ const LandingPage: React.FC = () => {
             <a href="/purchase" target="_blank" className="inline-flex items-center px-8 py-4 bg-white text-indigo-600 font-semibold rounded-2xl shadow-lg shadow-white/30 hover:shadow-white/50 hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] hover:-translate-y-0.5 hover:scale-105 transition-all duration-300" onClick={() => trackEvent('purchase_click')}>
               <span>💎 购买卡密</span>
             </a>
-            <a href="/purchase" target="_blank" className="inline-flex items-center px-8 py-4 bg-transparent border-2 border-white text-white font-semibold rounded-2xl hover:bg-white hover:text-indigo-600 hover:-translate-y-0.5 transition-all duration-300" onClick={() => trackEvent('recharge_click')}>
+            <a href="/recharge-plus" className="inline-flex items-center px-8 py-4 bg-transparent border-2 border-white text-white font-semibold rounded-2xl hover:bg-white hover:text-indigo-600 hover:-translate-y-0.5 transition-all duration-300" onClick={() => trackEvent('recharge_click')}>
               <span>⚡ 充值Plus</span>
             </a>
             <button onClick={openVideoModal} className="inline-flex items-center px-8 py-4 bg-transparent border-2 border-white text-white font-semibold rounded-2xl hover:bg-white hover:text-indigo-600 hover:-translate-y-0.5 transition-all duration-300">
@@ -240,21 +240,21 @@ const LandingPage: React.FC = () => {
                 <span className="text-lg font-semibold text-gray-900">价格</span>
               </div>
 
-              <div className="flex items-center justify-between p-6 bg-red-50 cursor-pointer hover:bg-red-100 hover:shadow-md hover:scale-[1.02] transition-all duration-300 group" onClick={() => window.open('https://yk.dtyuedan.cn//links/BFB74B07', '_blank')}>
+              <div className="flex items-center justify-between p-6 bg-red-50 cursor-pointer hover:bg-red-100 hover:shadow-md hover:scale-[1.02] transition-all duration-300 group" onClick={() => window.open('/purchase', '_blank')}>
                 <span className="text-gray-700">官方充值</span>
                 <div className="flex items-center">
                   <span className="text-red-600 font-bold text-xl">¥158</span>
                   <span className="ml-2 text-red-400 group-hover:translate-x-1 transition-transform duration-300">→</span>
                 </div>
               </div>
-              <div className="flex items-center justify-between p-6 bg-blue-50 cursor-pointer hover:bg-blue-100 hover:shadow-md hover:scale-[1.02] transition-all duration-300 group" onClick={() => window.open('https://yk.dtyuedan.cn//links/BFB74B07', '_blank')}>
+              <div className="flex items-center justify-between p-6 bg-blue-50 cursor-pointer hover:bg-blue-100 hover:shadow-md hover:scale-[1.02] transition-all duration-300 group" onClick={() => window.open('/purchase', '_blank')}>
                 <span className="text-gray-700">新用户官方福利价</span>
                 <div className="flex items-center">
                   <span className="text-blue-600 font-bold text-xl">¥140</span>
                   <span className="ml-2 text-blue-400 group-hover:translate-x-1 transition-transform duration-300">→</span>
                 </div>
               </div>
-              <div className="flex items-center justify-between p-6 bg-green-50 cursor-pointer hover:bg-green-100 hover:shadow-md hover:scale-[1.02] transition-all duration-300 group" onClick={() => window.open('https://yk.dtyuedan.cn//links/BFB74B07', '_blank')}>
+              <div className="flex items-center justify-between p-6 bg-green-50 cursor-pointer hover:bg-green-100 hover:shadow-md hover:scale-[1.02] transition-all duration-300 group" onClick={() => window.open('/purchase', '_blank')}>
                 <div className="flex items-center">
                   <span className="text-gray-700">三个月官方会员</span>
                   <span className="ml-2 px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full font-medium">联系客服</span>
@@ -584,6 +584,18 @@ const LandingPage: React.FC = () => {
                 </div>
                 <h4 className="text-sm font-semibold text-gray-800 mb-1 line-clamp-2">ChatGPT Plus与ChatGPT Pro全面对比分析</h4>
                 <p className="text-xs text-gray-600 line-clamp-2">深入对比ChatGPT Plus和Pro版本的功能差异、性能表现...</p>
+              </div>
+            </div>
+
+            <div className="blog-article-card flex items-start space-x-3 p-3 bg-gradient-to-r from-red-50 to-yellow-50 rounded-lg border-l-4 border-red-500 hover:shadow-md transition-all duration-200 cursor-pointer" onClick={() => window.open('/src/client/assets/blog/how-to-get-chatgpt-cookies.html', '_blank')}>
+              <span className="text-2xl flex-shrink-0 mt-1">🍪</span>
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs text-red-600 font-medium bg-red-100 px-2 py-1 rounded-full">技术教程</span>
+                  <span className="text-xs text-gray-500">New</span>
+                </div>
+                <h4 className="text-sm font-semibold text-gray-800 mb-1 line-clamp-2">如何获取ChatGPT Cookies完整教程</h4>
+                <p className="text-xs text-gray-600 line-clamp-2">详细教程：如何通过浏览器插件获取ChatGPT Cookies，用于API调用或自动化操作...</p>
               </div>
             </div>
           </div>

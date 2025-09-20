@@ -35,4 +35,4 @@ class ActivationCodeOut(BaseModel):
 
 
 class ActivationCodeVerify(BaseModel):
-    code: str = Field(..., min_length=1, max_length=36)
+    code: str = Field(..., min_length=1, max_length=200)

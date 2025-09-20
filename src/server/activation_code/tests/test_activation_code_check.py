@@ -3,7 +3,6 @@
 卡密检查可用性 API 测试
 """
 
-import pytest
 from sqlalchemy.orm import Session
 from fastapi.testclient import TestClient
 

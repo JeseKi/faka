@@ -7,8 +7,8 @@
 - GET /api/activation-codes/{card_name}
 - GET /api/activation-codes/{card_name}/count
 - DELETE /api/activation-codes/{card_name}
-- POST /api/activation-codes/{code}/consuming
-- POST /api/activation-codes/{code}/consumed
+- POST /api/activation-codes/consuming
+- POST /api/activation-codes/consumed
 - GET /api/activation-codes/check
 """
 
@@ -20,7 +20,7 @@ from sqlalchemy.orm import Session
 from src.server.database import get_db
 from src.server.auth.router import get_current_admin
 from src.server.auth.models import User
-from .schemas import ActivationCodeCreate, ActivationCodeOut
+from .schemas import ActivationCodeCreate, ActivationCodeOut, ActivationCodeVerify
 from . import service
 from src.server.dao.dao_base import run_in_thread
 
@@ -115,25 +115,25 @@ async def delete_activation_codes(
 
 @router.post("/consuming", response_model=ActivationCodeOut)
 async def set_code_consuming(
-    code: str,
+    code_data: ActivationCodeVerify,
     db: Session = Depends(get_db),
 ):
     """将卡密状态设置为 consuming"""
 
     def _consume():
-        return service.set_code_consuming(db, code)
+        return service.set_code_consuming(db, code_data.code)
 
     return await run_in_thread(_consume)
 
 
 @router.post("/consumed", response_model=ActivationCodeOut)
 async def set_code_consumed(
-    code: str,
+    code_data: ActivationCodeVerify,
     db: Session = Depends(get_db),
 ):
     """将卡密状态设置为 consumed"""
 
     def _consume():
-        return service.set_code_consumed(db, code)
+        return service.set_code_consumed(db, code_data.code)
 
     return await run_in_thread(_consume)

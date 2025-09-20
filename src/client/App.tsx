@@ -14,6 +14,7 @@ import { AuthProvider } from './providers/AuthProvider'
 import { SWRProvider } from './providers/SWRProvider'
 import PurchaseHistoryPage from './pages/user/PurchaseHistoryPage'
 import LandingPage from './pages/LandingPage'
+import RechargePlusPage from './pages/RechargePlusPage'
 
 export default function App() {
   return (
@@ -71,6 +72,11 @@ export default function App() {
 
             {/* 首页 */}
             <Route path="/" element={<LandingPage />} />
+            {/* 充值 Plus 页面 */}
+            <Route path="/recharge-plus" element={<RechargePlusPage />} />
+
+            {/* 博客页面 */}
+            <Route path="/blog" element={<Navigate to="/src/client/assets/blog/index.html" replace />} />
 
             {/* 默认重定向 */}
             <Route path="*" element={<Navigate to="/" replace />} />
