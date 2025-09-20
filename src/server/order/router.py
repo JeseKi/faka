@@ -18,7 +18,11 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from src.server.database import get_db
-from src.server.auth.router import get_current_user, get_current_staff, get_current_admin
+from src.server.auth.router import (
+    get_current_user,
+    get_current_staff,
+    get_current_admin,
+)
 from src.server.auth.models import User
 from .schemas import OrderOut, OrderUpdate, OrderCreate
 from . import service
@@ -53,6 +57,7 @@ async def list_orders(
     current_user: User = Depends(get_current_admin),
 ):
     """获取订单列表（管理员权限）"""
+
     def _list():
         return service.list_orders(db, status_filter, limit, offset)
 
@@ -76,6 +81,7 @@ async def list_processing_orders(
     db: Session = Depends(get_db), current_user: User = Depends(get_current_staff)
 ):
     """获取处理中订单列表（工作人员权限）"""
+
     def _processing():
         return service.list_processing_orders(db)
 

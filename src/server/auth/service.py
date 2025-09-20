@@ -23,7 +23,7 @@ from sqlalchemy.orm import Session
 
 from .config import auth_config
 from .models import User
-from .schemas import Role, UserCreate, UserUpdate
+from .schemas import Role, UserCreate, UserUpdate, AdminUserCreate
 from .dao import UserDAO
 from src.server.mail_sender import (
     MailAddress,
@@ -124,7 +124,21 @@ def create_user(db: Session, user_data: UserCreate) -> User:
     # 先构造密码哈希
     tmp_user = User(username=user_data.username, email=user_data.email)
     tmp_user.set_password(user_data.password)
-    return UserDAO(db).create(tmp_user.username, tmp_user.email, tmp_user.password_hash)
+    return UserDAO(db).create(
+        tmp_user.username, tmp_user.email, tmp_user.password_hash, tmp_user.role
+    )
+
+
+def admin_create_user(db: Session, user_data: AdminUserCreate) -> User:
+    """管理员创建用户"""
+    # 先构造密码哈希
+    tmp_user = User(
+        username=user_data.username, email=user_data.email, role=user_data.role
+    )
+    tmp_user.set_password(user_data.password)
+    return UserDAO(db).create(
+        tmp_user.username, tmp_user.email, tmp_user.password_hash, tmp_user.role
+    )
 
 
 def update_user(db: Session, user: User, user_data: UserUpdate) -> User:

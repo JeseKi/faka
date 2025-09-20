@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from src.server.auth.dao import UserDAO
 from src.server.auth.models import User
+from src.server.auth.schemas import Role
 
 
 def test_user_dao_get_by_username(test_db_session: Session):
@@ -34,7 +35,7 @@ def test_user_dao_create(test_db_session: Session):
     """测试创建用户"""
     dao = UserDAO(test_db_session)
 
-    user = dao.create("newuser", "newuser@example.com", "hashed_password")
+    user = dao.create("newuser", "newuser@example.com", "hashed_password", Role.USER)
 
     assert user is not None
     assert user.username == "newuser"

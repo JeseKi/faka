@@ -7,6 +7,7 @@
 - GET `/api/auth/profile`
 - PUT `/api/auth/profile`
 - PUT `/api/auth/password`
+- POST `/api/auth/admin/users`
 
 ## 业务定位
 - 提供最小可用的账号体系，支持注册、登录、个人信息、改密。开发/测试环境支持 `test_token` 便捷调试。

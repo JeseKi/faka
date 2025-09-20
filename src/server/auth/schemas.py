@@ -11,10 +11,12 @@ from pydantic import BaseModel, Field, EmailStr, ConfigDict
 from typing import Optional
 from enum import Enum
 
+
 class Role(str, Enum):
     ADMIN = "admin"
     USER = "user"
     STAFF = "staff"
+
 
 class UserProfile(BaseModel):
     id: int
@@ -64,3 +66,10 @@ class UserRegisterWithCode(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=8)
     code: str = Field(..., min_length=6, max_length=6)
+
+
+class AdminUserCreate(BaseModel):
+    username: str = Field(..., min_length=3, max_length=50)
+    email: EmailStr
+    password: str = Field(..., min_length=8)
+    role: Role

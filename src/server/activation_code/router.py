@@ -46,6 +46,7 @@ async def generate_activation_codes(
 
     return await run_in_thread(_generate)
 
+
 @router.get("/check")
 async def check_code_availability(
     code: str,

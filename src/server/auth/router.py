@@ -36,6 +36,7 @@ from .schemas import (
     UserLogin,
     VerificationCodeRequest,
     UserRegisterWithCode,
+    AdminUserCreate,
 )
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
@@ -53,7 +54,10 @@ async def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-    if global_config.app_env in ["dev", "test"] and token == auth_config.test_token:
+    if (
+        global_config.app_env.lower() in ["dev", "test"]
+        and token == auth_config.test_token
+    ):
         user = db.query(User).filter(User.id == 1).first()
         if user:
             return user
@@ -93,6 +97,7 @@ async def get_current_staff(
     if user.role != Role.STAFF and user.role != Role.ADMIN:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权限")
     return user
+
 
 @router.post("/login", response_model=TokenResponse)
 async def login_for_access_token(login_data: UserLogin, db: Session = Depends(get_db)):
@@ -228,3 +233,30 @@ async def change_current_user_password(
             status_code=status.HTTP_400_BAD_REQUEST, detail="旧密码不正确"
         )
     return {"message": "密码修改成功"}
+
+
+@router.post(
+    "/admin/users", response_model=UserProfile, status_code=status.HTTP_201_CREATED
+)
+async def admin_create_user(
+    user_data: AdminUserCreate,
+    current_admin: User = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """管理员创建用户"""
+    # 检查用户名是否已被注册
+    db_user = service.get_user_by_username(db, username=user_data.username)
+    if db_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="用户名已被注册"
+        )
+
+    # 检查邮箱是否已被注册
+    existing_user = db.query(User).filter(User.email == user_data.email).first()
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="邮箱已被注册"
+        )
+
+    new_user = service.admin_create_user(db=db, user_data=user_data)
+    return new_user

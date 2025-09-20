@@ -18,43 +18,25 @@ import { useAuth } from '../../hooks/useAuth'
 
 const { Header, Content } = Layout
 
-export default function MainLayout() {
+export default function StaffLayout() {
   const navigate = useNavigate()
   const location = useLocation()
   const { token } = theme.useToken()
   const { user, logout } = useAuth()
 
   const selectedKeys = useMemo(() => {
-    if (location.pathname.startsWith('/')) {
-      return ['dashboard']
-    }
-    return []
+    const path = location.pathname.split('/')[2] || 'dashboard'
+    return [path]
   }, [location.pathname])
 
   const navItems = useMemo<MenuProps['items']>(
     () => [
       {
-        key: 'purchase',
-        label: <Link to="/purchase">购买充值卡</Link>,
-      },
-      ...(user?.role === 'admin' ? [
-        {
-          key: 'admin',
-          label: <Link to="/admin">管理员面板</Link>,
-        }
-      ] : []),
-      ...((user?.role === 'admin' || user?.role === 'staff') ? [
-        {
-          key: 'order-processing',
-          label: <Link to="/staff/order-processing">订单处理</Link>,
-        }
-      ] : []),
-      {
-        key: 'history',
-        label: <Link to="/history">购买历史</Link>,
+        key: 'order-processing',
+        label: <Link to="/staff/order-processing">订单处理</Link>,
       },
     ],
-    [user?.role],
+    [],
   )
 
   const handleLogout = () => {
@@ -108,7 +90,7 @@ export default function MainLayout() {
       >
         <Flex align="center" gap={16}>
           <Link to="/" className="text-base font-semibold text-slate-900">
-            发卡站
+            发卡站 - 工作人员面板
           </Link>
           <Menu
             mode="horizontal"

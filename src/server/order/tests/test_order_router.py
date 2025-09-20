@@ -4,6 +4,11 @@
 """
 
 from typing import Dict, Any
+import os
+
+from src.server.auth.config import auth_config
+
+os.environ.setdefault("APP_ENV", "dev")
 
 
 def register_user_helper(
@@ -46,13 +51,15 @@ def test_get_order_stats(test_client, test_db_session):
     os.environ.setdefault("APP_ENV", "test")
 
     stats_resp = test_client.get(
-        "/api/orders/stats", headers={"Authorization": "Bearer KISPACE_TEST_TOKEN"}
+        "/api/orders/stats",
+        headers={"Authorization": f"Bearer {auth_config.test_token}"},
     )
     assert stats_resp.status_code == 200
     stats_data = stats_resp.json()
     assert "total_orders" in stats_data
     assert "pending_orders" in stats_data
     assert "completed_orders" in stats_data
+
 
 def test_list_processing_orders(test_client, test_db_session):
     """测试获取处理中订单列表"""
@@ -67,7 +74,8 @@ def test_list_processing_orders(test_client, test_db_session):
     os.environ.setdefault("APP_ENV", "test")
 
     processing_orders_resp = test_client.get(
-        "/api/orders/processing", headers={"Authorization": "Bearer KISPACE_TEST_TOKEN"}
+        "/api/orders/processing",
+        headers={"Authorization": f"Bearer {auth_config.test_token}"},
     )
     assert processing_orders_resp.status_code == 200
     processing_orders_data = processing_orders_resp.json()

@@ -2,9 +2,7 @@
 """认证服务层测试"""
 
 from datetime import timedelta
-from unittest.mock import patch
 
-import pytest
 from sqlalchemy.orm import Session
 
 from src.server.auth.models import User
@@ -17,11 +15,9 @@ from src.server.auth.service import (
     create_refresh_token,
     create_user,
     get_user_by_username,
-    send_verification_code,
     update_user,
-    verification_codes,
+    admin_create_user,
 )
-from src.server.mail_sender import MailSendResult
 
 
 def test_get_user_by_username(test_db_session: Session):
@@ -166,3 +162,24 @@ def test_bootstrap_default_admin(test_db_session: Session):
 
     user_count = test_db_session.query(User).filter(User.username == "admin").count()
     assert user_count == 1
+
+
+def test_admin_create_user(test_db_session: Session):
+    """测试管理员创建用户"""
+    from src.server.auth.schemas import AdminUserCreate, Role
+
+    user_data = AdminUserCreate(
+        username="newadminuser",
+        email="newadminuser@example.com",
+        password="adminpassword123",
+        role=Role.ADMIN,
+    )
+
+    user = admin_create_user(test_db_session, user_data)
+
+    assert user is not None
+    assert user.username == "newadminuser"
+    assert user.email == "newadminuser@example.com"
+    assert user.role == Role.ADMIN
+    assert user.password_hash is not None
+    assert len(user.password_hash) > 0

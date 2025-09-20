@@ -1,13 +1,14 @@
 import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-dom'
 import MainLayout from './components/layout/MainLayout'
 import AdminLayout from './components/layout/AdminLayout'
+import StaffLayout from './components/layout/StaffLayout'
 import ProtectedRoute from './components/ui/ProtectedRoute'
 import LoginPage from './pages/auth/LoginPage'
 import RegisterPage from './pages/auth/RegisterPage'
 import PurchasePage from './pages/user/PurchasePage'
 import CardManagementPage from './pages/admin/CardManagementPage'
 import ActivationCodeManagementPage from './pages/admin/ActivationCodeManagementPage'
-import OrderProcessingPage from './pages/staff/OrderProcessingPage'
+import ProcessingOrdersPage from './pages/staff/ProcessingOrdersPage'
 import AdminDashboardPage from './pages/admin/AdminDashboardPage'
 import SalesRecordPage from './pages/admin/SalesRecordPage'
 import { AuthProvider } from './providers/AuthProvider'
@@ -58,18 +59,17 @@ export default function App() {
               <Route path="sales" element={<SalesRecordPage />} />
             </Route>
 
-            {/* 工作人员后台（需要 staff 或 admin 角色） */}
+            {/* 工作人员后台（需要 staff 角色） */}
             <Route
               path="/staff"
               element={
                 <ProtectedRoute requiredRoles={['staff', 'admin']}>
-                  <AdminLayout />
+                  <StaffLayout />
                 </ProtectedRoute>
               }
             >
-              <Route path="orders" element={<OrderProcessingPage />} />
+              <Route path="order-processing" element={<ProcessingOrdersPage />} />
             </Route>
-
             {/* 首页 */}
             <Route path="/" element={<LandingPage />} />
             {/* 充值 Plus 页面 */}

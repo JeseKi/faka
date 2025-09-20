@@ -17,6 +17,7 @@ class OrderStatus(str, Enum):
     PROCESSING = "processing"
     COMPLETED = "completed"
 
+
 class OrderOut(BaseModel):
     id: int
     activation_code: str
