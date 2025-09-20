@@ -8,4 +8,4 @@ services:
     env_file:
       - .env
     volumes:
-      - ./database.db:/app/data/database.db
+      - ./database.db:/app/database.db
