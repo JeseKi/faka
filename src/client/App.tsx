@@ -13,6 +13,7 @@ import SalesRecordPage from './pages/admin/SalesRecordPage'
 import { AuthProvider } from './providers/AuthProvider'
 import { SWRProvider } from './providers/SWRProvider'
 import PurchaseHistoryPage from './pages/user/PurchaseHistoryPage'
+import LandingPage from './pages/LandingPage'
 
 export default function App() {
   return (
@@ -68,9 +69,11 @@ export default function App() {
               <Route path="orders" element={<OrderProcessingPage />} />
             </Route>
 
+            {/* 首页 */}
+            <Route path="/" element={<LandingPage />} />
+
             {/* 默认重定向 */}
-            <Route path="/" element={<Navigate to="/purchase" replace />} />
-            <Route path="*" element={<Navigate to="/purchase" replace />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </AuthProvider>
       </SWRProvider>

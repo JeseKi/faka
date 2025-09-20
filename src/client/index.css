@@ -1,3 +1,4 @@
+@import "tailwindcss";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -33,4 +34,82 @@ a {
 
 code {
   font-family: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+/* 隐藏滚动条 */
+::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+
+.gradient-bg {
+  background: linear-gradient(135deg, #14B8A6 0%, #6366F1 100%);
+}
+
+.fade-in {
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 文本省略号样式 */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 博客侧边栏展开状态 */
+.blog-panel-open {
+  transform: translateX(0) !important;
+}
+
+/* 博客侧边栏收起状态 */
+.blog-panel-closed {
+  transform: translateX(100%) !important;
+}
+
+/* 响应式调整 */
+@media (max-width: 640px) {
+  #blogSidebar {
+    bottom: 5rem;
+    right: 0.5rem;
+  }
+
+  #blogPanel {
+    width: calc(100vw - 1rem);
+    padding: 1rem;
+    border-radius: 1rem 0 0 1rem;
+  }
+
+  #blogToggle {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  /* 移动端文章卡片优化 */
+  .blog-article-card {
+    padding: 0.75rem;
+  }
+}
+
+@media (max-width: 768px) {
+  #blogPanel {
+    width: 18rem;
+  }
+
+  #blogSidebar {
+    bottom: 5rem;
+  }
 }

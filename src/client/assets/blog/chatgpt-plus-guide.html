@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- 页面性能优化 -->
+    <meta http-equiv="Cache-Control" content="max-age=31536000, must-revalidate">
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <title>ChatGPT Plus完整使用指南：从入门到精通 | AIchongzhi博客</title>
+    <meta name="description" content="最全面的ChatGPT Plus使用教程，涵盖GPT-4功能、插件使用、代码解释器、最佳实践等。助您充分发挥ChatGPT Plus的强大能力，提升AI工作效率。">
+
+    <!-- 关键词优化 -->
+    <meta name="keywords" content="ChatGPT Plus使用教程,ChatGPT Plus功能介绍,GPT-4使用指南,ChatGPT Plus插件,ChatGPT代码解释器,ChatGPT使用技巧">
+
+    <!-- Google Search Console验证 -->
+    <meta name="google-site-verification" content="dMGoYkxPFvvqbA4sY2-s2w5C2-DHAaOAVTv4dLZPwMY" />
+
+    <!-- 百度站长验证 -->
+    <meta name="baidu-site-verification" content="codeva-8xrTKJIWan" />
+
+    <!-- Open Graph标签 -->
+    <meta property="og:title" content="ChatGPT Plus完整使用指南：从入门到精通">
+    <meta property="og:description" content="最全面的ChatGPT Plus使用教程，助您充分发挥ChatGPT Plus的强大能力">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://aichongzhi.org/blog/chatgpt-plus-guide.html">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .gradient-bg { background: linear-gradient(135deg, #14B8A6 0%, #6366F1 100%); }
+        .toc-item:hover { background-color: #f3f4f6; }
+        .toc-active { background-color: #e0e7ff; border-left: 3px solid #6366f1; }
+        .prose h2 { scroll-margin-top: 120px; }
+        .prose h3 { scroll-margin-top: 120px; }
+    </style>
+
+    <!-- Article结构化数据 -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "ChatGPT Plus完整使用指南：从入门到精通",
+        "description": "最全面的ChatGPT Plus使用教程，涵盖GPT-4功能、插件使用、代码解释器、最佳实践等",
+        "author": {
+            "@type": "Organization",
+            "name": "AIchongzhi"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "AIchongzhi",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "https://aichongzhi.org/logo.png"
+            }
+        },
+        "datePublished": "2025-09-20",
+        "dateModified": "2025-09-20",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https://aichongzhi.org/blog/chatgpt-plus-guide.html"
+        }
+    }
+    </script>
+</head>
+<body class="font-sans bg-gray-50 text-gray-900">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <nav class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <a href="../index.html" class="text-2xl font-bold gradient-bg bg-clip-text text-transparent">AIchongzhi</a>
+                    <span class="text-gray-400">|</span>
+                    <a href="index.html" class="text-lg font-medium text-gray-700 hover:text-indigo-600 transition-colors">博客</a>
+                </div>
+                <div class="flex items-center space-x-6">
+                    <a href="../index.html" class="text-gray-600 hover:text-indigo-600 transition-colors">首页</a>
+                    <a href="../index.html#faq" class="text-gray-600 hover:text-indigo-600 transition-colors">常见问题</a>
+                    <a href="../index.html#features" class="text-gray-600 hover:text-indigo-600 transition-colors">服务特色</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Article Content -->
+    <main class="py-8">
+        <div class="container mx-auto px-4">
+            <div class="max-w-6xl mx-auto flex gap-8">
+                <!-- Table of Contents -->
+                <aside class="w-80 flex-shrink-0 hidden lg:block">
+                    <div class="sticky top-24">
+                        <div class="bg-white rounded-2xl p-6 shadow-lg">
+                            <h3 class="text-lg font-semibold mb-4 text-gray-900">目录</h3>
+                            <nav class="space-y-2">
+                                <a href="chatgpt-plus-guide.html#introduction" class="toc-item block px-3 py-2 rounded-lg text-sm text-gray-700 hover:text-indigo-600 transition-colors">什么是ChatGPT Plus</a>
+                                <a href="chatgpt-plus-guide.html#getting-started" class="toc-item block px-3 py-2 rounded-lg text-sm text-gray-700 hover:text-indigo-600 transition-colors">如何充值ChatGPT Plus</a>
+                                <a href="chatgpt-plus-guide.html#features" class="toc-item block px-3 py-2 rounded-lg text-sm text-gray-700 hover:text-indigo-600 transition-colors">功能详解</a>
+                                <div class="ml-4 space-y-1">
+                                    <a href="chatgpt-plus-guide.html#gpt4o" class="toc-item block px-3 py-2 rounded-lg text-xs text-gray-600 hover:text-indigo-600 transition-colors">GPT-4o和o1模型</a>
+                                    <a href="chatgpt-plus-guide.html#integrations" class="toc-item block px-3 py-2 rounded-lg text-xs text-gray-600 hover:text-indigo-600 transition-colors">Advanced Voice和集成</a>
+                                    <a href="chatgpt-plus-guide.html#code-interpreter" class="toc-item block px-3 py-2 rounded-lg text-xs text-gray-600 hover:text-indigo-600 transition-colors">代码解释器</a>
+                                    <a href="chatgpt-plus-guide.html#dalle" class="toc-item block px-3 py-2 rounded-lg text-xs text-gray-600 hover:text-indigo-600 transition-colors">图像生成</a>
+                                </div>
+                                <a href="chatgpt-plus-guide.html#best-practices" class="toc-item block px-3 py-2 rounded-lg text-sm text-gray-700 hover:text-indigo-600 transition-colors">使用技巧</a>
+                                <a href="chatgpt-plus-guide.html#faq" class="toc-item block px-3 py-2 rounded-lg text-sm text-gray-700 hover:text-indigo-600 transition-colors">常见问题</a>
+                                <a href="chatgpt-plus-guide.html#conclusion" class="toc-item block px-3 py-2 rounded-lg text-sm text-gray-700 hover:text-indigo-600 transition-colors">总结</a>
+                            </nav>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Main Content -->
+                <article class="flex-1 max-w-4xl">
+                    <div class="bg-white rounded-2xl p-8 shadow-lg">
+                        <!-- Article Header -->
+                        <header class="mb-8">
+                            <div class="flex items-center gap-3 mb-4">
+                                <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">使用指南</span>
+                                <span class="text-gray-400 text-sm">2025年9月20日</span>
+                                <span class="text-gray-400 text-sm">约15分钟阅读</span>
+                            </div>
+                            <h1 class="text-4xl font-bold mb-4 text-gray-900">ChatGPT Plus完整使用指南：从入门到精通</h1>
+                            <p class="text-xl text-gray-600 leading-relaxed">
+                                本指南将全面介绍ChatGPT Plus的所有最新功能特性，包括2025年9月推出的GPT-4o模型、o1推理系列、Advanced Voice模式等，帮助您充分发挥这个强大AI工具的潜力。
+                            </p>
+                        </header>
+
+                        <!-- Article Content -->
+                        <div class="prose prose-lg max-w-none">
+                            <section id="introduction">
+                                <h2 class="text-3xl font-bold mb-6 text-gray-900">什么是ChatGPT Plus</h2>
+
+                                <p class="mb-6">ChatGPT Plus是OpenAI推出的付费订阅服务，相比免费版本提供了更强大的功能和更好的用户体验。</p>
+
+                                <div class="bg-blue-50 border-l-4 border-blue-400 p-6 mb-6">
+                                    <h3 class="text-lg font-semibold mb-3 text-blue-900">ChatGPT Plus vs 免费版对比</h3>
+                                    <div class="grid md:grid-cols-2 gap-4">
+                                        <div>
+                                            <h4 class="font-medium text-blue-800 mb-2">免费版</h4>
+                                            <ul class="text-sm text-blue-700 space-y-1">
+                                                <li>• 仅限GPT-3.5模型</li>
+                                                <li>• 高峰期限制使用</li>
+                                                <li>• 响应速度较慢</li>
+                                                <li>• 无插件功能</li>
+                                            </ul>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-medium text-blue-800 mb-2">ChatGPT Plus</h4>
+                                            <ul class="text-sm text-blue-700 space-y-1">
+                                                <li>• 可使用GPT-4o和o1模型</li>
+                                                <li>• 优先访问权限</li>
+                                                <li>• 更快的响应速度</li>
+                                                <li>• 支持插件和高级功能</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <h3 class="text-2xl font-semibold mb-4 text-gray-900">ChatGPT Plus的核心优势</h3>
+                                <ul class="list-disc list-inside space-y-2 mb-6">
+                                    <li><strong>GPT-4o和o1模型访问</strong>：多模态能力和深度推理能力</li>
+                                    <li><strong>Advanced Voice模式</strong>：支持视频和屏幕共享的语音对话</li>
+                                    <li><strong>Google服务集成</strong>：Gmail、Calendar、Contacts连接器</li>
+                                    <li><strong>增强数据分析</strong>：改进的代码运行和数据处理能力</li>
+                                    <li><strong>DALL-E 3和图像库</strong>：图像生成和自动保存管理</li>
+                                    <li><strong>Sora视频生成</strong>：限制访问的视频创作功能预览</li>
+                                </ul>
+                            </section>
+
+                            <section id="getting-started">
+                                <h2 class="text-3xl font-bold mb-6 text-gray-900">如何充值ChatGPT Plus</h2>
+
+                                <p class="mb-6">对于国内用户来说，直接通过OpenAI官网充值ChatGPT Plus面临诸多限制。我们提供了更便捷的解决方案。</p>
+
+                                <div class="bg-green-50 border-l-4 border-green-400 p-6 mb-6">
+                                    <h3 class="text-lg font-semibold mb-3 text-green-900">推荐充值方式</h3>
+                                    <p class="text-green-800 mb-4">通过我们的专业代充服务，您可以：</p>
+                                    <ul class="text-green-800 space-y-2">
+                                        <li>✅ 20秒快速完成充值</li>
+                                        <li>✅ 价格比官方优惠15%</li>
+                                        <li>✅ 官方iOS正规渠道，安全可靠</li>
+                                        <li>✅ 24/7自动处理，无需等待</li>
+                                    </ul>
+                                    <div class="mt-4">
+                                        <a href="../index.html" class="inline-flex items-center px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors">
+                                            💎 立即充值ChatGPT Plus
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <h3 class="text-2xl font-semibold mb-4 text-gray-900">充值步骤详解</h3>
+                                <ol class="list-decimal list-inside space-y-3 mb-6">
+                                    <li><strong>选择套餐</strong>：访问我们的充值页面，选择适合的Plus套餐</li>
+                                    <li><strong>提供信息</strong>：输入您的ChatGPT账号邮箱</li>
+                                    <li><strong>完成支付</strong>：使用支付宝、微信等方式付款</li>
+                                    <li><strong>自动激活</strong>：系统自动为您的账号开通Plus权限</li>
+                                    <li><strong>开始使用</strong>：登录ChatGPT即可享受Plus功能</li>
+                                </ol>
+                            </section>
+
+                            <section id="features">
+                                <h2 class="text-3xl font-bold mb-6 text-gray-900">ChatGPT Plus功能详解</h2>
+
+                                <div id="gpt4o">
+                                    <h3 class="text-2xl font-semibold mb-4 text-gray-900">GPT-4o和o1模型使用</h3>
+                                    <p class="mb-4">2025年9月，ChatGPT Plus提供对OpenAI最新模型的访问：</p>
+                                    <ul class="list-disc list-inside space-y-2 mb-6">
+                                        <li><strong>GPT-4o</strong>：旗舰多模态模型，每3小时80条消息</li>
+                                        <li><strong>GPT-4o mini</strong>：无限制访问的轻量版本</li>
+                                        <li><strong>o1-preview和o1-mini</strong>：专业推理模型，思考能力更强</li>
+                                        <li><strong>动态模型路由</strong>：系统自动选择最适合的模型</li>
+                                        <li><strong>扩展上下文</strong>：思考模式下支持196,000 tokens</li>
+                                    </ul>
+
+                                    <div class="bg-gray-50 p-6 rounded-lg mb-6">
+                                        <h4 class="font-semibold mb-3">最新模型使用示例</h4>
+                                        <div class="bg-white p-4 rounded border-l-4 border-blue-400">
+                                            <p class="text-sm text-gray-600 mb-2">用户提问：</p>
+                                            <p class="mb-3">"分析这个复杂的数学证明步骤"</p>
+                                            <p class="text-sm text-gray-600 mb-2">o1模型回答：</p>
+                                            <p class="text-sm">o1模型会进入深度思考模式，逐步分析证明的每个环节，提供详细的数学推理过程...</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="integrations">
+                                    <h3 class="text-2xl font-semibold mb-4 text-gray-900">Advanced Voice和集成功能</h3>
+                                    <p class="mb-4">2025年9月，ChatGPT Plus推出了革命性的新功能，提供更自然的交互体验：</p>
+
+                                    <div class="grid md:grid-cols-2 gap-6 mb-6">
+                                        <div class="bg-blue-50 p-4 rounded-lg">
+                                            <h4 class="font-semibold text-blue-900 mb-2">🎤 Advanced Voice模式</h4>
+                                            <p class="text-sm text-blue-800">支持视频和屏幕共享的实时语音对话，更自然的沟通体验</p>
+                                        </div>
+                                        <div class="bg-green-50 p-4 rounded-lg">
+                                            <h4 class="font-semibold text-green-900 mb-2">📧 Gmail连接器</h4>
+                                            <p class="text-sm text-green-800">直接访问和管理您的Gmail邮件，智能回复和整理</p>
+                                        </div>
+                                        <div class="bg-purple-50 p-4 rounded-lg">
+                                            <h4 class="font-semibold text-purple-900 mb-2">📅 Google Calendar集成</h4>
+                                            <p class="text-sm text-purple-800">日程管理和会议安排，智能时间规划</p>
+                                        </div>
+                                        <div class="bg-orange-50 p-4 rounded-lg">
+                                            <h4 class="font-semibold text-orange-900 mb-2">👥 Google Contacts</h4>
+                                            <p class="text-sm text-orange-800">联系人管理和关系维护，智能联系建议</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="code-interpreter">
+                                    <h3 class="text-2xl font-semibold mb-4 text-gray-900">代码解释器</h3>
+                                    <p class="mb-4">代码解释器允许ChatGPT运行Python代码，进行数据分析和文件处理：</p>
+                                    <ul class="list-disc list-inside space-y-2 mb-6">
+                                        <li>数据分析和可视化</li>
+                                        <li>文件格式转换</li>
+                                        <li>图像处理和编辑</li>
+                                        <li>数学计算和建模</li>
+                                        <li>自动化脚本编写</li>
+                                    </ul>
+                                </div>
+
+                                <div id="dalle">
+                                    <h3 class="text-2xl font-semibold mb-4 text-gray-900">DALL-E 3图像生成</h3>
+                                    <p class="mb-4">ChatGPT Plus集成了DALL-E 3，可以根据文字描述生成高质量图像：</p>
+                                    <ul class="list-disc list-inside space-y-2 mb-6">
+                                        <li>根据详细描述生成图像</li>
+                                        <li>修改和完善现有图像</li>
+                                        <li>创建艺术作品和设计素材</li>
+                                        <li>生成图表和示意图</li>
+                                    </ul>
+                                </div>
+                            </section>
+
+                            <section id="best-practices">
+                                <h2 class="text-3xl font-bold mb-6 text-gray-900">ChatGPT Plus使用技巧与最佳实践</h2>
+
+                                <h3 class="text-2xl font-semibold mb-4 text-gray-900">提示词优化技巧</h3>
+                                <div class="space-y-6 mb-8">
+                                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6">
+                                        <h4 class="font-semibold text-yellow-900 mb-3">💡 技巧1：明确角色定位</h4>
+                                        <p class="text-yellow-800 mb-2">告诉ChatGPT扮演什么角色，会得到更专业的回答。</p>
+                                        <div class="bg-white p-3 rounded text-sm">
+                                            <strong>示例：</strong>"你是一位资深的数据分析师，请帮我分析这组销售数据..."
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-blue-50 border-l-4 border-blue-400 p-6">
+                                        <h4 class="font-semibold text-blue-900 mb-3">📋 技巧2：提供充足上下文</h4>
+                                        <p class="text-blue-800 mb-2">详细的背景信息能帮助ChatGPT给出更准确的答案。</p>
+                                        <div class="bg-white p-3 rounded text-sm">
+                                            <strong>示例：</strong>"我正在为一家中型制造企业设计CRM系统，目标客户群体是..."
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-green-50 border-l-4 border-green-400 p-6">
+                                        <h4 class="font-semibold text-green-900 mb-3">🎯 技巧3：明确输出格式</h4>
+                                        <p class="text-green-800 mb-2">指定您希望的回答格式和结构。</p>
+                                        <div class="bg-white p-3 rounded text-sm">
+                                            <strong>示例：</strong>"请以表格形式列出，包含产品名称、价格、优缺点三列"
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <h3 class="text-2xl font-semibold mb-4 text-gray-900">高效工作流建议</h3>
+                                <ol class="list-decimal list-inside space-y-3 mb-6">
+                                    <li><strong>分步骤处理复杂任务</strong>：将大任务分解为小步骤</li>
+                                    <li><strong>使用对话历史</strong>：利用上下文进行连续对话</li>
+                                    <li><strong>结合插件使用</strong>：根据需求激活相应插件</li>
+                                    <li><strong>及时保存重要内容</strong>：将有用的回答保存下来</li>
+                                    <li><strong>定期总结反思</strong>：回顾使用效果，优化提问方式</li>
+                                </ol>
+                            </section>
+
+                            <section id="faq">
+                                <h2 class="text-3xl font-bold mb-6 text-gray-900">常见问题解答</h2>
+
+                                <div class="space-y-6">
+                                    <div class="bg-gray-50 p-6 rounded-lg">
+                                        <h3 class="text-lg font-semibold mb-3 text-gray-900">Q: ChatGPT Plus值得购买吗？</h3>
+                                        <p class="text-gray-700">对于经常使用AI工具的用户来说，ChatGPT Plus绝对值得投资。GPT-4的质量提升显著，插件功能大大扩展了使用场景，而且稳定性更好。</p>
+                                    </div>
+
+                                    <div class="bg-gray-50 p-6 rounded-lg">
+                                        <h3 class="text-lg font-semibold mb-3 text-gray-900">Q: 每月可以使用多少次GPT-4？</h3>
+                                        <p class="text-gray-700">ChatGPT Plus用户可以在3小时内发送最多40条GPT-4消息。这个限制对大多数用户来说都足够了。</p>
+                                    </div>
+
+                                    <div class="bg-gray-50 p-6 rounded-lg">
+                                        <h3 class="text-lg font-semibold mb-3 text-gray-900">Q: 可以取消订阅吗？</h3>
+                                        <p class="text-gray-700">可以随时取消ChatGPT Plus订阅。取消后您仍可以使用到当前计费周期结束。</p>
+                                    </div>
+
+                                    <div class="bg-gray-50 p-6 rounded-lg">
+                                        <h3 class="text-lg font-semibold mb-3 text-gray-900">Q: 企业可以购买团队版本吗？</h3>
+                                        <p class="text-gray-700">OpenAI提供企业版ChatGPT，包含更高的使用限制、数据隐私保护和管理功能。</p>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section id="conclusion">
+                                <h2 class="text-3xl font-bold mb-6 text-gray-900">总结</h2>
+
+                                <p class="mb-6">ChatGPT Plus为用户提供了强大的AI助手功能，从日常写作到专业分析，从代码开发到创意设计，都能提供有效帮助。通过本指南的详细介绍，相信您已经对ChatGPT Plus有了全面的了解。</p>
+
+                                <div class="bg-gradient-to-r from-indigo-50 to-purple-50 p-8 rounded-2xl border border-indigo-200">
+                                    <h3 class="text-xl font-semibold mb-4 text-indigo-900">开始您的ChatGPT Plus之旅</h3>
+                                    <p class="text-indigo-800 mb-6">准备好体验ChatGPT Plus的强大功能了吗？我们提供快速、安全、优惠的充值服务。</p>
+                                    <div class="flex flex-col sm:flex-row gap-4">
+                                        <a href="../index.html" class="inline-flex items-center justify-center px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-colors">
+                                            💎 立即充值ChatGPT Plus
+                                        </a>
+                                        <a href="../index.html#faq" class="inline-flex items-center justify-center px-6 py-3 bg-white text-indigo-600 font-semibold rounded-lg border border-indigo-600 hover:bg-indigo-50 transition-colors">
+                                            ❓ 查看更多问题
+                                        </a>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+
+                        <!-- Article Footer -->
+                        <footer class="mt-12 pt-8 border-t border-gray-200">
+                            <div class="flex flex-wrap gap-2 mb-6">
+                                <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">ChatGPT Plus</span>
+                                <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">GPT-4</span>
+                                <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">使用教程</span>
+                                <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">AI工具</span>
+                            </div>
+
+                            <div class="text-center">
+                                <p class="text-gray-600 mb-4">觉得这篇文章有用吗？分享给更多朋友吧！</p>
+                                <div class="flex justify-center space-x-4">
+                                    <button onclick="copyURL()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                                        📋 复制链接
+                                    </button>
+                                    <a href="index.html" class="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors">
+                                        📚 阅读更多文章
+                                    </a>
+                                </div>
+                            </div>
+                        </footer>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-3 gap-8">
+                <div>
+                    <h4 class="text-xl font-bold mb-4">AIchongzhi</h4>
+                    <p class="text-gray-400">专业的ChatGPT Plus充值服务，安全快速，价格优惠</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">快速链接</h4>
+                    <ul class="space-y-2">
+                        <li><a href="../index.html" class="text-gray-400 hover:text-white transition-colors">首页</a></li>
+                        <li><a href="index.html" class="text-gray-400 hover:text-white transition-colors">博客</a></li>
+                        <li><a href="../index.html#faq" class="text-gray-400 hover:text-white transition-colors">常见问题</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">联系我们</h4>
+                    <p class="text-gray-400">客服微信: J2175839853</p>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center">
+                <p class="text-gray-500">© 2024 AIchongzhi. 专业ChatGPT充值服务</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 目录跟踪
+        document.addEventListener('DOMContentLoaded', function() {
+            const tocLinks = document.querySelectorAll('.toc-item');
+            const sections = document.querySelectorAll('section[id]');
+
+            function updateActiveLink() {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.clientHeight;
+                    if (window.pageYOffset >= sectionTop - 200) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                tocLinks.forEach(link => {
+                    link.classList.remove('toc-active');
+                    if (link.getAttribute('href') === '#' + current) {
+                        link.classList.add('toc-active');
+                    }
+                });
+            }
+
+            window.addEventListener('scroll', updateActiveLink);
+            updateActiveLink();
+        });
+
+        // 复制URL功能
+        function copyURL() {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                alert('链接已复制到剪贴板！');
+            });
+        }
+    </script>
+</body>
+</html>
