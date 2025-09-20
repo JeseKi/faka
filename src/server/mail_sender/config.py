@@ -22,6 +22,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 class MailSenderConfig(BaseSettings):
     """邮件发送配置"""
 

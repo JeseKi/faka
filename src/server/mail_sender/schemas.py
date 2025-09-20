@@ -58,7 +58,9 @@ class PurchaseMailPayload(BaseModel):
     """购买成功邮件上下文"""
 
     recipient: MailAddress = Field(..., description="收件人信息")
-    card_name: str = Field(..., min_length=1, max_length=100, description="购买的卡名称")
+    card_name: str = Field(
+        ..., min_length=1, max_length=100, description="购买的卡名称"
+    )
     activation_code: str = Field(..., min_length=1, description="卡密")
     sale_price: float = Field(..., ge=0, description="销售价格")
     purchased_at: datetime = Field(..., description="购买时间")

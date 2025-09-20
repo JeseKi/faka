@@ -71,7 +71,9 @@ def setup_mail_config(monkeypatch):
     monkeypatch.setattr(mail_sender_config, "smtp_host", "smtp.test", raising=False)
     monkeypatch.setattr(mail_sender_config, "smtp_port", 465, raising=False)
     monkeypatch.setattr(mail_sender_config, "timeout", 5, raising=False)
-    monkeypatch.setattr(mail_sender_config, "sender_email", "sender@example.com", raising=False)
+    monkeypatch.setattr(
+        mail_sender_config, "sender_email", "sender@example.com", raising=False
+    )
     monkeypatch.setattr(mail_sender_config, "sender_password", "secret", raising=False)
     monkeypatch.setattr(mail_sender_config, "sender_name", "测试发件人", raising=False)
     monkeypatch.setattr(mail_sender_config, "use_ssl", True, raising=False)
@@ -110,7 +112,7 @@ def test_send_mail_success(monkeypatch):
         else subject_header[0]
     )
     assert subject_value == mail.subject
-    payload = parsed.get_payload(decode=True).decode("utf-8") # type: ignore
+    payload = parsed.get_payload(decode=True).decode("utf-8")  # type: ignore
     assert mail.body in payload
 
 
