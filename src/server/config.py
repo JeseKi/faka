@@ -34,8 +34,8 @@ class GlobalConfig(BaseSettings):
 
     database_protocol: str = Field(default="sqlite", title="数据库协议")
 
-    database_path: str = Field(
-        default="database.db",
+    database_path: Path = Field(
+        default=Path("data") / "database.db",
         title="数据库路径",
         description="相对项目根目录的相对路径",
     )

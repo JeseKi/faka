@@ -31,3 +31,6 @@ AGENTS.md
 temp*
 *.db
 __pycache__
+
+# data
+data/
