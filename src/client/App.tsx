@@ -57,6 +57,7 @@ export default function App() {
               <Route path="cards" element={<CardManagementPage />} />
               <Route path="codes" element={<ActivationCodeManagementPage />} />
               <Route path="sales" element={<SalesRecordPage />} />
+              <Route path="order-processing" element={<ProcessingOrdersPage />} />
             </Route>
 
             {/* 工作人员后台（需要 staff 角色） */}

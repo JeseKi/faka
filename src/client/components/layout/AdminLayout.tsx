@@ -33,13 +33,12 @@ export default function AdminLayout() {
     if (path.startsWith('/admin/cards')) return ['cards']
     if (path.startsWith('/admin/codes')) return ['codes']
     if (path.startsWith('/admin/sales')) return ['sales']
-    if (path.startsWith('/staff/orders')) return ['orders']
+    if (path.startsWith('/admin/order-processing')) return ['orders']
     return ['dashboard']
   }, [location.pathname])
 
   const navItems = useMemo<MenuProps['items']>(() => {
     const isAdmin = user?.role === 'admin'
-    const isStaff = user?.role === 'staff' || isAdmin
 
     const items: MenuProps['items'] = []
 
@@ -64,16 +63,13 @@ export default function AdminLayout() {
           key: 'sales',
           icon: <ShoppingCartOutlined />,
           label: <Link to="/admin/sales">销售记录</Link>,
-        }
+        },
+        {
+          key: 'orders',
+          icon: <ShoppingCartOutlined />,
+          label: <Link to="/admin/order-processing">订单处理</Link>,
+        },
       )
-    }
-
-    if (isStaff) {
-      items.push({
-        key: 'orders',
-        icon: <ShoppingCartOutlined />,
-        label: <Link to="/staff/orders">订单处理</Link>,
-      })
     }
 
     return items
