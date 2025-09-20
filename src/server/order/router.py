@@ -78,6 +78,21 @@ async def list_pending_orders(
     return await run_in_thread(_pending)
 
 
+@router.get("/processing", response_model=list[OrderOut])
+async def list_processing_orders(
+    db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
+):
+    """获取处理中订单列表（工作人员权限）"""
+
+    if current_user.role != "admin" and current_user.role != "staff":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权限")
+
+    def _processing():
+        return service.list_processing_orders(db)
+
+    return await run_in_thread(_processing)
+
+
 @router.put("/{order_id}/complete", response_model=OrderOut)
 async def complete_order(
     order_id: int,

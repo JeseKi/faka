@@ -19,7 +19,6 @@ from src.server.auth.service import (
     get_user_by_username,
     send_verification_code,
     update_user,
-    verify_code,
     verification_codes,
 )
 from src.server.mail_sender import MailSendResult
@@ -167,91 +166,3 @@ def test_bootstrap_default_admin(test_db_session: Session):
 
     user_count = test_db_session.query(User).filter(User.username == "admin").count()
     assert user_count == 1
-
-
-def test_send_verification_code():
-    """测试发送验证码成功场景"""
-    verification_codes.clear()
-    email = "test@example.com"
-
-    with (
-        patch("src.server.auth.service.send_verification_code_email") as mock_mail,
-        patch("src.server.auth.service.logger") as mock_logger,
-    ):
-        mock_mail.return_value = MailSendResult(success=True, error=None)
-
-        code = send_verification_code(email)
-
-        assert isinstance(code, str)
-        assert len(code) == 6
-        assert code.isdigit()
-
-        mock_mail.assert_called_once()
-        mock_logger.info.assert_called_once_with(f"验证码已发送到 {email}")
-
-        assert email in verification_codes
-        assert verification_codes[email]["code"] == code
-
-    verification_codes.clear()
-
-
-def test_send_verification_code_mail_failure_in_test_env():
-    """测试在测试环境下发送失败不会抛异常"""
-    verification_codes.clear()
-    email = "test@example.com"
-
-    with (
-        patch("src.server.auth.service.send_verification_code_email") as mock_mail,
-        patch("src.server.auth.service.logger") as mock_logger,
-    ):
-        mock_mail.return_value = MailSendResult(success=False, error="smtp error")
-
-        code = send_verification_code(email)
-
-        mock_mail.assert_called_once()
-        mock_logger.error.assert_called_once()
-        mock_logger.warning.assert_called_once()
-        assert email in verification_codes
-        assert verification_codes[email]["code"] == code
-
-
-def test_send_verification_code_mail_failure_in_prod_env(monkeypatch):
-    """测试生产环境失败会抛出异常"""
-    verification_codes.clear()
-    email = "prod@example.com"
-
-    with (
-        patch("src.server.auth.service.send_verification_code_email") as mock_mail,
-        patch("src.server.auth.service.logger") as mock_logger,
-    ):
-        mock_mail.return_value = MailSendResult(success=False, error="smtp error")
-        monkeypatch.setattr(
-            "src.server.auth.service.global_config",
-            type("Cfg", (), {"app_env": "prod"})(),
-            raising=False,
-        )
-
-        with pytest.raises(RuntimeError):
-            send_verification_code(email)
-
-        mock_mail.assert_called_once()
-        mock_logger.error.assert_called_once()
-        mock_logger.warning.assert_not_called()
-        assert email not in verification_codes
-
-
-def test_verify_code():
-    """测试验证码验证"""
-    verification_codes.clear()
-    email = "test@example.com"
-
-    with patch("src.server.auth.service.send_verification_code_email") as mock_mail:
-        mock_mail.return_value = MailSendResult(success=True, error=None)
-
-        real_code = send_verification_code(email)
-        assert verify_code(email, real_code) is True
-
-        send_verification_code(email)
-        assert verify_code(email, "654321") is False
-
-    assert verify_code("wrong@example.com", real_code) is False

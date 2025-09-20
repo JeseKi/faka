@@ -83,6 +83,10 @@ def list_pending_orders(db: Session) -> list[Order]:
     """获取所有待处理订单"""
     dao = OrderDAO(db)
     return dao.list_pending()
+def list_processing_orders(db: Session) -> list[Order]:
+    """获取所有处理中订单"""
+    dao = OrderDAO(db)
+    return dao.list_processing()
 
 
 def list_orders(

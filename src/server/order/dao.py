@@ -69,6 +69,15 @@ class OrderDAO(BaseDAO):
             .all()
         )
 
+    def list_processing(self) -> list[Order]:
+        """获取所有处理中订单"""
+        return (
+            self.db_session.query(Order)
+            .filter(Order.status == OrderStatus.PROCESSING)
+            .order_by(Order.created_at.asc())
+            .all()
+        )
+
     def list_all(
         self,
         status_filter: OrderStatus | None = None,
