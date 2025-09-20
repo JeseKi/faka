@@ -8,7 +8,7 @@ import RegisterPage from './pages/auth/RegisterPage'
 import PurchasePage from './pages/user/PurchasePage'
 import CardManagementPage from './pages/admin/CardManagementPage'
 import ActivationCodeManagementPage from './pages/admin/ActivationCodeManagementPage'
-import ProcessingOrdersPage from './pages/staff/ProcessingOrdersPage'
+import OrderProcessingPage from './pages/staff/OrderProcessingPage'
 import AdminDashboardPage from './pages/admin/AdminDashboardPage'
 import SalesRecordPage from './pages/admin/SalesRecordPage'
 import { AuthProvider } from './providers/AuthProvider'
@@ -57,7 +57,7 @@ export default function App() {
               <Route path="cards" element={<CardManagementPage />} />
               <Route path="codes" element={<ActivationCodeManagementPage />} />
               <Route path="sales" element={<SalesRecordPage />} />
-              <Route path="order-processing" element={<ProcessingOrdersPage />} />
+              <Route path="order-processing" element={<OrderProcessingPage />} />
             </Route>
 
             {/* 工作人员后台（需要 staff 角色） */}
@@ -69,7 +69,7 @@ export default function App() {
                 </ProtectedRoute>
               }
             >
-              <Route path="order-processing" element={<ProcessingOrdersPage />} />
+              <Route path="order-processing" element={<OrderProcessingPage />} />
             </Route>
             {/* 首页 */}
             <Route path="/" element={<LandingPage />} />

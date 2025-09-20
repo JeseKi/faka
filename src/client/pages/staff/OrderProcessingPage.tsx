@@ -22,6 +22,7 @@ import {
 } from '@ant-design/icons'
 import { isAxiosError } from 'axios'
 import api from '../../lib/api'
+import { useAuth } from '../../hooks/useAuth'
 import type { Order } from '../../lib/types'
 
 const { Title, Text } = Typography
@@ -40,6 +41,7 @@ function resolveErrorMessage(error: unknown): string {
 
 export default function OrderProcessingPage() {
   const { message } = App.useApp()
+  const { user } = useAuth()
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(false)
   const [detailModalVisible, setDetailModalVisible] = useState(false)
@@ -53,33 +55,45 @@ export default function OrderProcessingPage() {
     completed: 0,
   })
 
+  const isAdmin = user?.role === 'admin'
+
   // 获取订单列表
   const fetchOrders = useCallback(async () => {
     try {
       setLoading(true)
-      const params = new URLSearchParams()
-      if (statusFilter) {
-        params.append('status_filter', statusFilter)
+      
+      if (isAdmin) {
+        // 管理员获取所有订单
+        const params = new URLSearchParams()
+        if (statusFilter) {
+          params.append('status_filter', statusFilter)
+        }
+        params.append('limit', '100')
+        params.append('offset', '0')
+        
+        const { data } = await api.get<Order[]>(`/orders?${params.toString()}`)
+        setOrders(data)
+
+        // 计算统计信息
+        const total = data.length
+        const pending = data.filter(order => order.status === 'pending').length
+        const processing = data.filter(order => order.status === 'processing').length
+        const completed = data.filter(order => order.status === 'completed').length
+        setStats({ total, pending, processing, completed })
+      } else {
+        // 员工只获取处理中的订单
+        const { data } = await api.get<Order[]>('/orders/processing')
+        setOrders(data)
+        // 员工不显示统计信息
+        setStats({ total: 0, pending: 0, processing: 0, completed: 0 })
       }
-      params.append('limit', '100')
-      params.append('offset', '0')
-
-      const { data } = await api.get<Order[]>(`/orders?${params.toString()}`)
-      setOrders(data)
-
-      // 计算统计信息
-      const total = data.length
-      const pending = data.filter(order => order.status === 'pending').length
-      const processing = data.filter(order => order.status === 'processing').length
-      const completed = data.filter(order => order.status === 'completed').length
-      setStats({ total, pending, processing, completed })
     } catch (error) {
       console.error('获取订单列表失败:', error)
       message.error(resolveErrorMessage(error))
     } finally {
       setLoading(false)
     }
-  }, [statusFilter, message])
+  }, [statusFilter, message, isAdmin])
 
   useEffect(() => {
     fetchOrders()
@@ -115,22 +129,7 @@ export default function OrderProcessingPage() {
     setDetailModalVisible(true)
   }
 
-  // 获取待处理订单
-  const fetchPendingOrders = useCallback(async () => {
-    try {
-      const { data } = await api.get<Order[]>('/orders/pending')
-      setOrders(data)
-      setStats({
-        total: data.length,
-        pending: data.length,
-        processing: 0,
-        completed: 0,
-      })
-    } catch (error) {
-      console.error('获取待处理订单失败:', error)
-      message.error(resolveErrorMessage(error))
-    }
-  }, [message])
+  // 获取待处理订单 - 已移除，员工角色直接使用 fetchOrders
 
   const columns = [
     {
@@ -263,29 +262,31 @@ export default function OrderProcessingPage() {
         <Title level={4}>订单处理</Title>
       </div>
 
-      {/* 统计信息 */}
-      <Row gutter={16} style={{ marginBottom: 24 }}>
-        <Col span={8}>
-          <AntCard>
-            <Statistic title="总订单数" value={stats.total} />
-          </AntCard>
-        </Col>
-        <Col span={8}>
-          <AntCard>
-            <Statistic title="待消费" value={stats.pending} />
-          </AntCard>
-        </Col>
-        <Col span={8}>
-          <AntCard>
-            <Statistic title="处理中" value={stats.processing} />
-          </AntCard>
-        </Col>
-        <Col span={8}>
-          <AntCard>
-            <Statistic title="已完成" value={stats.completed} />
-          </AntCard>
-        </Col>
-      </Row>
+      {/* 统计信息 - 仅管理员可见 */}
+      {isAdmin && (
+        <Row gutter={16} style={{ marginBottom: 24 }}>
+          <Col span={8}>
+            <AntCard>
+              <Statistic title="总订单数" value={stats.total} />
+            </AntCard>
+          </Col>
+          <Col span={8}>
+            <AntCard>
+              <Statistic title="待消费" value={stats.pending} />
+            </AntCard>
+          </Col>
+          <Col span={8}>
+            <AntCard>
+              <Statistic title="处理中" value={stats.processing} />
+            </AntCard>
+          </Col>
+          <Col span={8}>
+            <AntCard>
+              <Statistic title="已完成" value={stats.completed} />
+            </AntCard>
+          </Col>
+        </Row>
+      )}
 
       {/* 操作按钮 */}
       <div style={{ marginBottom: 16 }}>
@@ -298,23 +299,20 @@ export default function OrderProcessingPage() {
           >
             刷新订单
           </Button>
-          <Button
-            onClick={fetchPendingOrders}
-            loading={loading}
-          >
-            仅显示待处理
-          </Button>
-          <Select
-            placeholder="筛选状态"
-            style={{ width: 120 }}
-            value={statusFilter}
-            onChange={setStatusFilter}
-            allowClear
-          >
-            <Option value="pending">未消费</Option>
-            <Option value="processing">处理中</Option>
-            <Option value="completed">已完成</Option>
-          </Select>
+          {/* 移除仅显示待处理按钮 */}
+          {isAdmin && (
+            <Select
+              placeholder="筛选状态"
+              style={{ width: 120 }}
+              value={statusFilter}
+              onChange={setStatusFilter}
+              allowClear
+            >
+              <Option value="pending">未消费</Option>
+              <Option value="processing">处理中</Option>
+              <Option value="completed">已完成</Option>
+            </Select>
+          )}
         </Space>
       </div>
 
