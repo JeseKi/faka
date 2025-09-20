@@ -26,6 +26,16 @@ class AuthConfig(BaseSettings):
         title="测试 Token",
         description="dev/test 环境用于便捷鉴权",
     )
+    admin_email: str = Field(
+        default="admin@example.com",
+        title="管理员邮箱",
+        description="管理员邮箱",
+    )
+    admin_password: str = Field(
+        default="AdminPass123",
+        title="管理员密码",
+        description="管理员密码",
+    )
 
 
 auth_config = AuthConfig()
