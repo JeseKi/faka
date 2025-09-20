@@ -43,6 +43,7 @@ export default function OrderProcessingPage() {
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(false)
   const [detailModalVisible, setDetailModalVisible] = useState(false)
+  const [confirmModalVisible, setConfirmModalVisible] = useState(false)
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [statusFilter, setStatusFilter] = useState<string>('')
   const [stats, setStats] = useState({
@@ -86,9 +87,21 @@ export default function OrderProcessingPage() {
 
   // 完成订单
   const handleCompleteOrder = async (orderId: number) => {
+    // 找到对应的订单对象
+    const order = orders.find(o => o.id === orderId) || selectedOrder;
+    if (order) {
+      setSelectedOrder(order);
+      setConfirmModalVisible(true);
+    }
+  }
+
+  // 确认完成订单
+  const confirmCompleteOrder = async () => {
+    if (!selectedOrder) return;
     try {
-      await api.put(`/orders/${orderId}/complete`)
+      await api.put(`/orders/${selectedOrder.id}/complete`)
       message.success('订单完成成功')
+      setConfirmModalVisible(false);
       fetchOrders()
     } catch (error) {
       console.error('完成订单失败:', error)
@@ -228,7 +241,7 @@ export default function OrderProcessingPage() {
           >
             详情
           </Button>
-          {record.status === 'pending' || record.status === 'processing' && (
+          {(record.status === 'pending' || record.status === 'processing') && (
             <Button
               type="link"
               size="small"
@@ -339,7 +352,7 @@ export default function OrderProcessingPage() {
           >
             关闭
           </Button>,
-          selectedOrder?.status === 'pending' || selectedOrder?.status === 'processing' && (
+          (selectedOrder?.status === 'pending' || selectedOrder?.status === 'processing') ? (
             <Button
               key="complete"
               type="primary"
@@ -348,13 +361,12 @@ export default function OrderProcessingPage() {
                 if (selectedOrder) {
                   handleCompleteOrder(selectedOrder.id)
                   setDetailModalVisible(false)
-                  setSelectedOrder(null)
                 }
               }}
             >
               完成订单
             </Button>
-          ),
+          ) : null,
         ]}
         width={600}
       >
@@ -453,6 +465,18 @@ export default function OrderProcessingPage() {
             )}
           </div>
         )}
+      </Modal>
+
+      {/* 确认完成订单模态框 */}
+      <Modal
+        title="确认完成订单"
+        open={confirmModalVisible}
+        onOk={confirmCompleteOrder}
+        onCancel={() => setConfirmModalVisible(false)}
+        okText="确认"
+        cancelText="取消"
+      >
+        <p>您确定要将此订单标记为已完成吗？此操作不可撤销。</p>
       </Modal>
     </div>
   )
