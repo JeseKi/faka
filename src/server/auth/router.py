@@ -122,6 +122,7 @@ async def login_for_access_token(login_data: UserLogin, db: Session = Depends(ge
 async def send_verification_code(
     request: VerificationCodeRequest, db: Session = Depends(get_db)
 ):
+    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="验证码发送失败") # TODO: 目前阶段暂时关闭注册功能
     # 检查邮箱是否已被注册
     existing_user = db.query(User).filter(User.email == request.email).first()
     if existing_user:
