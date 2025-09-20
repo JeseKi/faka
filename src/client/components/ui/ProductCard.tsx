@@ -1,4 +1,3 @@
-import React from 'react'
 import { Card, Typography } from 'antd'
 import ReactMarkdown from 'react-markdown'
 import type { Card as CardType } from '../../lib/types'
