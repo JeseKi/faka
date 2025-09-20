@@ -37,23 +37,24 @@ def verify_activation_code(
     from src.server.activation_code.service import set_code_consuming
 
     activation_code = set_code_consuming(db, code)
+    order = create_order(db, activation_code.code, user_id, OrderStatus.PROCESSING, remarks)
 
-    # 设置订单状态
-    dao = OrderDAO(db)
-    order = dao.get_by_activation_code(activation_code.code)
-    if not order:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f"未找到卡密：{code}"
-        )
-
-    if order.user_id != user_id:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=f"卡密不属于用户：{user_id}"
-        )
-
-    order = dao.update_status(
-        order=order, status=OrderStatus.PROCESSING, remarks=remarks
-    )
+    # # 设置订单状态 # TODO: 暂时不使用，因为目前的阶段不需要验证卡密是否属于用户
+    # dao = OrderDAO(db)
+    # order = dao.get_by_activation_code(activation_code.code)
+    # if not order:
+    #     raise HTTPException(
+    #         status_code=status.HTTP_404_NOT_FOUND, detail=f"未找到卡密：{code}"
+    #     )
+# 
+    # if order.user_id != user_id:
+    #     raise HTTPException(
+    #         status_code=status.HTTP_400_BAD_REQUEST, detail=f"卡密不属于用户：{user_id}"
+    #     )
+# 
+    # order = dao.update_status(
+    #     order=order, status=OrderStatus.PROCESSING, remarks=remarks
+    # )
 
     return order
 
