@@ -277,21 +277,21 @@ const LandingPage: React.FC = () => {
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {/* 评价卡片1 - 纯图片展示 */}
             <div className="w-full">
-              <img src="/src/client/assets/images/image_1756607004003.png"
+              <img src="/images/image_1756607004003.png"
                    className="w-full h-auto object-contain rounded-lg"
                    alt="ChatGPT Plus充值客户好评截图 - 快速到账服务满意度高" loading="lazy" />
             </div>
 
             {/* 评价卡片2 - 纯图片展示 */}
             <div className="w-full">
-              <img src="/src/client/assets/images/image_1756607013801.png"
+              <img src="/images/image_1756607013801.png"
                    className="w-full h-auto object-contain rounded-lg"
                    alt="ChatGPT会员代充成功案例 - 20秒完成充值客户反馈" loading="lazy" />
             </div>
 
             {/* 评价卡片3 - 纯图片展示 */}
             <div className="w-full">
-              <img src="/src/client/assets/images/image_1756607018341.png"
+              <img src="/images/image_1756607018341.png"
                    className="w-full h-auto object-contain rounded-lg"
                    alt="ChatGPT充值服务用户推荐 - 安全可靠官方渠道" loading="lazy" />
             </div>
@@ -563,7 +563,7 @@ const LandingPage: React.FC = () => {
 
           {/* 博客文章列表 */}
           <div className="space-y-3">
-            <div className="blog-article-card flex items-start space-x-3 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border-l-4 border-blue-500 hover:shadow-md transition-all duration-200 cursor-pointer" onClick={() => window.open('/src/client/assets/blog/chatgpt-plus-guide.html', '_blank')}>
+            <div className="blog-article-card flex items-start space-x-3 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border-l-4 border-blue-500 hover:shadow-md transition-all duration-200 cursor-pointer" onClick={() => window.open('/blog/chatgpt-plus-guide.html', '_blank')}>
               <span className="text-2xl flex-shrink-0 mt-1">📚</span>
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-1">
@@ -575,7 +575,7 @@ const LandingPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="blog-article-card flex items-start space-x-3 p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border-l-4 border-purple-500 hover:shadow-md transition-all duration-200 cursor-pointer" onClick={() => window.open('/src/client/assets/blog/chatgpt-plus-vs-pro.html', '_blank')}>
+            <div className="blog-article-card flex items-start space-x-3 p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border-l-4 border-purple-500 hover:shadow-md transition-all duration-200 cursor-pointer" onClick={() => window.open('/blog/chatgpt-plus-vs-pro.html', '_blank')}>
               <span className="text-2xl flex-shrink-0 mt-1">⚖️</span>
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-1">
@@ -587,7 +587,7 @@ const LandingPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="blog-article-card flex items-start space-x-3 p-3 bg-gradient-to-r from-red-50 to-yellow-50 rounded-lg border-l-4 border-red-500 hover:shadow-md transition-all duration-200 cursor-pointer" onClick={() => window.open('/src/client/assets/blog/how-to-get-chatgpt-cookies.html', '_blank')}>
+            <div className="blog-article-card flex items-start space-x-3 p-3 bg-gradient-to-r from-red-50 to-yellow-50 rounded-lg border-l-4 border-red-500 hover:shadow-md transition-all duration-200 cursor-pointer" onClick={() => window.open('/blog/how-to-get-chatgpt-cookies.html', '_blank')}>
               <span className="text-2xl flex-shrink-0 mt-1">🍪</span>
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-1">
@@ -602,7 +602,7 @@ const LandingPage: React.FC = () => {
 
           {/* 查看更多按钮 */}
           <div className="mt-4 pt-3 border-t border-gray-200">
-            <a href="/src/client/assets/blog/index.html" className="block w-full text-center py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg font-medium text-sm hover:shadow-lg transition-all duration-300">
+            <a href="/blog/index.html" className="block w-full text-center py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg font-medium text-sm hover:shadow-lg transition-all duration-300">
               查看全部文章 →
             </a>
           </div>

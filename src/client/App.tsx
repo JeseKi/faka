@@ -77,7 +77,7 @@ export default function App() {
             <Route path="/recharge-plus" element={<RechargePlusPage />} />
 
             {/* 博客页面 */}
-            <Route path="/blog" element={<Navigate to="/src/client/assets/blog/index.html" replace />} />
+            <Route path="/blog" element={<Navigate to="/blog/index.html" replace />} />
 
             {/* 默认重定向 */}
             <Route path="*" element={<Navigate to="/" replace />} />
