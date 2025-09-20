@@ -17,10 +17,12 @@ import {
 import { ShoppingCartOutlined, CreditCardOutlined } from '@ant-design/icons'
 import { isAxiosError } from 'axios'
 import { useNavigate } from 'react-router-dom'
+import ReactMarkdown from 'react-markdown'
 import api from '../../lib/api'
 import { useCards } from '../../hooks/useCardAPI'
 import { useAuth } from '../../hooks/useAuth' // 新增导入
-import type { SaleCreate } from '../../lib/types'
+import ProductCard from '../../components/ui/ProductCard'
+import type { SaleCreate, Card as CardType } from '../../lib/types'
 
 const { Title, Text, Paragraph } = Typography
 const { Option } = Select
@@ -45,6 +47,7 @@ export default function PurchasePage() {
   const { message } = App.useApp()
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [selectedCard, setSelectedCard] = useState<CardType | null>(null)
 
   const [form] = Form.useForm<PurchaseFormData>()
 
@@ -53,7 +56,15 @@ export default function PurchasePage() {
 
   const navigate = useNavigate()
   const { isAuthenticated, loading } = useAuth() // 使用 useAuth hook
-  
+
+  const handleCardClick = (card: CardType) => {
+    setSelectedCard(card)
+  }
+
+  const handleModalClose = () => {
+    setSelectedCard(null)
+  }
+
   const handlePurchase = async (values: PurchaseFormData) => {
     // 检查用户是否已登录
     if (!isAuthenticated) {
@@ -144,31 +155,11 @@ export default function PurchasePage() {
             ) : (
               <Space direction="vertical" size="middle" style={{ width: '100%' }}>
                 {cards.map((card) => (
-                  <Card
+                  <ProductCard
                     key={card.id}
-                    size="small"
-                    style={{
-                      border: '1px solid #f0f0f0',
-                      background: '#fafafa',
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div>
-                        <Text strong style={{ fontSize: '16px' }}>
-                          {card.name}
-                        </Text>
-                        <br />
-                        <Text type="secondary" style={{ fontSize: '14px' }}>
-                          {card.description}
-                        </Text>
-                      </div>
-                      <div style={{ textAlign: 'right' }}>
-                        <Text strong style={{ fontSize: '18px', color: '#1890ff' }}>
-                          ¥{card.price}
-                        </Text>
-                      </div>
-                    </div>
-                  </Card>
+                    card={card}
+                    onClick={handleCardClick}
+                  />
                 ))}
               </Space>
             )}
@@ -246,6 +237,42 @@ export default function PurchasePage() {
           </Card>
         </Col>
       </Row>
+
+      {/* 商品详情模态框 */}
+      <Modal
+        title={selectedCard?.name}
+        open={!!selectedCard}
+        onCancel={handleModalClose}
+        footer={null}
+        width={600}
+      >
+        {selectedCard && (
+          <div style={{ padding: '16px 0' }}>
+            <div style={{ marginBottom: 24 }}>
+              <Text strong style={{ fontSize: '18px', color: '#1890ff', marginRight: 16 }}>
+                价格: ¥{selectedCard.price}
+              </Text>
+            </div>
+            <div>
+              <Text strong style={{ fontSize: '16px', marginBottom: 12, display: 'block' }}>
+                商品详情:
+              </Text>
+              <div style={{ fontSize: '14px', lineHeight: 1.6 }}>
+                <ReactMarkdown
+                  components={{
+                    p: ({ children }) => <p style={{ margin: '8px 0' }}>{children}</p>,
+                    strong: ({ children }) => <strong style={{ color: '#1890ff' }}>{children}</strong>,
+                    ul: ({ children }) => <ul style={{ paddingLeft: 20, margin: '8px 0' }}>{children}</ul>,
+                    li: ({ children }) => <li style={{ margin: '4px 0' }}>{children}</li>,
+                  }}
+                >
+                  {selectedCard.description}
+                </ReactMarkdown>
+              </div>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   )
 }
