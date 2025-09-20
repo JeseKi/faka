@@ -446,7 +446,7 @@ const LandingPage: React.FC = () => {
                   <div className="flex items-start">
                     <div className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center text-sm font-bold mr-4 mt-1">2</div>
                     <div>
-                      <h3 className="text-xl font-semibold text-gray-900 mb-2">打开 gptplus.biz 进行充值</h3>
+                      <h3 className="text-xl font-semibold text-gray-900 mb-2">打开<a href="/recharge-plus" target="_blank" rel="noopener noreferrer">充值Plus</a>进行充值</h3>
                       <p className="text-gray-600">访问充值网站，按照页面提示完成充值操作</p>
                       <p className="text-sm text-green-600 mt-2">📺 可以结合上方视频教程一步步操作</p>
                     </div>
