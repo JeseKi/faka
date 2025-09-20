@@ -28,6 +28,7 @@ from .models import User
 from . import service
 from .schemas import (
     PasswordChange,
+    Role,
     TokenResponse,
     UserCreate,
     UserProfile,
@@ -79,10 +80,19 @@ async def get_current_admin(
 ) -> User:
     """获取当前管理员"""
     user = await get_current_user(token, db)
-    if user.role != "admin":
+    if user.role != Role.ADMIN:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权限")
     return user
 
+
+async def get_current_staff(
+    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
+) -> User:
+    """获取当前工作人员"""
+    user = await get_current_user(token, db)
+    if user.role != Role.STAFF and user.role != Role.ADMIN:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权限")
+    return user
 
 @router.post("/login", response_model=TokenResponse)
 async def login_for_access_token(login_data: UserLogin, db: Session = Depends(get_db)):

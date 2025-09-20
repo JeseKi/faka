@@ -18,6 +18,7 @@ from sqlalchemy import String, Integer, DateTime, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from src.server.database import Base
+from .schemas import Role
 import bcrypt
 
 
@@ -30,7 +31,7 @@ class User(Base):
     password_hash: Mapped[str] = mapped_column(String(128), nullable=False)
     name: Mapped[Optional[str]] = mapped_column(String(100), default=None)
     remark: Mapped[Optional[str]] = mapped_column(Text, default=None)
-    role: Mapped[str] = mapped_column(String(20), nullable=False, default="user")
+    role: Mapped[Role] = mapped_column(String(20), nullable=False, default=Role.USER)
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="active")
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

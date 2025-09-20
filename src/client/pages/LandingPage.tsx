@@ -103,7 +103,7 @@ const LandingPage: React.FC = () => {
       // 如果没有视频源，动态创建并加载
       if (!videoPlayerRef.current.querySelector('source')) {
         const source = document.createElement('source');
-        source.src = 'http://cloud.video.taobao.com/play/u/null/p/1/e/6/t/1/514196921671.mp4';
+        source.src = 'https://tuchuang-1317479375.cos.ap-beijing.myqcloud.com/%E6%95%99%E7%A8%8B%E8%A7%86%E9%A2%91.mp4';
         source.type = 'video/mp4';
         videoPlayerRef.current.appendChild(source);
         

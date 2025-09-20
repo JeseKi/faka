@@ -8,7 +8,7 @@ import pytest
 from sqlalchemy.orm import Session
 
 from src.server.auth.models import User
-from src.server.auth.schemas import UserCreate, UserUpdate
+from src.server.auth.schemas import Role, UserCreate, UserUpdate
 from src.server.auth.service import (
     authenticate_user,
     bootstrap_default_admin,
@@ -158,7 +158,7 @@ def test_bootstrap_default_admin(test_db_session: Session):
     assert user is not None
     assert user.username == "admin"
     assert user.email == "admin@example.com"
-    assert user.role == "admin"
+    assert user.role == Role.ADMIN
     assert user.check_password("AdminPass123") is True
 
     # 测试重复调用不会创建重复用户

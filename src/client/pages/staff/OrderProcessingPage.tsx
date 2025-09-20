@@ -24,7 +24,7 @@ import { isAxiosError } from 'axios'
 import api from '../../lib/api'
 import type { Order } from '../../lib/types'
 
-const { Title, Text, Paragraph } = Typography
+const { Title, Text } = Typography
 const { Option } = Select
 
 function resolveErrorMessage(error: unknown): string {
@@ -193,7 +193,26 @@ export default function OrderProcessingPage() {
       dataIndex: 'remarks',
       key: 'remarks',
       ellipsis: true,
-      render: (remarks: string | null) => remarks || '-',
+      render: (remarks: string | null) => {
+        if (!remarks) return '-'
+        const displayText = remarks.length > 20 ? `${remarks.slice(0, 20)}...` : remarks
+        return (
+          <Space size="middle">
+            <Tooltip title={remarks} placement="topLeft">
+              <span>{displayText}</span>
+            </Tooltip>
+            <Button
+              type="text"
+              icon={<CopyOutlined />}
+              size="small"
+              onClick={() => {
+                navigator.clipboard.writeText(remarks)
+                message.success('备注已复制到剪贴板')
+              }}
+            />
+          </Space>
+        )
+      },
     },
     {
       title: '操作',
@@ -361,27 +380,29 @@ export default function OrderProcessingPage() {
             <div style={{ marginBottom: 16 }}>
               <Text strong>卡密：</Text>
               <br />
-              <Space>
-                <code style={{
-                  background: '#f5f5f5',
-                  padding: '8px',
-                  borderRadius: '4px',
-                  fontFamily: 'monospace',
-                  display: 'inline-block',
-                  marginTop: '4px'
-                }}>
-                  {selectedOrder.activation_code}
-                </code>
-                <Button
-                  type="text"
-                  icon={<CopyOutlined />}
-                  size="small"
-                  onClick={() => {
-                    navigator.clipboard.writeText(selectedOrder.activation_code || '')
-                    message.success('卡密已复制到剪贴板')
-                  }}
-                />
-              </Space>
+              <div style={{ marginTop: '4px' }}>
+                {(() => {
+                  const activation_code = selectedOrder.activation_code
+                  if (!activation_code) return '-'
+                  const displayText = activation_code.length > 20 ? `${activation_code.slice(0, 20)}...` : activation_code
+                  return (
+                    <Space size="middle">
+                      <Tooltip title={activation_code} placement="topLeft">
+                        <span>{displayText}</span>
+                      </Tooltip>
+                      <Button
+                        type="text"
+                        icon={<CopyOutlined />}
+                        size="small"
+                        onClick={() => {
+                          navigator.clipboard.writeText(activation_code)
+                          message.success('卡密已复制到剪贴板')
+                        }}
+                      />
+                    </Space>
+                  )
+                })()}
+              </div>
             </div>
 
             <Row gutter={16}>
@@ -405,9 +426,29 @@ export default function OrderProcessingPage() {
               <div style={{ marginBottom: 16 }}>
                 <Text strong>备注：</Text>
                 <br />
-                <Paragraph style={{ marginTop: '4px' }}>
-                  {selectedOrder.remarks}
-                </Paragraph>
+                <div style={{ marginTop: '4px' }}>
+                  {(() => {
+                    const remarks = selectedOrder.remarks
+                    if (!remarks) return null
+                    const displayText = remarks.length > 20 ? `${remarks.slice(0, 20)}...` : remarks
+                    return (
+                      <Space size="middle">
+                        <Tooltip title={remarks} placement="topLeft">
+                          <span>{displayText}</span>
+                        </Tooltip>
+                        <Button
+                          type="text"
+                          icon={<CopyOutlined />}
+                          size="small"
+                          onClick={() => {
+                            navigator.clipboard.writeText(remarks)
+                            message.success('备注已复制到剪贴板')
+                          }}
+                        />
+                      </Space>
+                    )
+                  })()}
+                </div>
               </div>
             )}
           </div>

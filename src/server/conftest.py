@@ -26,6 +26,8 @@ from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 from sqlalchemy.engine import Connection
 
+from src.server.auth.schemas import Role
+
 # 测试环境配置
 os.environ.setdefault("APP_ENV", "test")
 os.environ.setdefault("ALLOWED_ORIGINS", '["http://localhost:3000"]')
@@ -104,7 +106,7 @@ def init_test_database(test_db_engine) -> None:
                 username="admin",
                 email="admin@example.com",
                 name="默认管理员",
-                role="admin",
+                role=Role.ADMIN,
             )
             admin.set_password("admin123")
             session.add(admin)

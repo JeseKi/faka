@@ -149,7 +149,26 @@ export default function PurchaseHistoryPage({ userId }: PurchaseHistoryPageProps
       dataIndex: 'remarks',
       key: 'remarks',
       width: 180,
-      render: (remarks: string | null) => remarks || '-',
+      render: (remarks: string | null) => {
+        if (!remarks) return '-'
+        const displayText = remarks.length > 20 ? `${remarks.slice(0, 20)}...` : remarks
+        return (
+          <Space size="middle">
+            <Tooltip title={remarks} placement="topLeft">
+              <span>{displayText}</span>
+            </Tooltip>
+            <Button
+              type="text"
+              icon={<CopyOutlined />}
+              size="small"
+              onClick={() => {
+                navigator.clipboard.writeText(remarks)
+                message.success('备注已复制到剪贴板')
+              }}
+            />
+          </Space>
+        )
+      },
     },
   ]
 

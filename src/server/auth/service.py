@@ -23,7 +23,7 @@ from sqlalchemy.orm import Session
 
 from .config import auth_config
 from .models import User
-from .schemas import UserCreate, UserUpdate
+from .schemas import Role, UserCreate, UserUpdate
 from .dao import UserDAO
 from src.server.mail_sender import (
     MailAddress,
@@ -155,7 +155,7 @@ def bootstrap_default_admin(session: Session) -> None:
             username=admin_username, email=admin_email, password=password
         )
         new_user = create_user(session, admin_user_data)
-        new_user.role = "admin"
+        new_user.role = Role.ADMIN
         session.commit()
         logger.info(f"已引导管理员用户：{admin_username}")
     except Exception as e:

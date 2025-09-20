@@ -9,14 +9,19 @@
 
 from pydantic import BaseModel, Field, EmailStr, ConfigDict
 from typing import Optional
+from enum import Enum
 
+class Role(str, Enum):
+    ADMIN = "admin"
+    USER = "user"
+    STAFF = "staff"
 
 class UserProfile(BaseModel):
     id: int
     username: str
     email: EmailStr
     name: Optional[str] = Field(default=None)
-    role: str
+    role: Role
     status: str
 
     model_config = ConfigDict(from_attributes=True)
