@@ -10,7 +10,7 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
 from loguru import logger
 from sqlalchemy.orm import Session
 
@@ -36,6 +36,7 @@ async def purchase_card(
     current_user: User = Depends(get_current_user),
 ):
     """购买充值卡"""
+    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="购买充值卡失败") # TODO: 目前阶段暂时关闭购买功能
 
     def _purchase():
         sale = service.purchase_card(
