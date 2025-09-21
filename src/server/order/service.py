@@ -28,7 +28,10 @@ from fastapi import HTTPException, status
 from .dao import OrderDAO
 from .models import Order
 from .schemas import OrderStatus
-from src.server.activation_code.service import set_code_consuming, get_activation_code_by_code
+from src.server.activation_code.service import (
+    set_code_consuming,
+    get_activation_code_by_code,
+)
 from src.server.card.models import Card
 
 
@@ -40,24 +43,32 @@ def verify_activation_code(
     activation_code = get_activation_code_by_code(db, code)
     if not activation_code:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="卡密不存在")
-    
+
     if activation_code.status != "available":
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="卡密状态不正确")
-    
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="卡密状态不正确"
+        )
+
     # 获取卡密对应的商品
     card = db.query(Card).filter(Card.name == activation_code.card_name).first()
     if not card:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="卡密对应的商品不存在")
-    
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="卡密对应的商品不存在"
+        )
+
     # 检查商品的渠道是否与传入的渠道ID匹配
     if card.channel_id != channel_id:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="卡密与渠道不匹配")
-    
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="卡密与渠道不匹配"
+        )
+
     # 将卡密状态设置为 consuming
     activation_code = set_code_consuming(db, code)
-    
+
     # 创建订单，使用卡密对应商品的渠道ID
-    order = create_order(db, activation_code.code, channel_id, OrderStatus.PROCESSING, remarks)
+    order = create_order(
+        db, activation_code.code, channel_id, OrderStatus.PROCESSING, remarks
+    )
 
     return order
 

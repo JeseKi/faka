@@ -22,6 +22,6 @@ class Card(Base):
     description: Mapped[str] = mapped_column(String(500), nullable=False)
     price: Mapped[float] = mapped_column(Float, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
-    
+
     # 渠道关联 - 存储渠道ID而非外键
     channel_id: Mapped[int] = mapped_column(Integer, nullable=False)

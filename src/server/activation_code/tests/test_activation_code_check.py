@@ -35,9 +35,7 @@ def test_check_code_availability_success(
     assert data["available"] is True
 
 
-def test_check_code_availability_not_found(
-    test_client: TestClient
-):
+def test_check_code_availability_not_found(test_client: TestClient):
     """测试检查不存在的卡密"""
     # 调用 API 检查不存在的卡密
     response = test_client.get(

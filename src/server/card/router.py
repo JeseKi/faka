@@ -36,10 +36,7 @@ async def create_card(
     """创建充值卡（管理员权限）"""
 
     def _create():
-        return service.create_card(
-            db=db,
-            card_in=card_data
-        )
+        return service.create_card(db=db, card_in=card_data)
 
     return await run_in_thread(_create)
 
@@ -51,7 +48,7 @@ async def list_cards(
     current_user: User = Depends(get_current_user),
 ):
     """获取充值卡列表"""
-    
+
     def _list():
         # 如果是员工，只返回其渠道下的卡片
         if current_user.role == Role.STAFF:
@@ -59,7 +56,9 @@ async def list_cards(
             if current_user.channel_id is None:
                 return []
             # 实现根据员工渠道过滤卡片的逻辑
-            return service.list_cards_by_channel(db, current_user.channel_id, include_inactive)
+            return service.list_cards_by_channel(
+                db, current_user.channel_id, include_inactive
+            )
         return service.list_cards(db, include_inactive)
 
     return await run_in_thread(_list)
@@ -72,7 +71,7 @@ async def get_card(
     current_user: User = Depends(get_current_user),
 ):
     """获取单个充值卡"""
-    
+
     def _get():
         # 如果是员工，需要检查卡片是否属于其渠道
         card = service.get_card(db, card_id)
@@ -80,7 +79,10 @@ async def get_card(
             # 实现渠道检查逻辑
             if card.channel_id != current_user.channel_id:
                 from fastapi import HTTPException, status
-                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权限访问该充值卡")
+
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN, detail="无权限访问该充值卡"
+                )
         return card
 
     return await run_in_thread(_get)
@@ -97,11 +99,7 @@ async def update_card(
 
     def _update():
         card = service.get_card(db, card_id)
-        return service.update_card(
-            db=db,
-            card=card,
-            card_in=card_data
-        )
+        return service.update_card(db=db, card=card, card_in=card_data)
 
     return await run_in_thread(_update)
 

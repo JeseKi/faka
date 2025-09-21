@@ -133,14 +133,18 @@ def admin_create_user(db: Session, user_data: AdminUserCreate) -> User:
     """管理员创建用户"""
     # 先构造密码哈希
     tmp_user = User(
-        username=user_data.username, 
-        email=user_data.email, 
+        username=user_data.username,
+        email=user_data.email,
         role=user_data.role,
-        channel_id=user_data.channel_id if user_data.role == Role.STAFF else None
+        channel_id=user_data.channel_id if user_data.role == Role.STAFF else None,
     )
     tmp_user.set_password(user_data.password)
     return UserDAO(db).create(
-        tmp_user.username, tmp_user.email, tmp_user.password_hash, tmp_user.role, tmp_user.channel_id
+        tmp_user.username,
+        tmp_user.email,
+        tmp_user.password_hash,
+        tmp_user.role,
+        tmp_user.channel_id,
     )
 
 

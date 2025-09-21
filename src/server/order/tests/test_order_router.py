@@ -91,25 +91,32 @@ def test_create_order(test_client, test_db_session):
     test_db_session.add(channel)
     test_db_session.commit()
     test_db_session.refresh(channel)
-    
+
     # 创建商品
     from src.server.card.models import Card
-    card = Card(name="测试充值卡", description="描述", price=10.0, is_active=True, channel_id=channel.id)
+
+    card = Card(
+        name="测试充值卡",
+        description="描述",
+        price=10.0,
+        is_active=True,
+        channel_id=channel.id,
+    )
     test_db_session.add(card)
     test_db_session.commit()
     test_db_session.refresh(card)
-    
+
     # 创建卡密
     codes = create_activation_codes(test_db_session, "测试充值卡", 5)
     code_value = codes[0].code
-    
+
     # 创建订单
     order_data = {
         "code": code_value,
         "channel_id": channel.id,
-        "remarks": "测试订单备注"
+        "remarks": "测试订单备注",
     }
-    
+
     resp = test_client.post("/api/orders/create", json=order_data)
     assert resp.status_code == 201
     order = resp.json()

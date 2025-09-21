@@ -41,10 +41,7 @@ class ChannelDAO(BaseDAO):
     def create(self, obj_in: ChannelCreate) -> Channel:
         """创建新渠道"""
         try:
-            db_obj = Channel(
-                name=obj_in.name,
-                description=obj_in.description
-            )
+            db_obj = Channel(name=obj_in.name, description=obj_in.description)
             self.db_session.add(db_obj)
             self.db_session.commit()
             self.db_session.refresh(db_obj)
@@ -52,8 +49,7 @@ class ChannelDAO(BaseDAO):
         except IntegrityError:
             self.db_session.rollback()
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="渠道名称已存在"
+                status_code=status.HTTP_400_BAD_REQUEST, detail="渠道名称已存在"
             )
 
     def update(self, db_obj: Channel, obj_in: ChannelUpdate) -> Channel:
@@ -71,8 +67,7 @@ class ChannelDAO(BaseDAO):
         obj = self.get(id)
         if not obj:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="渠道不存在"
+                status_code=status.HTTP_404_NOT_FOUND, detail="渠道不存在"
             )
         self.db_session.delete(obj)
         self.db_session.commit()

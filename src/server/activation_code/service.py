@@ -135,11 +135,11 @@ def is_code_available_for_user(db: Session, code: str, user: User) -> bool:
     activation_code = dao.get_by_code(code)
     if not activation_code:
         return False
-    
+
     # 检查卡密状态是否为可用
     if activation_code.status != CardCodeStatus.AVAILABLE:
         return False
-    
+
     # 如果用户是 STAFF，需要检查渠道是否匹配
     if user.role == Role.STAFF:
         # 获取卡密对应的商品
@@ -147,9 +147,9 @@ def is_code_available_for_user(db: Session, code: str, user: User) -> bool:
         if not card:
             # 如果商品不存在，认为卡密不可用
             return False
-        
+
         # 检查商品渠道是否与用户渠道一致
         if card.channel_id != user.channel_id:
             return False
-    
+
     return True

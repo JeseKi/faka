@@ -31,6 +31,6 @@ class Sale(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.now(timezone.utc), nullable=False
     )
-    
+
     # 渠道关联 - 存储渠道ID而非外键
     channel_id: Mapped[int] = mapped_column(Integer, nullable=False)

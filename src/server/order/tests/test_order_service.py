@@ -25,7 +25,7 @@ def test_create_order(test_db_session: Session):
     test_db_session.add(channel)
     test_db_session.commit()
     test_db_session.refresh(channel)
-    
+
     activation_code = "TEST-CODE-001"
     channel_id = channel.id
     remarks = "测试订单备注"
@@ -48,10 +48,13 @@ def test_get_order(test_db_session: Session):
     test_db_session.add(channel)
     test_db_session.commit()
     test_db_session.refresh(channel)
-    
+
     # 准备测试数据
     order = Order(
-        activation_code="TEST-CODE-002", channel_id=channel.id, status=OrderStatus.PENDING, user_id=0
+        activation_code="TEST-CODE-002",
+        channel_id=channel.id,
+        status=OrderStatus.PENDING,
+        user_id=0,
     )
     test_db_session.add(order)
     test_db_session.commit()
@@ -78,16 +81,25 @@ def test_list_pending_orders(test_db_session: Session):
     test_db_session.add(channel)
     test_db_session.commit()
     test_db_session.refresh(channel)
-    
+
     # 准备测试数据
     order1 = Order(
-        activation_code="TEST-CODE-003", channel_id=channel.id, status=OrderStatus.PENDING, user_id=0
+        activation_code="TEST-CODE-003",
+        channel_id=channel.id,
+        status=OrderStatus.PENDING,
+        user_id=0,
     )
     order2 = Order(
-        activation_code="TEST-CODE-004", channel_id=channel.id, status=OrderStatus.COMPLETED, user_id=0
+        activation_code="TEST-CODE-004",
+        channel_id=channel.id,
+        status=OrderStatus.COMPLETED,
+        user_id=0,
     )
     order3 = Order(
-        activation_code="TEST-CODE-005", channel_id=channel.id, status=OrderStatus.PENDING, user_id=0
+        activation_code="TEST-CODE-005",
+        channel_id=channel.id,
+        status=OrderStatus.PENDING,
+        user_id=0,
     )
 
     test_db_session.add_all([order1, order2, order3])
@@ -108,16 +120,25 @@ def test_list_orders(test_db_session: Session):
     test_db_session.add(channel)
     test_db_session.commit()
     test_db_session.refresh(channel)
-    
+
     # 准备测试数据
     order1 = Order(
-        activation_code="TEST-CODE-006", channel_id=channel.id, status=OrderStatus.PENDING, user_id=0
+        activation_code="TEST-CODE-006",
+        channel_id=channel.id,
+        status=OrderStatus.PENDING,
+        user_id=0,
     )
     order2 = Order(
-        activation_code="TEST-CODE-007", channel_id=channel.id, status=OrderStatus.COMPLETED, user_id=0
+        activation_code="TEST-CODE-007",
+        channel_id=channel.id,
+        status=OrderStatus.COMPLETED,
+        user_id=0,
     )
     order3 = Order(
-        activation_code="TEST-CODE-008", channel_id=channel.id, status=OrderStatus.PENDING, user_id=0
+        activation_code="TEST-CODE-008",
+        channel_id=channel.id,
+        status=OrderStatus.PENDING,
+        user_id=0,
     )
 
     test_db_session.add_all([order1, order2, order3])
@@ -141,7 +162,7 @@ def test_complete_order(test_db_session: Session):
     test_db_session.add(channel)
     test_db_session.commit()
     test_db_session.refresh(channel)
-    
+
     # 准备测试数据
     activation_code = ActivationCode(
         card_name="测试卡", code="TEST-CODE-009", status=CardCodeStatus.CONSUMING
@@ -150,7 +171,10 @@ def test_complete_order(test_db_session: Session):
     test_db_session.commit()
 
     order = Order(
-        activation_code="TEST-CODE-009", channel_id=channel.id, status=OrderStatus.PENDING, user_id=0
+        activation_code="TEST-CODE-009",
+        channel_id=channel.id,
+        status=OrderStatus.PENDING,
+        user_id=0,
     )
     test_db_session.add(order)
     test_db_session.commit()
@@ -172,8 +196,23 @@ def test_get_order_stats(test_db_session: Session):
     test_db_session.add(channel)
     test_db_session.commit()
     test_db_session.refresh(channel)
-    
+
     # 准备测试数据
-    _ = Order(activation_code="TEST-CODE-010", channel_id=channel.id, status=OrderStatus.PENDING, user_id=0)
-    _ = Order(activation_code="TEST-CODE-011", channel_id=channel.id, status=OrderStatus.COMPLETED, user_id=0)
-    _ = Order(activation_code="TEST-CODE-012", channel_id=channel.id, status=OrderStatus.PENDING, user_id=0)
+    _ = Order(
+        activation_code="TEST-CODE-010",
+        channel_id=channel.id,
+        status=OrderStatus.PENDING,
+        user_id=0,
+    )
+    _ = Order(
+        activation_code="TEST-CODE-011",
+        channel_id=channel.id,
+        status=OrderStatus.COMPLETED,
+        user_id=0,
+    )
+    _ = Order(
+        activation_code="TEST-CODE-012",
+        channel_id=channel.id,
+        status=OrderStatus.PENDING,
+        user_id=0,
+    )

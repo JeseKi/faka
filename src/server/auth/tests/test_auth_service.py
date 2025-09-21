@@ -21,6 +21,7 @@ from src.server.auth.service import (
 
 from src.server.auth.config import auth_config
 
+
 def test_get_user_by_username(test_db_session: Session):
     """测试根据用户名获取用户"""
     # 准备测试数据

@@ -122,7 +122,9 @@ async def login_for_access_token(login_data: UserLogin, db: Session = Depends(ge
 async def send_verification_code(
     request: VerificationCodeRequest, db: Session = Depends(get_db)
 ):
-    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="验证码发送失败") # TODO: 目前阶段暂时关闭注册功能
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST, detail="验证码发送失败"
+    )  # TODO: 目前阶段暂时关闭注册功能
     # 检查邮箱是否已被注册
     existing_user = db.query(User).filter(User.email == request.email).first()
     if existing_user:
@@ -262,6 +264,7 @@ async def admin_create_user(
     # 如果是创建 STAFF 用户，需要检查渠道是否存在
     if user_data.role == Role.STAFF and user_data.channel_id is not None:
         from src.server.channel.models import Channel
+
         channel = db.query(Channel).filter(Channel.id == user_data.channel_id).first()
         if not channel:
             raise HTTPException(

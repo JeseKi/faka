@@ -30,6 +30,6 @@ class Order(Base):
     completed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     remarks: Mapped[str | None] = mapped_column(Text, nullable=True)
     user_id: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
-    
+
     # 渠道关联 - 存储渠道ID而非外键
     channel_id: Mapped[int] = mapped_column(Integer, nullable=False)

@@ -73,6 +73,7 @@ def init_database() -> None:
     try:
         from src.server.auth import models as _1  # noqa
         from src.server.example_module import models as _2  # noqa
+
         # 不在初始化时导入新模块的模型，避免测试时的表名冲突
         from src.server.channel import models as _7  # noqa
         # from src.server.card import models as _3  # noqa

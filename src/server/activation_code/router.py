@@ -62,6 +62,7 @@ async def check_code_availability(
     is_available = await run_in_thread(_check)
     return {"available": is_available}
 
+
 @router.get("/{card_name}", response_model=list[ActivationCodeOut])
 async def list_activation_codes(
     card_name: str,

@@ -35,34 +35,33 @@ def create_sale(db: Session, user_id: int, card_name: str, quantity: int) -> Sal
     if stock < quantity:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"库存不足，当前库存: {stock}"
+            detail=f"库存不足，当前库存: {stock}",
         )
-    
+
     # 获取商品信息
     card = get_card_by_name(db, card_name)
-    
+
     # 创建销售记录
     dao = SaleDAO(db)
     sale = dao.create(user_id, card_name, quantity, card.price, card.channel_id)
-    
+
     # 为每个购买的数量生成订单
     for _ in range(quantity):
         # 获取一个可用的卡密
         activation_code = get_available_activation_code(db, card_name)
         if not activation_code:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="无法获取可用卡密"
+                status_code=status.HTTP_400_BAD_REQUEST, detail="无法获取可用卡密"
             )
-        
+
         # 创建订单，使用商品的渠道ID
         create_order(
-            db, 
-            activation_code.code, 
+            db,
+            activation_code.code,
             card.channel_id,  # 使用商品的渠道ID
-            status=OrderStatus.PENDING
+            status=OrderStatus.PENDING,
         )
-    
+
     return sale
 
 
@@ -72,8 +71,7 @@ def get_sale(db: Session, sale_id: int) -> Sale:
     sale = dao.get(sale_id)
     if not sale:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="销售记录不存在"
+            status_code=status.HTTP_404_NOT_FOUND, detail="销售记录不存在"
         )
     return sale
 

@@ -19,7 +19,14 @@ class SaleDAO(BaseDAO):
         super().__init__(db_session)
 
     def create(
-        self, user_id: int, card_name: str, quantity: int, sale_price: float, channel_id: int, activation_code: str = "", user_email: str = ""
+        self,
+        user_id: int,
+        card_name: str,
+        quantity: int,
+        sale_price: float,
+        channel_id: int,
+        activation_code: str = "",
+        user_email: str = "",
     ) -> Sale:
         """创建销售记录"""
         # 这里我们简化处理，只创建一条销售记录，而不是为每个卡密创建一条记录

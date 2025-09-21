@@ -28,7 +28,7 @@ def create_channel(
 ):
     """
     创建一个新的渠道。
-    
+
     **权限要求**: 仅限管理员 (admin) 操作。
     """
     return service.create_channel(db, channel_in)
@@ -42,7 +42,7 @@ def read_channel(
 ):
     """
     根据ID获取渠道详情。
-    
+
     **权限要求**: 管理员 (admin)。
     """
     return service.get_channel(db, channel_id)
@@ -57,9 +57,9 @@ def read_channels(
 ):
     """
     获取渠道列表。
-    
+
     **权限要求**: 管理员 (admin)。
-    """ 
+    """
     return service.get_channels(db, skip, limit)
 
 
@@ -72,7 +72,7 @@ def update_channel(
 ):
     """
     更新指定ID的渠道信息。
-    
+
     **权限要求**: 仅限管理员 (admin) 操作。
     """
     channel = service.get_channel(db, channel_id)
@@ -87,7 +87,7 @@ def delete_channel(
 ):
     """
     删除指定ID的渠道。
-    
+
     **权限要求**: 仅限管理员 (admin) 操作。
     """
     return service.delete_channel(db, channel_id)

@@ -27,8 +27,7 @@ def create_channel(db: Session, channel_in: ChannelCreate) -> Channel:
     existing_channel = dao.get_by_name(channel_in.name)
     if existing_channel:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="渠道名称已存在"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="渠道名称已存在"
         )
     return dao.create(channel_in)
 
@@ -38,10 +37,7 @@ def get_channel(db: Session, channel_id: int) -> Channel:
     dao = ChannelDAO(db)
     channel = dao.get(channel_id)
     if not channel:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="渠道不存在"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="渠道不存在")
     return channel
 
 
@@ -50,10 +46,7 @@ def get_channel_by_name(db: Session, name: str) -> Channel:
     dao = ChannelDAO(db)
     channel = dao.get_by_name(name)
     if not channel:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="渠道不存在"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="渠道不存在")
     return channel
 
 
@@ -71,8 +64,7 @@ def update_channel(db: Session, channel: Channel, channel_in: ChannelUpdate) -> 
         existing_channel = dao.get_by_name(channel_in.name)
         if existing_channel:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="渠道名称已存在"
+                status_code=status.HTTP_400_BAD_REQUEST, detail="渠道名称已存在"
             )
     return dao.update(channel, channel_in)
 

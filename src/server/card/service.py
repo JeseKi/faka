@@ -60,7 +60,9 @@ def list_cards(db: Session, include_inactive: bool = False) -> list[Card]:
     return dao.list_all(include_inactive)
 
 
-def list_cards_by_channel(db: Session, channel_id: int, include_inactive: bool = False) -> list[Card]:
+def list_cards_by_channel(
+    db: Session, channel_id: int, include_inactive: bool = False
+) -> list[Card]:
     """根据渠道ID获取充值卡列表"""
     dao = CardDAO(db)
     return dao.list_by_channel(channel_id, include_inactive)

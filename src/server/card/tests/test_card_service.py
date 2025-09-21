@@ -28,14 +28,14 @@ def test_create_card(test_db_session: Session):
     test_db_session.add(channel)
     test_db_session.commit()
     test_db_session.refresh(channel)
-    
+
     # 正常创建
     card_in = CardCreate(
         name="月度会员",
         description="月度会员充值卡",
         price=29.99,
         is_active=True,
-        channel_id=channel.id
+        channel_id=channel.id,
     )
     card = create_card(test_db_session, card_in)
 
@@ -53,7 +53,7 @@ def test_create_card(test_db_session: Session):
             description="另一个描述",
             price=19.99,
             is_active=True,
-            channel_id=channel.id
+            channel_id=channel.id,
         )
         create_card(test_db_session, card_in2)
 
@@ -68,14 +68,14 @@ def test_get_card(test_db_session: Session):
     test_db_session.add(channel)
     test_db_session.commit()
     test_db_session.refresh(channel)
-    
+
     # 准备测试数据
     card = Card(
         name="季度会员",
         description="季度会员充值卡",
         price=79.99,
         is_active=True,
-        channel_id=channel.id
+        channel_id=channel.id,
     )
     test_db_session.add(card)
     test_db_session.commit()
@@ -102,14 +102,14 @@ def test_get_card_by_name(test_db_session: Session):
     test_db_session.add(channel)
     test_db_session.commit()
     test_db_session.refresh(channel)
-    
+
     # 准备测试数据
     card = Card(
         name="年度会员",
         description="年度会员充值卡",
         price=299.99,
         is_active=True,
-        channel_id=channel.id
+        channel_id=channel.id,
     )
     test_db_session.add(card)
     test_db_session.commit()
@@ -135,11 +135,29 @@ def test_list_cards(test_db_session: Session):
     test_db_session.add(channel)
     test_db_session.commit()
     test_db_session.refresh(channel)
-    
+
     # 准备测试数据
-    card1 = Card(name="卡1", description="描述1", price=10.0, is_active=True, channel_id=channel.id)
-    card2 = Card(name="卡2", description="描述2", price=20.0, is_active=False, channel_id=channel.id)
-    card3 = Card(name="卡3", description="描述3", price=30.0, is_active=True, channel_id=channel.id)
+    card1 = Card(
+        name="卡1",
+        description="描述1",
+        price=10.0,
+        is_active=True,
+        channel_id=channel.id,
+    )
+    card2 = Card(
+        name="卡2",
+        description="描述2",
+        price=20.0,
+        is_active=False,
+        channel_id=channel.id,
+    )
+    card3 = Card(
+        name="卡3",
+        description="描述3",
+        price=30.0,
+        is_active=True,
+        channel_id=channel.id,
+    )
     test_db_session.add_all([card1, card2, card3])
     test_db_session.commit()
 
@@ -162,9 +180,15 @@ def test_update_card(test_db_session: Session):
     test_db_session.commit()
     test_db_session.refresh(channel1)
     test_db_session.refresh(channel2)
-    
+
     # 准备测试数据
-    card = Card(name="原名", description="原描述", price=50.0, is_active=True, channel_id=channel1.id)
+    card = Card(
+        name="原名",
+        description="原描述",
+        price=50.0,
+        is_active=True,
+        channel_id=channel1.id,
+    )
     test_db_session.add(card)
     test_db_session.commit()
     test_db_session.refresh(card)
@@ -177,7 +201,13 @@ def test_update_card(test_db_session: Session):
     assert updated_card.description == "原描述"  # 未更新的字段保持不变
 
     # 测试更新为重复名称
-    card2 = Card(name="另一个卡", description="描述", price=40.0, is_active=True, channel_id=channel1.id)
+    card2 = Card(
+        name="另一个卡",
+        description="描述",
+        price=40.0,
+        is_active=True,
+        channel_id=channel1.id,
+    )
     test_db_session.add(card2)
     test_db_session.commit()
 
@@ -196,9 +226,15 @@ def test_delete_card(test_db_session: Session):
     test_db_session.add(channel)
     test_db_session.commit()
     test_db_session.refresh(channel)
-    
+
     # 准备测试数据
-    card = Card(name="待删除", description="描述", price=10.0, is_active=True, channel_id=channel.id)
+    card = Card(
+        name="待删除",
+        description="描述",
+        price=10.0,
+        is_active=True,
+        channel_id=channel.id,
+    )
     test_db_session.add(card)
     test_db_session.commit()
     test_db_session.refresh(card)

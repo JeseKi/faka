@@ -18,7 +18,7 @@ def test_create_card(test_client, test_admin_token):
             "description": "月度会员充值卡",
             "price": 29.99,
             "is_active": True,
-            "channel_id": 1
+            "channel_id": 1,
         },
         headers=headers,
     )
@@ -36,7 +36,7 @@ def test_create_card(test_client, test_admin_token):
             "description": "另一个描述",
             "price": 19.99,
             "is_active": True,
-            "channel_id": 1
+            "channel_id": 1,
         },
         headers=headers,
     )
@@ -50,12 +50,24 @@ def test_list_cards(test_client, test_admin_token):
     # 创建测试数据
     test_client.post(
         "/api/cards",
-        json={"name": "卡1", "description": "描述1", "price": 10.0, "is_active": True, "channel_id": 1},
+        json={
+            "name": "卡1",
+            "description": "描述1",
+            "price": 10.0,
+            "is_active": True,
+            "channel_id": 1,
+        },
         headers=headers,
     )
     test_client.post(
         "/api/cards",
-        json={"name": "卡2", "description": "描述2", "price": 20.0, "is_active": False, "channel_id": 1},
+        json={
+            "name": "卡2",
+            "description": "描述2",
+            "price": 20.0,
+            "is_active": False,
+            "channel_id": 1,
+        },
         headers=headers,
     )
 
@@ -84,7 +96,7 @@ def test_get_card(test_client, test_admin_token):
             "description": "季度会员充值卡",
             "price": 79.99,
             "is_active": True,
-            "channel_id": 1
+            "channel_id": 1,
         },
         headers=headers,
     )
@@ -113,7 +125,7 @@ def test_update_card(test_client, test_admin_token):
             "description": "原描述",
             "price": 50.0,
             "is_active": True,
-            "channel_id": 1
+            "channel_id": 1,
         },
         headers=headers,
     )
@@ -142,7 +154,7 @@ def test_delete_card(test_client, test_admin_token):
             "description": "描述",
             "price": 10.0,
             "is_active": True,
-            "channel_id": 1
+            "channel_id": 1,
         },
         headers=headers,
     )
@@ -174,6 +186,12 @@ def test_unauthorized_access(test_client):
     # 没有 token 的请求
     resp = test_client.post(
         "/api/cards",
-        json={"name": "测试", "description": "描述", "price": 10.0, "is_active": True, "channel_id": 1},
+        json={
+            "name": "测试",
+            "description": "描述",
+            "price": 10.0,
+            "is_active": True,
+            "channel_id": 1,
+        },
     )
     assert resp.status_code == HTTPStatus.UNAUTHORIZED

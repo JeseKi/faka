@@ -53,7 +53,9 @@ class CardDAO(BaseDAO):
             query = query.filter(Card.is_active.is_(True))
         return query.order_by(Card.id.desc()).all()
 
-    def list_by_channel(self, channel_id: int, include_inactive: bool = False) -> list[Card]:
+    def list_by_channel(
+        self, channel_id: int, include_inactive: bool = False
+    ) -> list[Card]:
         """根据渠道ID获取充值卡"""
         query = self.db_session.query(Card).filter(Card.channel_id == channel_id)
         if not include_inactive:
@@ -89,4 +91,6 @@ class CardDAO(BaseDAO):
         """获取充值卡库存数量"""
         from src.server.activation_code.service import count_activation_codes_by_card
 
-        return count_activation_codes_by_card(self.db_session, card_name, only_unused=True)
+        return count_activation_codes_by_card(
+            self.db_session, card_name, only_unused=True
+        )
