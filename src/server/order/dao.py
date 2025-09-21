@@ -81,6 +81,18 @@ class OrderDAO(BaseDAO):
             .all()
         )
 
+    def list_processing_by_channel(self, channel_id: int) -> list[Order]:
+        """获取指定渠道的处理中订单"""
+        return (
+            self.db_session.query(Order)
+            .filter(
+                Order.status == OrderStatus.PROCESSING,
+                Order.channel_id == channel_id
+            )
+            .order_by(Order.created_at.asc())
+            .all()
+        )
+
     def list_all(
         self,
         status_filter: OrderStatus | None = None,

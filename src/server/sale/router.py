@@ -26,10 +26,10 @@ from .schemas import SaleCreate, SaleOut
 from . import service
 from src.server.dao.dao_base import run_in_thread
 
-router = APIRouter(prefix="/api/sales", tags=["sales"])
+router = APIRouter(prefix="/api/sales", tags=["销售管理"])
 
 
-@router.post("/purchase", response_model=SaleOut, status_code=status.HTTP_201_CREATED)
+@router.post("/purchase", response_model=SaleOut, status_code=status.HTTP_201_CREATED, summary="购买充值卡")
 async def purchase_card(
     sale_data: SaleCreate,
     db: Session = Depends(get_db),
@@ -72,7 +72,7 @@ async def purchase_card(
     return await run_in_thread(_purchase)
 
 
-@router.get("", response_model=list[SaleOut])
+@router.get("", response_model=list[SaleOut], summary="获取销售记录列表")
 async def list_sales(
     limit: int = 100,
     offset: int = 0,
@@ -87,7 +87,7 @@ async def list_sales(
     return await run_in_thread(_list)
 
 
-@router.get("/stats")
+@router.get("/stats", summary="获取销售统计信息")
 async def get_sales_stats(
     db: Session = Depends(get_db), current_user: User = Depends(get_current_admin)
 ):
@@ -101,7 +101,7 @@ async def get_sales_stats(
     return stats
 
 
-@router.get("/user/{user_email}", response_model=list[SaleOut])
+@router.get("/user/{user_email}", response_model=list[SaleOut], summary="获取指定用户的销售记录")
 async def get_user_sales(
     user_email: str,
     db: Session = Depends(get_db),

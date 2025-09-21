@@ -11,7 +11,7 @@
 - list_activation_codes_by_card(db, card_name, include_used)
 - count_activation_codes_by_card(db, card_name, only_unused)
 - delete_activation_codes_by_card(db, card_name)
-- is_code_available(db, code)
+- is_code_available(db, code) -> ActivationCodeCheckResult
 - is_code_available_for_user(db, code, user)
 
 内部方法：
@@ -23,10 +23,12 @@
 
 from __future__ import annotations
 
+from loguru import logger
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from .dao import ActivationCodeDAO
 from .models import ActivationCode, CardCodeStatus
+from .schemas import ActivationCodeCheckResult
 from src.server.auth.models import User
 from src.server.auth.schemas import Role
 from src.server.card.models import Card
@@ -120,13 +122,27 @@ def delete_activation_codes_by_card(db: Session, card_name: str) -> int:
     return dao.delete_by_card_name(card_name)
 
 
-def is_code_available(db: Session, code: str) -> bool:
+def is_code_available(db: Session, code: str) -> ActivationCodeCheckResult:
     """检查卡密是否可用"""
     dao = ActivationCodeDAO(db)
+    logger.info(f"code: {code}")
     activation_code = dao.get_by_code(code)
+    logger.info(f"activation_code: {activation_code}")
     if not activation_code:
-        return False
-    return activation_code.status == CardCodeStatus.AVAILABLE
+        logger.info("activation_code not found")
+        return ActivationCodeCheckResult(available=False, channel_id=None)
+
+    # 检查卡密状态是否为可用
+    available = activation_code.status == CardCodeStatus.AVAILABLE
+
+    # 获取卡密对应的商品和渠道ID
+    channel_id = None
+    if available:
+        card = db.query(Card).filter(Card.name == activation_code.card_name).first()
+        if card:
+            channel_id = card.channel_id
+
+    return ActivationCodeCheckResult(available=available, channel_id=channel_id)
 
 
 def is_code_available_for_user(db: Session, code: str, user: User) -> bool:

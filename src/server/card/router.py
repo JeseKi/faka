@@ -24,10 +24,10 @@ from .schemas import CardCreate, CardUpdate, CardOut
 from . import service
 from src.server.dao.dao_base import run_in_thread
 
-router = APIRouter(prefix="/api/cards", tags=["cards"])
+router = APIRouter(prefix="/api/cards", tags=["充值卡管理"])
 
 
-@router.post("", response_model=CardOut, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=CardOut, status_code=status.HTTP_201_CREATED, summary="创建充值卡")
 async def create_card(
     card_data: CardCreate,
     db: Session = Depends(get_db),
@@ -41,7 +41,7 @@ async def create_card(
     return await run_in_thread(_create)
 
 
-@router.get("", response_model=list[CardOut])
+@router.get("", response_model=list[CardOut], summary="获取充值卡列表")
 async def list_cards(
     include_inactive: bool = False,
     db: Session = Depends(get_db),
@@ -64,7 +64,7 @@ async def list_cards(
     return await run_in_thread(_list)
 
 
-@router.get("/{card_id}", response_model=CardOut)
+@router.get("/{card_id}", response_model=CardOut, summary="获取单个充值卡")
 async def get_card(
     card_id: int,
     db: Session = Depends(get_db),
@@ -88,7 +88,7 @@ async def get_card(
     return await run_in_thread(_get)
 
 
-@router.put("/{card_id}", response_model=CardOut)
+@router.put("/{card_id}", response_model=CardOut, summary="更新充值卡")
 async def update_card(
     card_id: int,
     card_data: CardUpdate,
@@ -104,7 +104,7 @@ async def update_card(
     return await run_in_thread(_update)
 
 
-@router.delete("/{card_id}")
+@router.delete("/{card_id}", summary="删除充值卡")
 async def delete_card(
     card_id: int,
     db: Session = Depends(get_db),
@@ -120,7 +120,7 @@ async def delete_card(
     return {"message": "充值卡已删除"}
 
 
-@router.get("/{card_name}/stock")
+@router.get("/{card_name}/stock", summary="获取充值卡库存数量")
 async def get_card_stock(
     card_name: str,
     db: Session = Depends(get_db),

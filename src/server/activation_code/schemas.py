@@ -3,7 +3,7 @@
 卡密模块 Pydantic 模型
 
 公开接口：
-- `ActivationCodeCreate`、`ActivationCodeOut`、`ActivationCodeVerify`
+- `ActivationCodeCreate`、`ActivationCodeOut`、`ActivationCodeVerify`、`ActivationCodeCheckResult`
 """
 
 from datetime import datetime
@@ -36,3 +36,8 @@ class ActivationCodeOut(BaseModel):
 
 class ActivationCodeVerify(BaseModel):
     code: str = Field(..., min_length=1, max_length=200)
+
+
+class ActivationCodeCheckResult(BaseModel):
+    available: bool
+    channel_id: Optional[int] = None

@@ -74,10 +74,22 @@ class VerificationCodeMailPayload(BaseModel):
     expires_in_minutes: int = Field(..., ge=1, le=60, description="验证码有效分钟数")
 
 
+class NewOrderNotificationPayload(BaseModel):
+    """新订单通知邮件上下文"""
+
+    recipient: MailAddress = Field(..., description="收件人信息")
+    order_id: int = Field(..., description="订单ID")
+    card_name: str = Field(..., min_length=1, max_length=100, description="商品名称")
+    activation_code: str = Field(..., min_length=1, description="卡密")
+    created_at: datetime = Field(..., description="订单创建时间")
+    channel_name: str = Field(..., min_length=1, max_length=100, description="渠道名称")
+
+
 __all__ = [
     "MailAddress",
     "MailContent",
     "MailSendResult",
     "PurchaseMailPayload",
     "VerificationCodeMailPayload",
+    "NewOrderNotificationPayload",
 ]

@@ -54,3 +54,11 @@ class UserDAO(BaseDAO):
         self.db_session.commit()
         self.db_session.refresh(user)
         return user
+
+    def get_staff_by_channel_id(self, channel_id: int) -> list[User]:
+        """获取指定渠道的所有员工用户"""
+        return (
+            self.db_session.query(User)
+            .filter(User.role == Role.STAFF, User.channel_id == channel_id)
+            .all()
+        )

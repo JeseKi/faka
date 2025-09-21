@@ -39,7 +39,7 @@ from .schemas import (
     AdminUserCreate,
 )
 
-router = APIRouter(prefix="/api/auth", tags=["auth"])
+router = APIRouter(prefix="/api/auth", tags=["用户认证"])
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
@@ -99,7 +99,7 @@ async def get_current_staff(
     return user
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post("/login", response_model=TokenResponse, summary="用户登录")
 async def login_for_access_token(login_data: UserLogin, db: Session = Depends(get_db)):
     user = service.authenticate_user(db, login_data.username, login_data.password)
     if not user:
@@ -118,7 +118,7 @@ async def login_for_access_token(login_data: UserLogin, db: Session = Depends(ge
     }
 
 
-@router.post("/send-verification-code")
+@router.post("/send-verification-code", summary="发送邮箱验证码")
 async def send_verification_code(
     request: VerificationCodeRequest, db: Session = Depends(get_db)
 ):
@@ -147,6 +147,7 @@ async def send_verification_code(
     "/register-with-code",
     response_model=UserProfile,
     status_code=status.HTTP_201_CREATED,
+    summary="使用验证码注册用户",
 )
 async def register_user_with_code(
     user_data: UserRegisterWithCode, db: Session = Depends(get_db)
@@ -185,7 +186,7 @@ async def register_user_with_code(
 # return new_user
 
 
-@router.post("/refresh", response_model=TokenResponse)
+@router.post("/refresh", response_model=TokenResponse, summary="刷新访问令牌")
 async def refresh_access_token(current_user: User = Depends(get_current_user)):
     new_access_token = service.create_access_token(data={"sub": current_user.username})
     new_refresh_token = service.create_refresh_token(
@@ -198,12 +199,12 @@ async def refresh_access_token(current_user: User = Depends(get_current_user)):
     }
 
 
-@router.get("/profile", response_model=UserProfile)
+@router.get("/profile", response_model=UserProfile, summary="获取用户个人资料")
 async def get_profile(current_user: User = Depends(get_current_user)):
     return current_user
 
 
-@router.put("/profile", response_model=UserProfile)
+@router.put("/profile", response_model=UserProfile, summary="更新用户个人资料")
 async def update_profile(
     user_data: UserUpdate,
     current_user: User = Depends(get_current_user),
@@ -219,7 +220,7 @@ async def update_profile(
     return updated_user
 
 
-@router.put("/password")
+@router.put("/password", summary="修改用户密码")
 async def change_current_user_password(
     password_data: PasswordChange,
     current_user: User = Depends(get_current_user),
@@ -239,7 +240,7 @@ async def change_current_user_password(
 
 
 @router.post(
-    "/admin/users", response_model=UserProfile, status_code=status.HTTP_201_CREATED
+    "/admin/users", response_model=UserProfile, status_code=status.HTTP_201_CREATED, summary="管理员创建用户"
 )
 async def admin_create_user(
     user_data: AdminUserCreate,

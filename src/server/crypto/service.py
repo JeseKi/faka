@@ -5,6 +5,7 @@
 公开接口：
 - encrypt(data: str) -> str: 加密数据
 - decrypt(encrypted_data: str) -> str: 解密数据
+- generate_activation_code() -> str: 生成激活码
 
 内部方法：
 - _generate_key() -> bytes: 生成加密密钥
@@ -14,10 +15,12 @@
 说明：
 - 使用 AES 加密算法对数据进行加密和解密
 - 生成的密钥基于 UUID 并进行 SHA-256 哈希处理
+- 使用 HMAC-SHA256 生成不包含特殊字符的激活码
+- 加密数据使用十六进制编码，避免 URL 特殊字符问题
 """
 
-import base64
 import hashlib
+import hmac
 import uuid
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
@@ -63,6 +66,20 @@ class CryptoService:
         """
         return unpad(data, AES.block_size)
 
+    def generate_activation_code(self) -> str:
+        """
+        生成激活码（使用 HMAC-SHA256）
+
+        Returns:
+            str: 64字符的十六进制激活码
+        """
+        # 生成随机数据
+        data = str(uuid.uuid4()).encode("utf-8")
+        
+        # 使用 HMAC-SHA256 生成签名
+        signature = hmac.new(self.key, data, hashlib.sha256).hexdigest()
+        return signature
+
     def encrypt(self, data: str) -> str:
         """
         加密数据
@@ -71,7 +88,7 @@ class CryptoService:
             data (str): 要加密的原始数据
 
         Returns:
-            str: Base64 编码的加密数据
+            str: 十六进制格式的加密数据
         """
         # 生成随机 IV
         iv = uuid.uuid4().bytes[:16]
@@ -83,8 +100,8 @@ class CryptoService:
         padded_data = self._pad(data.encode("utf-8"))
         encrypted_data = cipher.encrypt(padded_data)
 
-        # 将 IV 和加密数据组合后进行 Base64 编码
-        result = base64.b64encode(iv + encrypted_data).decode("utf-8")
+        # 将 IV 和加密数据组合后转换为十六进制字符串
+        result = (iv + encrypted_data).hex()
         return result
 
     def decrypt(self, encrypted_data: str) -> str:
@@ -92,7 +109,7 @@ class CryptoService:
         解密数据
 
         Args:
-            encrypted_data (str): Base64 编码的加密数据
+            encrypted_data (str): 十六进制格式的加密数据
 
         Returns:
             str: 解密后的原始数据
@@ -101,8 +118,8 @@ class CryptoService:
             ValueError: 当解密失败时抛出异常
         """
         try:
-            # Base64 解码
-            raw_data = base64.b64decode(encrypted_data.encode("utf-8"))
+            # 从十六进制字符串转换回二进制数据
+            raw_data = bytes.fromhex(encrypted_data)
 
             # 提取 IV 和加密数据
             iv = raw_data[:16]
@@ -125,6 +142,16 @@ class CryptoService:
 crypto_service = CryptoService()
 
 
+def generate_activation_code() -> str:
+    """
+    生成激活码
+
+    Returns:
+        str: 64字符的十六进制激活码
+    """
+    return crypto_service.generate_activation_code()
+
+
 def encrypt(data: str) -> str:
     """
     加密数据
@@ -133,7 +160,7 @@ def encrypt(data: str) -> str:
         data (str): 要加密的原始数据
 
     Returns:
-        str: Base64 编码的加密数据
+        str: 十六进制格式的加密数据
     """
     return crypto_service.encrypt(data)
 
@@ -143,7 +170,7 @@ def decrypt(encrypted_data: str) -> str:
     解密数据
 
     Args:
-        encrypted_data (str): Base64 编码的加密数据
+        encrypted_data (str): 十六进制格式的加密数据
 
     Returns:
         str: 解密后的原始数据

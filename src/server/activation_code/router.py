@@ -21,17 +21,18 @@ from sqlalchemy.orm import Session
 from src.server.database import get_db
 from src.server.auth.router import get_current_admin
 from src.server.auth.models import User
-from .schemas import ActivationCodeCreate, ActivationCodeOut, ActivationCodeVerify
+from .schemas import ActivationCodeCreate, ActivationCodeOut, ActivationCodeVerify, ActivationCodeCheckResult
 from . import service
 from src.server.dao.dao_base import run_in_thread
 
-router = APIRouter(prefix="/api/activation-codes", tags=["activation-codes"])
+router = APIRouter(prefix="/api/activation-codes", tags=["卡密管理"])
 
 
 @router.post(
     "/generate",
     response_model=list[ActivationCodeOut],
     status_code=status.HTTP_201_CREATED,
+    summary="批量生成卡密",
 )
 async def generate_activation_codes(
     code_data: ActivationCodeCreate,
@@ -48,7 +49,7 @@ async def generate_activation_codes(
     return await run_in_thread(_generate)
 
 
-@router.get("/check")
+@router.get("/check", response_model=ActivationCodeCheckResult, summary="检查卡密可用性")
 async def check_code_availability(
     code: str,
     db: Session = Depends(get_db),
@@ -56,14 +57,12 @@ async def check_code_availability(
     """检查卡密是否可用"""
 
     def _check():
-        result = service.is_code_available(db, code)
-        return result
+        return service.is_code_available(db, code)
 
-    is_available = await run_in_thread(_check)
-    return {"available": is_available}
+    return await run_in_thread(_check)
 
 
-@router.get("/{card_name}", response_model=list[ActivationCodeOut])
+@router.get("/{card_name}", response_model=list[ActivationCodeOut], summary="获取指定充值卡的卡密列表")
 async def list_activation_codes(
     card_name: str,
     include_used: bool = False,
@@ -80,7 +79,7 @@ async def list_activation_codes(
     return await run_in_thread(_list)
 
 
-@router.get("/{card_name}/count")
+@router.get("/{card_name}/count", summary="获取指定充值卡的卡密数量")
 async def count_activation_codes(
     card_name: str,
     only_unused: bool = True,
@@ -98,7 +97,7 @@ async def count_activation_codes(
     return {"card_name": card_name, "count": count, "only_unused": only_unused}
 
 
-@router.delete("/{card_name}")
+@router.delete("/{card_name}", summary="删除指定充值卡的所有卡密")
 async def delete_activation_codes(
     card_name: str,
     db: Session = Depends(get_db),
@@ -113,7 +112,7 @@ async def delete_activation_codes(
     return {"message": f"已删除 {deleted_count} 个卡密"}
 
 
-@router.post("/consuming", response_model=ActivationCodeOut)
+@router.post("/consuming", response_model=ActivationCodeOut, summary="将卡密状态设置为使用中")
 async def set_code_consuming(
     code_data: ActivationCodeVerify,
     db: Session = Depends(get_db),
@@ -126,7 +125,7 @@ async def set_code_consuming(
     return await run_in_thread(_consume)
 
 
-@router.post("/consumed", response_model=ActivationCodeOut)
+@router.post("/consumed", response_model=ActivationCodeOut, summary="将卡密状态设置为已使用")
 async def set_code_consumed(
     code_data: ActivationCodeVerify,
     db: Session = Depends(get_db),

@@ -51,6 +51,12 @@ class GlobalConfig(BaseSettings):
         title="项目根目录",
         description="相对项目根目录的相对路径",
     )
+    
+    app_url: str = Field(
+        default="http://localhost:8000",
+        title="应用URL",
+        description="应用URL",
+    )
 
     @property
     def allowed_origins(self) -> List[str]:

@@ -14,9 +14,35 @@ from src.server.activation_code.service import (
 )
 from src.server.activation_code.dao import ActivationCodeDAO
 from src.server.activation_code.models import CardCodeStatus
+from src.server.card.models import Card
+from src.server.channel.models import Channel
 
 
-def test_consuming_api_success(test_db_session: Session):
+@pytest.fixture
+def setup_test_data(test_db_session: Session):
+    """设置测试数据：创建渠道和充值卡"""
+    # 创建测试渠道
+    channel = Channel(name="测试渠道", description="用于测试的渠道")
+    test_db_session.add(channel)
+    test_db_session.commit()
+    test_db_session.refresh(channel)
+    
+    # 创建测试充值卡
+    card = Card(
+        name="消费测试",
+        description="消费测试充值卡",
+        price=10.0,
+        is_active=True,
+        channel_id=channel.id,
+    )
+    test_db_session.add(card)
+    test_db_session.commit()
+    test_db_session.refresh(card)
+    
+    return channel, card
+
+
+def test_consuming_api_success(test_db_session: Session, setup_test_data):
     """测试 consuming API 成功场景"""
     # 创建测试数据
     codes = create_activation_codes(test_db_session, "消费测试", 1)
@@ -30,7 +56,7 @@ def test_consuming_api_success(test_db_session: Session):
     assert consuming_code.used_at is None
 
 
-def test_consuming_api_invalid_status(test_db_session: Session):
+def test_consuming_api_invalid_status(test_db_session: Session, setup_test_data):
     """测试对非 available 状态的卡密调用 consuming 接口失败"""
     # 创建测试数据
     codes = create_activation_codes(test_db_session, "消费测试", 1)
@@ -50,7 +76,7 @@ def test_consuming_api_invalid_status(test_db_session: Session):
     assert "状态不正确" in exc_info.value.detail
 
 
-def test_consumed_api_success(test_db_session: Session):
+def test_consumed_api_success(test_db_session: Session, setup_test_data):
     """测试 consumed API 成功场景"""
     # 创建测试数据
     codes = create_activation_codes(test_db_session, "消费测试", 1)
@@ -67,7 +93,7 @@ def test_consumed_api_success(test_db_session: Session):
     assert consumed_code.used_at is not None
 
 
-def test_consumed_api_invalid_status(test_db_session: Session):
+def test_consumed_api_invalid_status(test_db_session: Session, setup_test_data):
     """测试对非 consuming 状态的卡密调用 consumed 接口失败"""
     # 创建测试数据
     codes = create_activation_codes(test_db_session, "消费测试", 1)

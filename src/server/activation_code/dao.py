@@ -8,13 +8,12 @@
 
 from __future__ import annotations
 
-import uuid
 from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 
 from src.server.dao.dao_base import BaseDAO
 from .models import ActivationCode, CardCodeStatus
-from src.server.crypto.service import encrypt
+from src.server.crypto.service import generate_activation_code
 
 
 class ActivationCodeDAO(BaseDAO):
@@ -23,16 +22,26 @@ class ActivationCodeDAO(BaseDAO):
 
     def create_batch(self, card_name: str, count: int) -> list[ActivationCode]:
         """批量创建卡密"""
+        # 获取卡密对应的商品和渠道信息
+        from src.server.card.models import Card
+        from src.server.channel.models import Channel
+
+        card = self.db_session.query(Card).filter(Card.name == card_name).first()
+        if not card:
+            raise ValueError(f"充值卡 '{card_name}' 不存在")
+
+        channel = self.db_session.query(Channel).filter(Channel.id == card.channel_id).first()
+        if not channel:
+            raise ValueError(f"渠道 ID {card.channel_id} 不存在")
+
         codes = []
         for _ in range(count):
-            # 生成原始数据
-            original_code = str(uuid.uuid4())
-            # 加密数据
-            encrypted_code = encrypt(original_code)
+            # 生成激活码
+            activation_code_value = generate_activation_code()
 
             activation_code = ActivationCode(
                 card_name=card_name,
-                code=encrypted_code,
+                code=activation_code_value,
                 is_sold=False,
                 status=CardCodeStatus.AVAILABLE,
                 created_at=datetime.now(timezone.utc),

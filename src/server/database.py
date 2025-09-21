@@ -76,10 +76,10 @@ def init_database() -> None:
 
         # 不在初始化时导入新模块的模型，避免测试时的表名冲突
         from src.server.channel import models as _7  # noqa
-        # from src.server.card import models as _3  # noqa
-        # from src.server.activation_code import models as _4  # noqa
-        # from src.server.sale import models as _5  # noqa
-        # from src.server.order import models as _6  # noqa
+        from src.server.card import models as _3  # noqa
+        from src.server.activation_code import models as _4  # noqa
+        from src.server.sale import models as _5  # noqa
+        from src.server.order import models as _6  # noqa
     except Exception as e:
         logger.warning(f"导入模型时出现警告：{e}")
 

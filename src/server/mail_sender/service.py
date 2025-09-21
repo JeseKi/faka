@@ -30,11 +30,13 @@ from typing import Iterable
 
 from loguru import logger
 
+from src.server.config import global_config
 from .config import mail_sender_config
 from .schemas import (
     MailAddress,
     MailContent,
     MailSendResult,
+    NewOrderNotificationPayload,
     PurchaseMailPayload,
     VerificationCodeMailPayload,
 )
@@ -151,8 +153,38 @@ def send_verification_code_email(
     return send_mail(mail)
 
 
+def send_new_order_notification_email(
+    payload: NewOrderNotificationPayload,
+) -> MailSendResult:
+    """发送新订单通知邮件"""
+    created_at_display = payload.created_at.isoformat()
+    # 构造 HTML 正文
+    body_html = f"""
+    <p>您好，{payload.recipient.name or payload.recipient.email}</p>
+    <p>您负责的渠道「{payload.channel_name}」有新的订单需要处理：</p>
+    <ul>
+      <li>订单ID：{payload.order_id}</li>
+      <li>商品名称：{payload.card_name}</li>
+      <li>卡密：{payload.activation_code}</li>
+      <li>创建时间：{created_at_display}</li>
+    </ul>
+    <p>请及时
+       <a href="{global_config.app_url}/staff/order-processing">登录系统</a>
+       处理该订单。
+    </p>
+    <p>系统自动发送，请勿回复此邮件。</p>
+    """
+    mail = MailContent(
+        subject=f"渠道「{payload.channel_name}」新订单通知",
+        body=body_html,
+        recipients=[payload.recipient],
+        subtype="html",  # 👈 这里很重要：告诉发送函数这是 HTML 邮件
+    )
+    return send_mail(mail)
+
 __all__ = [
     "send_mail",
+    "send_new_order_notification_email",
     "send_purchase_confirmation_email",
     "send_verification_code_email",
 ]

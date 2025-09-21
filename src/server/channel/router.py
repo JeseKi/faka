@@ -17,7 +17,7 @@ from src.server.auth.router import get_current_admin
 from src.server.auth.models import User
 from . import schemas, service
 
-router = APIRouter(prefix="/api/channels", tags=["Channel Management"])
+router = APIRouter(prefix="/api/channels", tags=["渠道管理"])
 
 
 @router.post("/", response_model=schemas.ChannelOut, summary="创建渠道")

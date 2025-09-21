@@ -33,6 +33,12 @@ from src.server.activation_code.service import (
     get_activation_code_by_code,
 )
 from src.server.card.models import Card
+from src.server.auth.models import User
+from src.server.auth.schemas import Role
+from src.server.auth.dao import UserDAO
+from src.server.channel.models import Channel
+from src.server.mail_sender.service import send_new_order_notification_email
+from src.server.mail_sender.schemas import NewOrderNotificationPayload, MailAddress
 
 
 def verify_activation_code(
@@ -70,6 +76,34 @@ def verify_activation_code(
         db, activation_code.code, channel_id, OrderStatus.PROCESSING, remarks
     )
 
+    # 发送新订单通知邮件给该渠道的所有员工
+    try:
+        # 获取渠道信息
+        channel = db.query(Channel).filter(Channel.id == channel_id).first()
+        if channel:
+            # 获取该渠道的所有员工
+            user_dao = UserDAO(db)
+            staff_members = user_dao.get_staff_by_channel_id(channel_id)
+
+            # 向每个员工发送通知邮件
+            for staff in staff_members:
+                if staff.email:  # 确保员工有邮箱
+                    recipient = MailAddress(email=staff.email, name=staff.name)
+                    payload = NewOrderNotificationPayload(
+                        recipient=recipient,
+                        order_id=order.id,
+                        card_name=card.name,
+                        activation_code=activation_code.code,
+                        created_at=order.created_at,
+                        channel_name=channel.name,
+                    )
+                    # 发送邮件（异步，不阻塞主流程）
+                    send_new_order_notification_email(payload)
+    except Exception as e:
+        # 邮件发送失败不影响订单创建，只记录日志
+        import logging
+        logging.warning(f"发送新订单通知邮件失败：{e}")
+
     return order
 
 
@@ -100,10 +134,20 @@ def list_pending_orders(db: Session) -> list[Order]:
     return dao.list_pending()
 
 
-def list_processing_orders(db: Session) -> list[Order]:
-    """获取所有处理中订单"""
+def list_processing_orders(db: Session, user: User | None = None) -> list[Order]:
+    """获取处理中订单"""
     dao = OrderDAO(db)
-    return dao.list_processing()
+
+    # 如果没有用户（管理员）或用户是管理员，返回所有处理中订单
+    if not user or user.role == Role.ADMIN:
+        return dao.list_processing()
+
+    # 如果是员工，只返回其渠道的处理中订单
+    if user.role == Role.STAFF and user.channel_id is not None:
+        return dao.list_processing_by_channel(user.channel_id)
+
+    # 如果员工没有渠道ID，返回空列表
+    return []
 
 
 def list_orders(

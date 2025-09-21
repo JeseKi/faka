@@ -3,13 +3,56 @@
 卡密模块DAO层测试
 """
 
+import pytest
 from sqlalchemy.orm import Session
 
 from src.server.activation_code.dao import ActivationCodeDAO
 from src.server.activation_code.models import CardCodeStatus
+from src.server.card.models import Card
+from src.server.channel.models import Channel
 
 
-def test_activation_code_dao_create_batch(test_db_session: Session):
+@pytest.fixture
+def setup_test_data(test_db_session: Session):
+    """设置测试数据：创建渠道和充值卡"""
+    # 创建测试渠道
+    channel = Channel(name="测试渠道", description="用于测试的渠道")
+    test_db_session.add(channel)
+    test_db_session.commit()
+    test_db_session.refresh(channel)
+    
+    # 创建测试充值卡
+    cards_data = [
+        ("月度会员", "月度会员充值卡"),
+        ("季度会员", "季度会员充值卡"),
+        ("年度会员", "年度会员充值卡"),
+        ("状态测试", "状态测试充值卡"),
+        ("卡1", "卡1充值卡"),
+        ("统计测试", "统计测试充值卡"),
+        ("待删除", "待删除充值卡"),
+        ("保留", "保留充值卡"),
+    ]
+    
+    cards = []
+    for name, description in cards_data:
+        card = Card(
+            name=name,
+            description=description,
+            price=10.0,
+            is_active=True,
+            channel_id=channel.id,
+        )
+        test_db_session.add(card)
+        cards.append(card)
+    
+    test_db_session.commit()
+    for card in cards:
+        test_db_session.refresh(card)
+    
+    return channel, cards
+
+
+def test_activation_code_dao_create_batch(test_db_session: Session, setup_test_data):
     """测试批量创建卡密"""
     dao = ActivationCodeDAO(test_db_session)
 
@@ -26,7 +69,7 @@ def test_activation_code_dao_create_batch(test_db_session: Session):
         assert len(code.code) > 36
 
 
-def test_activation_code_dao_get_by_code(test_db_session: Session):
+def test_activation_code_dao_get_by_code(test_db_session: Session, setup_test_data):
     """测试通过卡密获取记录"""
     dao = ActivationCodeDAO(test_db_session)
 
@@ -45,7 +88,7 @@ def test_activation_code_dao_get_by_code(test_db_session: Session):
     assert retrieved_code is None
 
 
-def test_activation_code_dao_get_available_by_card_name(test_db_session: Session):
+def test_activation_code_dao_get_available_by_card_name(test_db_session: Session, setup_test_data):
     """测试获取可用卡密"""
     dao = ActivationCodeDAO(test_db_session)
 
@@ -74,7 +117,7 @@ def test_activation_code_dao_get_available_by_card_name(test_db_session: Session
     assert no_code is None
 
 
-def test_activation_code_dao_update_status(test_db_session: Session):
+def test_activation_code_dao_update_status(test_db_session: Session, setup_test_data):
     """测试更新卡密状态"""
     dao = ActivationCodeDAO(test_db_session)
 
@@ -96,7 +139,7 @@ def test_activation_code_dao_update_status(test_db_session: Session):
     assert updated_code.used_at is not None
 
 
-def test_activation_code_dao_list_by_card_name(test_db_session: Session):
+def test_activation_code_dao_list_by_card_name(test_db_session: Session, setup_test_data):
     """测试列出指定充值卡的卡密"""
     dao = ActivationCodeDAO(test_db_session)
 
@@ -120,7 +163,7 @@ def test_activation_code_dao_list_by_card_name(test_db_session: Session):
     assert len(unused_codes) == 2
 
 
-def test_activation_code_dao_count_by_card_name(test_db_session: Session):
+def test_activation_code_dao_count_by_card_name(test_db_session: Session, setup_test_data):
     """测试统计卡密数量"""
     dao = ActivationCodeDAO(test_db_session)
 
@@ -143,7 +186,7 @@ def test_activation_code_dao_count_by_card_name(test_db_session: Session):
     assert count == 3
 
 
-def test_activation_code_dao_delete_by_card_name(test_db_session: Session):
+def test_activation_code_dao_delete_by_card_name(test_db_session: Session, setup_test_data):
     """测试删除指定充值卡的所有卡密"""
     dao = ActivationCodeDAO(test_db_session)
 
