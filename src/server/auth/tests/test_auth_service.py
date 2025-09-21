@@ -19,6 +19,7 @@ from src.server.auth.service import (
     admin_create_user,
 )
 
+from src.server.auth.config import auth_config
 
 def test_get_user_by_username(test_db_session: Session):
     """测试根据用户名获取用户"""
@@ -153,9 +154,9 @@ def test_bootstrap_default_admin(test_db_session: Session):
     user = get_user_by_username(test_db_session, "admin")
     assert user is not None
     assert user.username == "admin"
-    assert user.email == "admin@example.com"
+    assert user.email == auth_config.admin_email
     assert user.role == Role.ADMIN
-    assert user.check_password("AdminPass123") is True
+    assert user.check_password(auth_config.admin_password) is True
 
     # 测试重复调用不会创建重复用户
     bootstrap_default_admin(test_db_session)

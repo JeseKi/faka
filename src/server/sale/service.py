@@ -3,119 +3,88 @@
 销售模块服务层
 
 公开接口：
-- purchase_card(db, card_name, user_email)
-- get_sale_by_activation_code(db, activation_code)
-- get_user_sales(db, user_email)
+- create_sale(db, user_id, card_name, quantity)
+- get_sale(db, sale_id)
 - list_sales(db, limit, offset)
-- get_sales_stats(db)
+- get_sales_by_user_id(db, user_id)
 
 内部方法：
 - 无
 
 说明：
-- 服务层承载业务逻辑，路由层只做参数校验与装配。
+- 销售模块负责处理用户购买商品的业务逻辑
 """
 
 from __future__ import annotations
-
-from datetime import datetime, timezone
+from typing import List
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 
 from .dao import SaleDAO
 from .models import Sale
+from src.server.card.service import get_card_stock, get_card_by_name
+from src.server.activation_code.service import get_available_activation_code
+from src.server.order.service import create_order
 from src.server.order.schemas import OrderStatus
 
 
-def purchase_card(db: Session, card_name: str, user_email: str, user_id: int) -> Sale:
-    """购买充值卡"""
-    from src.server.card.service import get_card_by_name, get_card_stock
-    from src.server.activation_code.service import (
-        get_available_activation_code,
-        mark_activation_code_sold,
-    )
-    from src.server.order.service import create_order
-
-    # 验证充值卡是否存在且有库存
-    card = get_card_by_name(db, card_name)
-    if not card.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="该充值卡已下架"
-        )
-
+def create_sale(db: Session, user_id: int, card_name: str, quantity: int) -> Sale:
+    """创建销售记录"""
+    # 检查库存是否足够
     stock = get_card_stock(db, card_name)
-    if stock <= 0:
+    if stock < quantity:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="该充值卡暂时缺货"
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"库存不足，当前库存: {stock}"
         )
-
-    # 获取可用卡密
-    activation_code = get_available_activation_code(db, card_name)
-    if not activation_code:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="该充值卡暂时缺货"
-        )
-
-    # 标记卡密为已售出
-    mark_activation_code_sold(db, activation_code)
-
+    
+    # 获取商品信息
+    card = get_card_by_name(db, card_name)
+    
     # 创建销售记录
     dao = SaleDAO(db)
-    sale = dao.create(activation_code.code, user_email, card.price, card_name)
-    create_order(db, activation_code.code, user_id, status=OrderStatus.PENDING)
-
+    sale = dao.create(user_id, card_name, quantity, card.price, card.channel_id)
+    
+    # 为每个购买的数量生成订单
+    for _ in range(quantity):
+        # 获取一个可用的卡密
+        activation_code = get_available_activation_code(db, card_name)
+        if not activation_code:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="无法获取可用卡密"
+            )
+        
+        # 创建订单，使用商品的渠道ID
+        create_order(
+            db, 
+            activation_code.code, 
+            card.channel_id,  # 使用商品的渠道ID
+            status=OrderStatus.PENDING
+        )
+    
     return sale
 
 
-def get_sale_by_activation_code(db: Session, activation_code: str) -> Sale | None:
-    """通过卡密获取销售记录"""
+def get_sale(db: Session, sale_id: int) -> Sale:
+    """获取销售记录"""
     dao = SaleDAO(db)
-    return dao.get_by_activation_code(activation_code)
+    sale = dao.get(sale_id)
+    if not sale:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="销售记录不存在"
+        )
+    return sale
 
 
-def get_user_sales(db: Session, user_email: str) -> list[Sale]:
-    """获取用户的购买记录"""
-    dao = SaleDAO(db)
-    return dao.get_by_user_email(user_email)
-
-
-def list_sales(db: Session, limit: int = 100, offset: int = 0) -> list[Sale]:
+def list_sales(db: Session, limit: int = 100, offset: int = 0) -> List[Sale]:
     """获取销售记录列表"""
     dao = SaleDAO(db)
     return dao.list_all(limit, offset)
 
 
-def get_sales_stats(db: Session) -> dict:
-    """获取销售统计信息"""
-    from src.server.order.service import get_order_stats
-    from src.server.activation_code.service import count_activation_codes_by_card
-    from src.server.card.service import list_cards
-
+def get_sales_by_user_id(db: Session, user_id: int) -> List[Sale]:
+    """获取指定用户的所有销售记录"""
     dao = SaleDAO(db)
-    total_sales = dao.count_all()
-    total_revenue = dao.get_total_revenue()
-
-    # 获取今日销售额和销量
-    today = datetime.now(timezone.utc).date()
-    today_sales_count = dao.count_today(today)
-    today_revenue = dao.get_today_revenue(today)
-
-    # 获取总库存
-    cards = list_cards(db)
-    total_stock = 0
-    for card in cards:
-        stock = count_activation_codes_by_card(db, card.name, only_unused=True)
-        total_stock += stock
-
-    # 获取订单统计
-    order_stats = get_order_stats(db)
-    pending_orders = order_stats["pending_orders"]
-
-    return {
-        "total_sales": total_sales,
-        "total_revenue": total_revenue,
-        "today_sales": today_sales_count,
-        "today_revenue": today_revenue,
-        "total_stock": total_stock,
-        "pending_orders": pending_orders,
-    }
+    return dao.get_sales_by_user_id(user_id)

@@ -23,14 +23,17 @@ class OrderDAO(BaseDAO):
     def create(
         self,
         activation_code: str,
-        user_id: int,
+        channel_id: int,
         status: OrderStatus = OrderStatus.PENDING,
         remarks: str | None = None,
     ) -> Order:
         """创建订单"""
+        # 对于匿名用户，我们使用一个固定的用户ID，比如0
+        user_id = 0
         order = Order(
             activation_code=activation_code,
             user_id=user_id,
+            channel_id=channel_id,
             status=status,
             remarks=remarks,
         )

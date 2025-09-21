@@ -12,6 +12,7 @@
 - count_activation_codes_by_card(db, card_name, only_unused)
 - delete_activation_codes_by_card(db, card_name)
 - is_code_available(db, code)
+- is_code_available_for_user(db, code, user)
 
 内部方法：
 - 无
@@ -26,6 +27,9 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from .dao import ActivationCodeDAO
 from .models import ActivationCode, CardCodeStatus
+from src.server.auth.models import User
+from src.server.auth.schemas import Role
+from src.server.card.models import Card
 
 
 def create_activation_codes(
@@ -123,3 +127,29 @@ def is_code_available(db: Session, code: str) -> bool:
     if not activation_code:
         return False
     return activation_code.status == CardCodeStatus.AVAILABLE
+
+
+def is_code_available_for_user(db: Session, code: str, user: User) -> bool:
+    """检查卡密是否可用，并且对于 STAFF 用户，检查渠道是否匹配"""
+    dao = ActivationCodeDAO(db)
+    activation_code = dao.get_by_code(code)
+    if not activation_code:
+        return False
+    
+    # 检查卡密状态是否为可用
+    if activation_code.status != CardCodeStatus.AVAILABLE:
+        return False
+    
+    # 如果用户是 STAFF，需要检查渠道是否匹配
+    if user.role == Role.STAFF:
+        # 获取卡密对应的商品
+        card = db.query(Card).filter(Card.name == activation_code.card_name).first()
+        if not card:
+            # 如果商品不存在，认为卡密不可用
+            return False
+        
+        # 检查商品渠道是否与用户渠道一致
+        if card.channel_id != user.channel_id:
+            return False
+    
+    return True

@@ -259,5 +259,14 @@ async def admin_create_user(
             status_code=status.HTTP_400_BAD_REQUEST, detail="邮箱已被注册"
         )
 
+    # 如果是创建 STAFF 用户，需要检查渠道是否存在
+    if user_data.role == Role.STAFF and user_data.channel_id is not None:
+        from src.server.channel.models import Channel
+        channel = db.query(Channel).filter(Channel.id == user_data.channel_id).first()
+        if not channel:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="指定的渠道不存在"
+            )
+
     new_user = service.admin_create_user(db=db, user_data=user_data)
     return new_user

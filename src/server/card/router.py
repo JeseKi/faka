@@ -17,8 +17,9 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from src.server.database import get_db
-from src.server.auth.router import get_current_admin
+from src.server.auth.router import get_current_admin, get_current_user
 from src.server.auth.models import User
+from src.server.auth.schemas import Role
 from .schemas import CardCreate, CardUpdate, CardOut
 from . import service
 from src.server.dao.dao_base import run_in_thread
@@ -37,10 +38,7 @@ async def create_card(
     def _create():
         return service.create_card(
             db=db,
-            name=card_data.name,
-            description=card_data.description,
-            price=card_data.price,
-            is_active=card_data.is_active,
+            card_in=card_data
         )
 
     return await run_in_thread(_create)
@@ -50,10 +48,18 @@ async def create_card(
 async def list_cards(
     include_inactive: bool = False,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """获取充值卡列表"""
-
+    
     def _list():
+        # 如果是员工，只返回其渠道下的卡片
+        if current_user.role == Role.STAFF:
+            # 检查员工是否有渠道ID
+            if current_user.channel_id is None:
+                return []
+            # 实现根据员工渠道过滤卡片的逻辑
+            return service.list_cards_by_channel(db, current_user.channel_id, include_inactive)
         return service.list_cards(db, include_inactive)
 
     return await run_in_thread(_list)
@@ -63,11 +69,19 @@ async def list_cards(
 async def get_card(
     card_id: int,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """获取单个充值卡"""
-
+    
     def _get():
-        return service.get_card(db, card_id)
+        # 如果是员工，需要检查卡片是否属于其渠道
+        card = service.get_card(db, card_id)
+        if current_user.role == Role.STAFF:
+            # 实现渠道检查逻辑
+            if card.channel_id != current_user.channel_id:
+                from fastapi import HTTPException, status
+                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权限访问该充值卡")
+        return card
 
     return await run_in_thread(_get)
 
@@ -86,10 +100,7 @@ async def update_card(
         return service.update_card(
             db=db,
             card=card,
-            name=card_data.name,
-            description=card_data.description,
-            price=card_data.price,
-            is_active=card_data.is_active,
+            card_in=card_data
         )
 
     return await run_in_thread(_update)
@@ -124,28 +135,3 @@ async def get_card_stock(
 
     stock_count = await run_in_thread(_get_stock)
     return {"card_name": card_name, "stock": stock_count}
-
-
-@router.post("/{card_name}/generate-codes", status_code=status.HTTP_201_CREATED)
-async def generate_activation_codes_for_card(
-    card_name: str,
-    count: int = 10,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_admin),
-):
-    """为指定充值卡批量生成卡密（管理员权限）"""
-
-    def _generate():
-        # 验证充值卡是否存在
-        _ = service.get_card_by_name(db, card_name)
-        # 生成卡密
-        from src.server.activation_code import service as activation_service
-
-        return activation_service.create_activation_codes(db, card_name, count)
-
-    codes = await run_in_thread(_generate)
-    return {
-        "message": f"为充值卡 '{card_name}' 生成了 {len(codes)} 个卡密",
-        "card_name": card_name,
-        "generated_count": len(codes),
-    }

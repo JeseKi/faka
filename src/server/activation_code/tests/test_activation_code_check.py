@@ -27,25 +27,22 @@ def test_check_code_availability_success(
     response = test_client.get(
         "/api/activation-codes/check",
         params={"code": code_value},
-        headers={"Authorization": f"Bearer {test_admin_token}"},
     )
 
     # 验证响应
     assert response.status_code == 200
     data = response.json()
-    print(f"Response data: {data}")  # 添加调试信息
     assert data["available"] is True
 
 
 def test_check_code_availability_not_found(
-    test_client: TestClient, test_admin_token: str
+    test_client: TestClient
 ):
     """测试检查不存在的卡密"""
     # 调用 API 检查不存在的卡密
     response = test_client.get(
         "/api/activation-codes/check",
         params={"code": "non-existent-code"},
-        headers={"Authorization": f"Bearer {test_admin_token}"},
     )
 
     # 验证响应
@@ -55,7 +52,7 @@ def test_check_code_availability_not_found(
 
 
 def test_check_code_availability_consumed(
-    test_client: TestClient, test_db_session: Session, test_admin_token: str
+    test_client: TestClient, test_db_session: Session
 ):
     """测试检查已消费的卡密"""
     # 创建测试数据
@@ -78,7 +75,6 @@ def test_check_code_availability_consumed(
     response = test_client.get(
         "/api/activation-codes/check",
         params={"code": code_value},
-        headers={"Authorization": f"Bearer {test_admin_token}"},
     )
 
     # 验证响应
@@ -88,7 +84,7 @@ def test_check_code_availability_consumed(
 
 
 def test_check_code_availability_consuming(
-    test_client: TestClient, test_db_session: Session, test_admin_token: str
+    test_client: TestClient, test_db_session: Session
 ):
     """测试检查正在消费的卡密"""
     # 创建测试数据
@@ -105,8 +101,12 @@ def test_check_code_availability_consuming(
     response = test_client.get(
         "/api/activation-codes/check",
         params={"code": code_value},
-        headers={"Authorization": f"Bearer {test_admin_token}"},
     )
+
+    # 验证响应
+    assert response.status_code == 200
+    data = response.json()
+    assert data["available"] is False
 
     # 验证响应
     assert response.status_code == 200

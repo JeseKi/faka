@@ -17,8 +17,13 @@ from src.server.activation_code.service import (
     set_code_consuming,
     set_code_consumed,
     is_code_available,
+    is_code_available_for_user,
 )
 from src.server.activation_code.models import CardCodeStatus
+from src.server.auth.models import User
+from src.server.auth.schemas import Role
+from src.server.card.models import Card
+from src.server.channel.models import Channel
 
 
 def test_create_activation_codes(test_db_session: Session):
@@ -231,3 +236,167 @@ def test_is_code_available_consuming(test_db_session: Session):
 
     # 检查卡密是否可用
     assert is_code_available(test_db_session, code_value) is False
+
+
+def test_is_code_available_for_user_success(test_db_session: Session):
+    """测试 STAFF 用户检查卡密是否可用且渠道匹配"""
+    # 创建渠道
+    channel = Channel(name="测试渠道", description="用于测试的渠道")
+    test_db_session.add(channel)
+    test_db_session.commit()
+    test_db_session.refresh(channel)
+    
+    # 创建商品
+    card = Card(name="渠道测试卡", description="描述", price=10.0, is_active=True, channel_id=channel.id)
+    test_db_session.add(card)
+    test_db_session.commit()
+    test_db_session.refresh(card)
+    
+    # 创建 STAFF 用户
+    staff_user = User(
+        username="staff_user",
+        email="staff@example.com",
+        role=Role.STAFF,
+        channel_id=channel.id
+    )
+    staff_user.set_password("password")
+    test_db_session.add(staff_user)
+    test_db_session.commit()
+    test_db_session.refresh(staff_user)
+    
+    # 创建卡密
+    codes = create_activation_codes(test_db_session, "渠道测试卡", 1)
+    code_value = codes[0].code
+    
+    # 检查卡密是否可用
+    assert is_code_available_for_user(test_db_session, code_value, staff_user) is True
+
+
+def test_is_code_available_for_user_channel_mismatch(test_db_session: Session):
+    """测试 STAFF 用户检查卡密是否可用但渠道不匹配"""
+    # 创建两个渠道
+    channel1 = Channel(name="测试渠道1", description="用于测试的渠道1")
+    channel2 = Channel(name="测试渠道2", description="用于测试的渠道2")
+    test_db_session.add_all([channel1, channel2])
+    test_db_session.commit()
+    test_db_session.refresh(channel1)
+    test_db_session.refresh(channel2)
+    
+    # 创建商品并关联到渠道1
+    card = Card(name="渠道测试卡", description="描述", price=10.0, is_active=True, channel_id=channel1.id)
+    test_db_session.add(card)
+    test_db_session.commit()
+    test_db_session.refresh(card)
+    
+    # 创建 STAFF 用户并关联到渠道2
+    staff_user = User(
+        username="staff_user",
+        email="staff@example.com",
+        role=Role.STAFF,
+        channel_id=channel2.id
+    )
+    staff_user.set_password("password")
+    test_db_session.add(staff_user)
+    test_db_session.commit()
+    test_db_session.refresh(staff_user)
+    
+    # 创建卡密
+    codes = create_activation_codes(test_db_session, "渠道测试卡", 1)
+    code_value = codes[0].code
+    
+    # 检查卡密是否可用
+    assert is_code_available_for_user(test_db_session, code_value, staff_user) is False
+
+
+def test_is_code_available_for_user_admin_user(test_db_session: Session):
+    """测试 ADMIN 用户检查卡密是否可用（不考虑渠道）"""
+    # 创建渠道
+    channel = Channel(name="测试渠道", description="用于测试的渠道")
+    test_db_session.add(channel)
+    test_db_session.commit()
+    test_db_session.refresh(channel)
+    
+    # 创建商品
+    card = Card(name="渠道测试卡", description="描述", price=10.0, is_active=True, channel_id=channel.id)
+    test_db_session.add(card)
+    test_db_session.commit()
+    test_db_session.refresh(card)
+    
+    # 创建 ADMIN 用户
+    admin_user = User(
+        username="admin_user",
+        email="admin@example.com",
+        role=Role.ADMIN
+    )
+    admin_user.set_password("password")
+    test_db_session.add(admin_user)
+    test_db_session.commit()
+    test_db_session.refresh(admin_user)
+    
+    # 创建卡密
+    codes = create_activation_codes(test_db_session, "渠道测试卡", 1)
+    code_value = codes[0].code
+    
+    # 检查卡密是否可用
+    assert is_code_available_for_user(test_db_session, code_value, admin_user) is True
+
+
+def test_is_code_available_for_user_user_role(test_db_session: Session):
+    """测试 USER 角色检查卡密是否可用（不考虑渠道）"""
+    # 创建渠道
+    channel = Channel(name="测试渠道", description="用于测试的渠道")
+    test_db_session.add(channel)
+    test_db_session.commit()
+    test_db_session.refresh(channel)
+    
+    # 创建商品
+    card = Card(name="渠道测试卡", description="描述", price=10.0, is_active=True, channel_id=channel.id)
+    test_db_session.add(card)
+    test_db_session.commit()
+    test_db_session.refresh(card)
+    
+    # 创建 USER 用户
+    user = User(
+        username="user",
+        email="user@example.com",
+        role=Role.USER
+    )
+    user.set_password("password")
+    test_db_session.add(user)
+    test_db_session.commit()
+    test_db_session.refresh(user)
+    
+    # 创建卡密
+    codes = create_activation_codes(test_db_session, "渠道测试卡", 1)
+    code_value = codes[0].code
+    
+    # 检查卡密是否可用
+    assert is_code_available_for_user(test_db_session, code_value, user) is True
+
+
+def test_is_code_available_for_user_card_not_found(test_db_session: Session):
+    """测试卡密对应的商品不存在"""
+    # 创建渠道
+    channel = Channel(name="测试渠道", description="用于测试的渠道")
+    test_db_session.add(channel)
+    test_db_session.commit()
+    test_db_session.refresh(channel)
+    
+    # 创建 STAFF 用户
+    staff_user = User(
+        username="staff_user",
+        email="staff@example.com",
+        role=Role.STAFF,
+        channel_id=channel.id
+    )
+    staff_user.set_password("password")
+    test_db_session.add(staff_user)
+    test_db_session.commit()
+    test_db_session.refresh(staff_user)
+    
+    # 创建卡密，但对应的商品不存在
+    codes = create_activation_codes(test_db_session, "不存在的商品", 1)
+    code_value = codes[0].code
+    
+    # 检查卡密是否可用
+    assert is_code_available_for_user(test_db_session, code_value, staff_user) is False

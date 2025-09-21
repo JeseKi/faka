@@ -3,8 +3,8 @@
 订单模块服务层
 
 公开接口：
-- verify_activation_code(db, code, user_id)
-- create_order(db, activation_code, user_id, status, remarks)
+- verify_activation_code(db, code, channel_id, remarks)
+- create_order(db, activation_code, channel_id, status, remarks)
 - get_order(db, order_id)
 - list_pending_orders(db)
 - list_orders(db, status_filter, limit, offset)
@@ -28,33 +28,36 @@ from fastapi import HTTPException, status
 from .dao import OrderDAO
 from .models import Order
 from .schemas import OrderStatus
+from src.server.activation_code.service import set_code_consuming, get_activation_code_by_code
+from src.server.card.models import Card
 
 
 def verify_activation_code(
-    db: Session, code: str, user_id: int, remarks: str | None = None
+    db: Session, code: str, channel_id: int, remarks: str | None = None
 ) -> Order:
     """验证卡密并创建订单"""
-    from src.server.activation_code.service import set_code_consuming
-
+    # 首先检查卡密是否存在且可用
+    activation_code = get_activation_code_by_code(db, code)
+    if not activation_code:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="卡密不存在")
+    
+    if activation_code.status != "available":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="卡密状态不正确")
+    
+    # 获取卡密对应的商品
+    card = db.query(Card).filter(Card.name == activation_code.card_name).first()
+    if not card:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="卡密对应的商品不存在")
+    
+    # 检查商品的渠道是否与传入的渠道ID匹配
+    if card.channel_id != channel_id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="卡密与渠道不匹配")
+    
+    # 将卡密状态设置为 consuming
     activation_code = set_code_consuming(db, code)
-    order = create_order(db, activation_code.code, user_id, OrderStatus.PROCESSING, remarks)
-
-    # # 设置订单状态 # TODO: 暂时不使用，因为目前的阶段不需要验证卡密是否属于用户
-    # dao = OrderDAO(db)
-    # order = dao.get_by_activation_code(activation_code.code)
-    # if not order:
-    #     raise HTTPException(
-    #         status_code=status.HTTP_404_NOT_FOUND, detail=f"未找到卡密：{code}"
-    #     )
-# 
-    # if order.user_id != user_id:
-    #     raise HTTPException(
-    #         status_code=status.HTTP_400_BAD_REQUEST, detail=f"卡密不属于用户：{user_id}"
-    #     )
-# 
-    # order = dao.update_status(
-    #     order=order, status=OrderStatus.PROCESSING, remarks=remarks
-    # )
+    
+    # 创建订单，使用卡密对应商品的渠道ID
+    order = create_order(db, activation_code.code, channel_id, OrderStatus.PROCESSING, remarks)
 
     return order
 
@@ -62,13 +65,13 @@ def verify_activation_code(
 def create_order(
     db: Session,
     activation_code: str,
-    user_id: int,
+    channel_id: int,
     status: OrderStatus = OrderStatus.PROCESSING,
     remarks: str | None = None,
 ) -> Order:
     """创建订单"""
     dao = OrderDAO(db)
-    return dao.create(activation_code, user_id, status, remarks)
+    return dao.create(activation_code, channel_id, status, remarks)
 
 
 def get_order(db: Session, order_id: int) -> Order:

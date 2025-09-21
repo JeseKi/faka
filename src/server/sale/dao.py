@@ -19,84 +19,44 @@ class SaleDAO(BaseDAO):
         super().__init__(db_session)
 
     def create(
-        self, activation_code: str, user_email: str, sale_price: float, card_name: str
+        self, user_id: int, card_name: str, quantity: int, sale_price: float, channel_id: int, activation_code: str = "", user_email: str = ""
     ) -> Sale:
         """创建销售记录"""
+        # 这里我们简化处理，只创建一条销售记录，而不是为每个卡密创建一条记录
+        # 在实际应用中，可能需要更复杂的逻辑
         sale = Sale(
+            user_id=user_id,
+            card_name=card_name,
+            quantity=quantity,
+            sale_price=sale_price,
+            channel_id=channel_id,
             activation_code=activation_code,
             user_email=user_email,
-            sale_price=sale_price,
-            card_name=card_name,
         )
         self.db_session.add(sale)
         self.db_session.commit()
         self.db_session.refresh(sale)
         return sale
 
-    def get_by_activation_code(self, activation_code: str) -> Sale | None:
-        """通过卡密获取销售记录"""
-        return (
-            self.db_session.query(Sale)
-            .filter(Sale.activation_code == activation_code)
-            .first()
-        )
-
-    def get_by_user_email(self, user_email: str) -> list[Sale]:
-        """获取用户的购买记录"""
-        return (
-            self.db_session.query(Sale)
-            .filter(Sale.user_email == user_email)
-            .order_by(Sale.purchased_at.desc())
-            .all()
-        )
+    def get(self, sale_id: int) -> Sale | None:
+        """获取销售记录"""
+        return self.db_session.query(Sale).filter(Sale.id == sale_id).first()
 
     def list_all(self, limit: int = 100, offset: int = 0) -> list[Sale]:
         """获取所有销售记录"""
         return (
             self.db_session.query(Sale)
-            .order_by(Sale.purchased_at.desc())
+            .order_by(Sale.created_at.desc())
             .limit(limit)
             .offset(offset)
             .all()
         )
 
-    def count_all(self) -> int:
-        """统计总销售记录数"""
-        return self.db_session.query(Sale).count()
-
-    def get_sales_by_date_range(self, start_date, end_date) -> list[Sale]:
-        """获取指定日期范围内的销售记录"""
+    def get_sales_by_user_id(self, user_id: int) -> list[Sale]:
+        """获取指定用户的所有销售记录"""
         return (
             self.db_session.query(Sale)
-            .filter(Sale.purchased_at >= start_date, Sale.purchased_at <= end_date)
-            .order_by(Sale.purchased_at.desc())
+            .filter(Sale.user_id == user_id)
+            .order_by(Sale.created_at.desc())
             .all()
         )
-
-    def get_total_revenue(self) -> float:
-        """计算总销售额"""
-        from sqlalchemy import func
-
-        result = self.db_session.query(func.sum(Sale.sale_price)).scalar()
-        return result or 0.0
-
-    def count_today(self, today) -> int:
-        """统计今日销售记录数"""
-        from sqlalchemy import func
-
-        return (
-            self.db_session.query(Sale)
-            .filter(func.date(Sale.purchased_at) == today)
-            .count()
-        )
-
-    def get_today_revenue(self, today) -> float:
-        """计算今日销售额"""
-        from sqlalchemy import func
-
-        result = (
-            self.db_session.query(func.sum(Sale.sale_price))
-            .filter(func.date(Sale.purchased_at) == today)
-            .scalar()
-        )
-        return result or 0.0

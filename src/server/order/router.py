@@ -37,13 +37,11 @@ async def create_order(
     verify_data: OrderCreate,
     db: Session = Depends(get_db),
 ):
-    """验证卡密并创建订单（需要登录）"""
+    """验证卡密并创建订单（不需要登录）"""
 
-    # TODO: 目前阶段不需要登录，所以用户ID固定为1
-    user_id = 1
     def _verify():
         return service.verify_activation_code(
-            db, verify_data.code, user_id, verify_data.remarks
+            db, verify_data.code, verify_data.channel_id, verify_data.remarks
         )
 
     return await run_in_thread(_verify)

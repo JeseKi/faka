@@ -15,30 +15,43 @@ from src.server.order.service import (
 )
 from src.server.activation_code.models import ActivationCode, CardCodeStatus
 from src.server.order.schemas import OrderStatus
+from src.server.channel.models import Channel
 
 
 def test_create_order(test_db_session: Session):
     """测试创建订单"""
+    # 先创建一个渠道
+    channel = Channel(name="测试渠道", description="用于测试的渠道")
+    test_db_session.add(channel)
+    test_db_session.commit()
+    test_db_session.refresh(channel)
+    
     activation_code = "TEST-CODE-001"
-    user_id = 1
+    channel_id = channel.id
     remarks = "测试订单备注"
 
     order = create_order(
-        test_db_session, activation_code, user_id, OrderStatus.PENDING, remarks
+        test_db_session, activation_code, channel_id, OrderStatus.PENDING, remarks
     )
 
     assert order is not None
     assert order.activation_code == activation_code
-    assert order.user_id == user_id
+    assert order.channel_id == channel_id
     assert order.status == OrderStatus.PENDING
     assert order.remarks == remarks
 
 
 def test_get_order(test_db_session: Session):
     """测试获取订单"""
+    # 先创建一个渠道
+    channel = Channel(name="测试渠道2", description="用于测试的渠道2")
+    test_db_session.add(channel)
+    test_db_session.commit()
+    test_db_session.refresh(channel)
+    
     # 准备测试数据
     order = Order(
-        activation_code="TEST-CODE-002", user_id=1, status=OrderStatus.PENDING
+        activation_code="TEST-CODE-002", channel_id=channel.id, status=OrderStatus.PENDING, user_id=0
     )
     test_db_session.add(order)
     test_db_session.commit()
@@ -60,15 +73,21 @@ def test_get_order(test_db_session: Session):
 
 def test_list_pending_orders(test_db_session: Session):
     """测试获取待处理订单列表"""
+    # 先创建一个渠道
+    channel = Channel(name="测试渠道3", description="用于测试的渠道3")
+    test_db_session.add(channel)
+    test_db_session.commit()
+    test_db_session.refresh(channel)
+    
     # 准备测试数据
     order1 = Order(
-        activation_code="TEST-CODE-003", user_id=1, status=OrderStatus.PENDING
+        activation_code="TEST-CODE-003", channel_id=channel.id, status=OrderStatus.PENDING, user_id=0
     )
     order2 = Order(
-        activation_code="TEST-CODE-004", user_id=2, status=OrderStatus.COMPLETED
+        activation_code="TEST-CODE-004", channel_id=channel.id, status=OrderStatus.COMPLETED, user_id=0
     )
     order3 = Order(
-        activation_code="TEST-CODE-005", user_id=3, status=OrderStatus.PENDING
+        activation_code="TEST-CODE-005", channel_id=channel.id, status=OrderStatus.PENDING, user_id=0
     )
 
     test_db_session.add_all([order1, order2, order3])
@@ -84,15 +103,21 @@ def test_list_pending_orders(test_db_session: Session):
 
 def test_list_orders(test_db_session: Session):
     """测试获取订单列表"""
+    # 先创建一个渠道
+    channel = Channel(name="测试渠道4", description="用于测试的渠道4")
+    test_db_session.add(channel)
+    test_db_session.commit()
+    test_db_session.refresh(channel)
+    
     # 准备测试数据
     order1 = Order(
-        activation_code="TEST-CODE-006", user_id=1, status=OrderStatus.PENDING
+        activation_code="TEST-CODE-006", channel_id=channel.id, status=OrderStatus.PENDING, user_id=0
     )
     order2 = Order(
-        activation_code="TEST-CODE-007", user_id=2, status=OrderStatus.COMPLETED
+        activation_code="TEST-CODE-007", channel_id=channel.id, status=OrderStatus.COMPLETED, user_id=0
     )
     order3 = Order(
-        activation_code="TEST-CODE-008", user_id=3, status=OrderStatus.PENDING
+        activation_code="TEST-CODE-008", channel_id=channel.id, status=OrderStatus.PENDING, user_id=0
     )
 
     test_db_session.add_all([order1, order2, order3])
@@ -111,6 +136,12 @@ def test_list_orders(test_db_session: Session):
 
 def test_complete_order(test_db_session: Session):
     """测试完成订单"""
+    # 先创建一个渠道
+    channel = Channel(name="测试渠道5", description="用于测试的渠道5")
+    test_db_session.add(channel)
+    test_db_session.commit()
+    test_db_session.refresh(channel)
+    
     # 准备测试数据
     activation_code = ActivationCode(
         card_name="测试卡", code="TEST-CODE-009", status=CardCodeStatus.CONSUMING
@@ -119,7 +150,7 @@ def test_complete_order(test_db_session: Session):
     test_db_session.commit()
 
     order = Order(
-        activation_code="TEST-CODE-009", user_id=1, status=OrderStatus.PENDING
+        activation_code="TEST-CODE-009", channel_id=channel.id, status=OrderStatus.PENDING, user_id=0
     )
     test_db_session.add(order)
     test_db_session.commit()
@@ -136,7 +167,13 @@ def test_complete_order(test_db_session: Session):
 
 def test_get_order_stats(test_db_session: Session):
     """测试获取订单统计信息"""
+    # 先创建一个渠道
+    channel = Channel(name="测试渠道6", description="用于测试的渠道6")
+    test_db_session.add(channel)
+    test_db_session.commit()
+    test_db_session.refresh(channel)
+    
     # 准备测试数据
-    _ = Order(activation_code="TEST-CODE-010", user_id=1, status=OrderStatus.PENDING)
-    _ = Order(activation_code="TEST-CODE-011", user_id=2, status=OrderStatus.COMPLETED)
-    _ = Order(activation_code="TEST-CODE-012", user_id=3, status=OrderStatus.PENDING)
+    _ = Order(activation_code="TEST-CODE-010", channel_id=channel.id, status=OrderStatus.PENDING, user_id=0)
+    _ = Order(activation_code="TEST-CODE-011", channel_id=channel.id, status=OrderStatus.COMPLETED, user_id=0)
+    _ = Order(activation_code="TEST-CODE-012", channel_id=channel.id, status=OrderStatus.PENDING, user_id=0)

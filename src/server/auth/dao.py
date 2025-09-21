@@ -28,9 +28,9 @@ class UserDAO(BaseDAO):
     def get_by_username(self, username: str) -> User | None:
         return self.db_session.query(User).filter(User.username == username).first()
 
-    def create(self, username: str, email: str, password_hash: str, role: Role) -> User:
+    def create(self, username: str, email: str, password_hash: str, role: Role, channel_id: int | None = None) -> User:
         user = User(
-            username=username, email=email, password_hash=password_hash, role=role
+            username=username, email=email, password_hash=password_hash, role=role, channel_id=channel_id
         )
         self.db_session.add(user)
         self.db_session.commit()

@@ -38,6 +38,9 @@ class User(Base):
         nullable=False,
         default=lambda: datetime.now(timezone.utc),
     )
+    
+    # 渠道关联（仅对 STAFF 角色有效）- 存储渠道ID而非外键
+    channel_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
 
     def set_password(self, password: str) -> None:
         salt = bcrypt.gensalt()

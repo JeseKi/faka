@@ -15,13 +15,15 @@ class CardCreate(BaseModel):
     description: str = Field(..., min_length=1, max_length=500)
     price: float = Field(..., gt=0)
     is_active: bool = True
+    channel_id: int = Field(..., gt=0)
 
 
 class CardUpdate(BaseModel):
-    name: Optional[str] = Field(None, min_length=1, max_length=100)
-    description: Optional[str] = Field(None, min_length=1, max_length=500)
-    price: Optional[float] = Field(None, gt=0)
-    is_active: Optional[bool] = None
+    name: Optional[str] = Field(default=None, min_length=1, max_length=100)
+    description: Optional[str] = Field(default=None, min_length=1, max_length=500)
+    price: Optional[float] = Field(default=None, gt=0)
+    is_active: Optional[bool] = Field(default=None)
+    channel_id: Optional[int] = Field(default=None, gt=0)
 
 
 class CardOut(BaseModel):
@@ -30,5 +32,6 @@ class CardOut(BaseModel):
     description: str
     price: float
     is_active: bool
+    channel_id: int
 
     model_config = ConfigDict(from_attributes=True)

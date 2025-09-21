@@ -10,6 +10,7 @@
 - POST /api/activation-codes/consuming
 - POST /api/activation-codes/consumed
 - GET /api/activation-codes/check
+- GET /api/activation-codes/check-for-user
 """
 
 from __future__ import annotations
@@ -56,13 +57,10 @@ async def check_code_availability(
 
     def _check():
         result = service.is_code_available(db, code)
-        print(f"Service result: {result}")  # 添加调试信息
         return result
 
     is_available = await run_in_thread(_check)
-    print(f"Final result: {is_available}")  # 添加调试信息
     return {"available": is_available}
-
 
 @router.get("/{card_name}", response_model=list[ActivationCodeOut])
 async def list_activation_codes(

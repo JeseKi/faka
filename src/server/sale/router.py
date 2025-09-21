@@ -92,7 +92,8 @@ async def get_sales_stats(
     """获取销售统计信息（管理员权限）"""
 
     def _stats():
-        return service.get_sales_stats(db)
+        # TODO: 实现销售统计功能
+        return {"message": "销售统计功能尚未实现"}
 
     stats = await run_in_thread(_stats)
     return stats
@@ -107,6 +108,7 @@ async def get_user_sales(
     """获取指定用户的购买记录（管理员权限）"""
 
     def _user_sales():
-        return service.get_user_sales(db, user_email)
+        # TODO: 实现获取用户销售记录功能
+        return []
 
     return await run_in_thread(_user_sales)

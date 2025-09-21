@@ -18,6 +18,7 @@ from starlette.types import Scope
 from src.server.activation_code.router import router as activation_code_router
 from src.server.auth.router import router as auth_router
 from src.server.card.router import router as card_router
+from src.server.channel.router import router as channel_router
 from src.server.config import global_config
 from src.server.database import get_database_info, init_database
 from src.server.example_module.router import router as example_router
@@ -105,6 +106,7 @@ app.include_router(card_router)
 app.include_router(activation_code_router)
 app.include_router(sale_router)
 app.include_router(order_router)
+app.include_router(channel_router)
 
 
 # --- 前端 SPA 静态文件服务 ---

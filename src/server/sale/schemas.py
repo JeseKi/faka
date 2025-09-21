@@ -22,5 +22,8 @@ class SaleOut(BaseModel):
     sale_price: float
     purchased_at: datetime
     card_name: str  # 添加充值卡名称字段
+    quantity: int
+    channel_id: int
+    created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)

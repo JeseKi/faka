@@ -25,6 +25,8 @@ class UserProfile(BaseModel):
     name: Optional[str] = Field(default=None)
     role: Role
     status: str
+    # 渠道信息（仅对 STAFF 角色有效）
+    channel_id: Optional[int] = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -73,3 +75,5 @@ class AdminUserCreate(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=8)
     role: Role
+    # 渠道信息（仅对 STAFF 角色有效）
+    channel_id: Optional[int] = None
