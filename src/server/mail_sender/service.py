@@ -182,6 +182,7 @@ def send_new_order_notification_email(
     )
     return send_mail(mail)
 
+
 __all__ = [
     "send_mail",
     "send_new_order_notification_email",

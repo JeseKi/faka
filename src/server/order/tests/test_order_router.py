@@ -11,6 +11,7 @@ from src.server.activation_code.service import create_activation_codes
 
 os.environ.setdefault("APP_ENV", "dev")
 
+
 def test_get_order_stats(test_client, test_db_session):
     """测试获取订单统计信息"""
     # 确保管理员用户存在

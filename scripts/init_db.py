@@ -61,7 +61,7 @@ def seed_initial_data() -> None:
                 email="staff1@example.com",
                 name="员工 1",
                 role=Role.STAFF,
-                channel_id=channel_a.id
+                channel_id=channel_a.id,
             )
             staff_1.set_password("staff123")
             db.add(staff_1)
@@ -74,7 +74,7 @@ def seed_initial_data() -> None:
                 email="staff2@example.com",
                 name="员工 2",
                 role=Role.STAFF,
-                channel_id=channel_b.id
+                channel_id=channel_b.id,
             )
             staff_2.set_password("staff123")
             db.add(staff_2)
@@ -87,7 +87,7 @@ def seed_initial_data() -> None:
                 name="卡 A",
                 description="卡 A 的描述",
                 price=10.0,
-                channel_id=channel_a.id
+                channel_id=channel_a.id,
             )
             db.add(card_a)
             logger.info("创建卡：卡 A")
@@ -98,43 +98,41 @@ def seed_initial_data() -> None:
                 name="卡 B",
                 description="卡 B 的描述",
                 price=20.0,
-                channel_id=channel_b.id
+                channel_id=channel_b.id,
             )
             db.add(card_b)
             logger.info("创建卡：卡 B")
 
         # 提交所有数据
         db.commit()
-        
+
         # 4. 检查并创建卡密
         from src.server.crypto.service import generate_activation_code
-        
-        existing_codes_a = db.query(ActivationCode).filter(
-            ActivationCode.card_name == "卡 A"
-        ).count()
+
+        existing_codes_a = (
+            db.query(ActivationCode).filter(ActivationCode.card_name == "卡 A").count()
+        )
         if existing_codes_a < 10:
             for i in range(10 - existing_codes_a):
                 # 生成激活码
                 activation_code_value = generate_activation_code()
-                
+
                 activation_code = ActivationCode(
-                    card_name="卡 A",
-                    code=activation_code_value
+                    card_name="卡 A", code=activation_code_value
                 )
                 db.add(activation_code)
             logger.info("为卡 A 创建了 {} 个卡密", 10 - existing_codes_a)
 
-        existing_codes_b = db.query(ActivationCode).filter(
-            ActivationCode.card_name == "卡 B"
-        ).count()
+        existing_codes_b = (
+            db.query(ActivationCode).filter(ActivationCode.card_name == "卡 B").count()
+        )
         if existing_codes_b < 10:
             for i in range(10 - existing_codes_b):
                 # 生成激活码
                 activation_code_value = generate_activation_code()
-                
+
                 activation_code = ActivationCode(
-                    card_name="卡 B",
-                    code=activation_code_value
+                    card_name="卡 B", code=activation_code_value
                 )
                 db.add(activation_code)
             logger.info("为卡 B 创建了 {} 个卡密", 10 - existing_codes_b)

@@ -86,8 +86,7 @@ class OrderDAO(BaseDAO):
         return (
             self.db_session.query(Order)
             .filter(
-                Order.status == OrderStatus.PROCESSING,
-                Order.channel_id == channel_id
+                Order.status == OrderStatus.PROCESSING, Order.channel_id == channel_id
             )
             .order_by(Order.created_at.asc())
             .all()

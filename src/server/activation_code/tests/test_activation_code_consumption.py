@@ -26,7 +26,7 @@ def setup_test_data(test_db_session: Session):
     test_db_session.add(channel)
     test_db_session.commit()
     test_db_session.refresh(channel)
-    
+
     # 创建测试充值卡
     card = Card(
         name="消费测试",
@@ -38,7 +38,7 @@ def setup_test_data(test_db_session: Session):
     test_db_session.add(card)
     test_db_session.commit()
     test_db_session.refresh(card)
-    
+
     return channel, card
 
 

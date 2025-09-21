@@ -34,7 +34,7 @@ def setup_test_data(test_db_session: Session):
     test_db_session.add(channel)
     test_db_session.commit()
     test_db_session.refresh(channel)
-    
+
     # 创建测试充值卡
     cards_data = [
         ("月度会员", "月度会员充值卡"),
@@ -49,7 +49,7 @@ def setup_test_data(test_db_session: Session):
         ("不存在的商品", "不存在的商品充值卡"),
         ("保留", "保留充值卡"),
     ]
-    
+
     cards = []
     for name, description in cards_data:
         card = Card(
@@ -61,11 +61,11 @@ def setup_test_data(test_db_session: Session):
         )
         test_db_session.add(card)
         cards.append(card)
-    
+
     test_db_session.commit()
     for card in cards:
         test_db_session.refresh(card)
-    
+
     return channel, cards
 
 
@@ -311,7 +311,9 @@ def test_is_code_available_for_user_success(test_db_session: Session, setup_test
     assert is_code_available_for_user(test_db_session, code_value, staff_user) is True
 
 
-def test_is_code_available_for_user_channel_mismatch(test_db_session: Session, setup_test_data):
+def test_is_code_available_for_user_channel_mismatch(
+    test_db_session: Session, setup_test_data
+):
     """测试 STAFF 用户检查卡密是否可用但渠道不匹配"""
     # 创建第二个渠道
     _ = test_db_session.query(Channel).first()
@@ -340,7 +342,9 @@ def test_is_code_available_for_user_channel_mismatch(test_db_session: Session, s
     assert is_code_available_for_user(test_db_session, code_value, staff_user) is False
 
 
-def test_is_code_available_for_user_admin_user(test_db_session: Session, setup_test_data):
+def test_is_code_available_for_user_admin_user(
+    test_db_session: Session, setup_test_data
+):
     """测试 ADMIN 用户检查卡密是否可用（不考虑渠道）"""
     # 获取已创建的渠道
     _ = test_db_session.query(Channel).first()
@@ -360,7 +364,9 @@ def test_is_code_available_for_user_admin_user(test_db_session: Session, setup_t
     assert is_code_available_for_user(test_db_session, code_value, admin_user) is True
 
 
-def test_is_code_available_for_user_user_role(test_db_session: Session, setup_test_data):
+def test_is_code_available_for_user_user_role(
+    test_db_session: Session, setup_test_data
+):
     """测试 USER 角色检查卡密是否可用（不考虑渠道）"""
     # 创建 USER 用户
     user = User(username="user", email="user@example.com", role=Role.USER)
@@ -377,7 +383,9 @@ def test_is_code_available_for_user_user_role(test_db_session: Session, setup_te
     assert is_code_available_for_user(test_db_session, code_value, user) is True
 
 
-def test_is_code_available_for_user_card_not_found(test_db_session: Session, setup_test_data):
+def test_is_code_available_for_user_card_not_found(
+    test_db_session: Session, setup_test_data
+):
     """测试卡密对应的商品不存在"""
     # 获取已创建的渠道
     channel = test_db_session.query(Channel).first()
@@ -400,12 +408,12 @@ def test_is_code_available_for_user_card_not_found(test_db_session: Session, set
     from datetime import datetime, timezone
     import uuid
     from src.server.crypto.service import encrypt
-    
+
     # 生成加密的卡密代码
     original_uuid = str(uuid.uuid4())
     data_to_encrypt = f"{original_uuid}:测试渠道"
     encrypted_code = encrypt(data_to_encrypt)
-    
+
     # 创建卡密记录（关联到不存在的商品）
     activation_code = ActivationCode(
         card_name="真正不存在的商品",  # 这个商品在setup_test_data中未创建
@@ -417,7 +425,7 @@ def test_is_code_available_for_user_card_not_found(test_db_session: Session, set
     test_db_session.add(activation_code)
     test_db_session.commit()
     test_db_session.refresh(activation_code)
-    
+
     code_value = activation_code.code
 
     # 检查卡密是否可用，应该返回False，因为商品不存在

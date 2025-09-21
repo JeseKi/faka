@@ -29,7 +29,12 @@ from src.server.dao.dao_base import run_in_thread
 router = APIRouter(prefix="/api/sales", tags=["销售管理"])
 
 
-@router.post("/purchase", response_model=SaleOut, status_code=status.HTTP_201_CREATED, summary="购买充值卡")
+@router.post(
+    "/purchase",
+    response_model=SaleOut,
+    status_code=status.HTTP_201_CREATED,
+    summary="购买充值卡",
+)
 async def purchase_card(
     sale_data: SaleCreate,
     db: Session = Depends(get_db),
@@ -101,7 +106,9 @@ async def get_sales_stats(
     return stats
 
 
-@router.get("/user/{user_email}", response_model=list[SaleOut], summary="获取指定用户的销售记录")
+@router.get(
+    "/user/{user_email}", response_model=list[SaleOut], summary="获取指定用户的销售记录"
+)
 async def get_user_sales(
     user_email: str,
     db: Session = Depends(get_db),

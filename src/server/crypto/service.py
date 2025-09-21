@@ -75,7 +75,7 @@ class CryptoService:
         """
         # 生成随机数据
         data = str(uuid.uuid4()).encode("utf-8")
-        
+
         # 使用 HMAC-SHA256 生成签名
         signature = hmac.new(self.key, data, hashlib.sha256).hexdigest()
         return signature

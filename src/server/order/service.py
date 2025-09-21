@@ -102,6 +102,7 @@ def verify_activation_code(
     except Exception as e:
         # 邮件发送失败不影响订单创建，只记录日志
         import logging
+
         logging.warning(f"发送新订单通知邮件失败：{e}")
 
     return order

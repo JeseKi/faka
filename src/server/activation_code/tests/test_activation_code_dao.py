@@ -20,7 +20,7 @@ def setup_test_data(test_db_session: Session):
     test_db_session.add(channel)
     test_db_session.commit()
     test_db_session.refresh(channel)
-    
+
     # 创建测试充值卡
     cards_data = [
         ("月度会员", "月度会员充值卡"),
@@ -32,7 +32,7 @@ def setup_test_data(test_db_session: Session):
         ("待删除", "待删除充值卡"),
         ("保留", "保留充值卡"),
     ]
-    
+
     cards = []
     for name, description in cards_data:
         card = Card(
@@ -44,11 +44,11 @@ def setup_test_data(test_db_session: Session):
         )
         test_db_session.add(card)
         cards.append(card)
-    
+
     test_db_session.commit()
     for card in cards:
         test_db_session.refresh(card)
-    
+
     return channel, cards
 
 
@@ -88,7 +88,9 @@ def test_activation_code_dao_get_by_code(test_db_session: Session, setup_test_da
     assert retrieved_code is None
 
 
-def test_activation_code_dao_get_available_by_card_name(test_db_session: Session, setup_test_data):
+def test_activation_code_dao_get_available_by_card_name(
+    test_db_session: Session, setup_test_data
+):
     """测试获取可用卡密"""
     dao = ActivationCodeDAO(test_db_session)
 
@@ -139,7 +141,9 @@ def test_activation_code_dao_update_status(test_db_session: Session, setup_test_
     assert updated_code.used_at is not None
 
 
-def test_activation_code_dao_list_by_card_name(test_db_session: Session, setup_test_data):
+def test_activation_code_dao_list_by_card_name(
+    test_db_session: Session, setup_test_data
+):
     """测试列出指定充值卡的卡密"""
     dao = ActivationCodeDAO(test_db_session)
 
@@ -163,7 +167,9 @@ def test_activation_code_dao_list_by_card_name(test_db_session: Session, setup_t
     assert len(unused_codes) == 2
 
 
-def test_activation_code_dao_count_by_card_name(test_db_session: Session, setup_test_data):
+def test_activation_code_dao_count_by_card_name(
+    test_db_session: Session, setup_test_data
+):
     """测试统计卡密数量"""
     dao = ActivationCodeDAO(test_db_session)
 
@@ -186,7 +192,9 @@ def test_activation_code_dao_count_by_card_name(test_db_session: Session, setup_
     assert count == 3
 
 
-def test_activation_code_dao_delete_by_card_name(test_db_session: Session, setup_test_data):
+def test_activation_code_dao_delete_by_card_name(
+    test_db_session: Session, setup_test_data
+):
     """测试删除指定充值卡的所有卡密"""
     dao = ActivationCodeDAO(test_db_session)
 

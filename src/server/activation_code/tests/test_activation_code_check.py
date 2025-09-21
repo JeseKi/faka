@@ -20,7 +20,7 @@ def setup_test_data(test_db_session: Session):
     test_db_session.add(channel)
     test_db_session.commit()
     test_db_session.refresh(channel)
-    
+
     # 创建测试充值卡
     card = Card(
         name="可用性测试",
@@ -32,12 +32,15 @@ def setup_test_data(test_db_session: Session):
     test_db_session.add(card)
     test_db_session.commit()
     test_db_session.refresh(card)
-    
+
     return channel, card
 
 
 def test_check_code_availability_success(
-    test_client: TestClient, test_db_session: Session, test_admin_token: str, setup_test_data
+    test_client: TestClient,
+    test_db_session: Session,
+    test_admin_token: str,
+    setup_test_data,
 ):
     """测试成功检查卡密是否可用"""
     # 创建测试数据

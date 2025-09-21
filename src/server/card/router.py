@@ -27,7 +27,12 @@ from src.server.dao.dao_base import run_in_thread
 router = APIRouter(prefix="/api/cards", tags=["充值卡管理"])
 
 
-@router.post("", response_model=CardOut, status_code=status.HTTP_201_CREATED, summary="创建充值卡")
+@router.post(
+    "",
+    response_model=CardOut,
+    status_code=status.HTTP_201_CREATED,
+    summary="创建充值卡",
+)
 async def create_card(
     card_data: CardCreate,
     db: Session = Depends(get_db),

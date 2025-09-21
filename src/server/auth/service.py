@@ -168,14 +168,19 @@ def admin_update_user(db: Session, user_id: int, user_data: AdminUserUpdate) -> 
 
     # 如果更新邮箱，需要检查邮箱是否已被其他用户使用
     if "email" in update_data:
-        existing_user = db.query(User).filter(User.email == update_data["email"]).first()
+        existing_user = (
+            db.query(User).filter(User.email == update_data["email"]).first()
+        )
         if existing_user and existing_user.id != user_id:
             raise ValueError(f"邮箱 {update_data['email']} 已被其他用户使用")
 
     # 如果更新角色为STAFF且提供了channel_id，需要验证渠道是否存在
     if update_data.get("role") == Role.STAFF and "channel_id" in update_data:
         from src.server.channel.models import Channel
-        channel = db.query(Channel).filter(Channel.id == update_data["channel_id"]).first()
+
+        channel = (
+            db.query(Channel).filter(Channel.id == update_data["channel_id"]).first()
+        )
         if not channel:
             raise ValueError(f"指定的渠道ID {update_data['channel_id']} 不存在")
 

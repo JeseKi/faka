@@ -30,7 +30,9 @@ class ActivationCodeDAO(BaseDAO):
         if not card:
             raise ValueError(f"充值卡 '{card_name}' 不存在")
 
-        channel = self.db_session.query(Channel).filter(Channel.id == card.channel_id).first()
+        channel = (
+            self.db_session.query(Channel).filter(Channel.id == card.channel_id).first()
+        )
         if not channel:
             raise ValueError(f"渠道 ID {card.channel_id} 不存在")
 

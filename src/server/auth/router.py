@@ -242,7 +242,10 @@ async def change_current_user_password(
 
 
 @router.post(
-    "/admin/users", response_model=UserProfile, status_code=status.HTTP_201_CREATED, summary="管理员创建用户"
+    "/admin/users",
+    response_model=UserProfile,
+    status_code=status.HTTP_201_CREATED,
+    summary="管理员创建用户",
 )
 async def admin_create_user(
     user_data: AdminUserCreate,
@@ -296,7 +299,9 @@ async def admin_update_user(
 ):
     """管理员更新指定ID的用户信息"""
     try:
-        updated_user = service.admin_update_user(db=db, user_id=user_id, user_data=user_data)
+        updated_user = service.admin_update_user(
+            db=db, user_id=user_id, user_data=user_data
+        )
         return updated_user
     except ValueError as e:
         raise HTTPException(

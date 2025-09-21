@@ -32,7 +32,12 @@ from src.server.order.schemas import OrderStatus
 router = APIRouter(prefix="/api/orders", tags=["订单管理"])
 
 
-@router.post("/create", response_model=OrderOut, status_code=status.HTTP_201_CREATED, summary="验证卡密并创建订单")
+@router.post(
+    "/create",
+    response_model=OrderOut,
+    status_code=status.HTTP_201_CREATED,
+    summary="验证卡密并创建订单",
+)
 async def create_order(
     verify_data: OrderCreate,
     db: Session = Depends(get_db),
