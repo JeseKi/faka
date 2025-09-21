@@ -11,6 +11,7 @@
 - PUT /api/auth/password
 - POST /api/auth/send-verification-code
 - POST /api/auth/register-with-code
+- PUT /api/auth/admin/users/{user_id}
 """
 
 from __future__ import annotations
@@ -37,6 +38,7 @@ from .schemas import (
     VerificationCodeRequest,
     UserRegisterWithCode,
     AdminUserCreate,
+    AdminUserUpdate,
 )
 
 router = APIRouter(prefix="/api/auth", tags=["用户认证"])
@@ -274,3 +276,30 @@ async def admin_create_user(
 
     new_user = service.admin_create_user(db=db, user_data=user_data)
     return new_user
+
+
+@router.put(
+    "/admin/users/{user_id}",
+    response_model=UserProfile,
+    summary="管理员更新指定用户",
+    responses={
+        404: {"description": "用户不存在"},
+        400: {"description": "邮箱已被使用或渠道不存在"},
+        403: {"description": "无权限"},
+    },
+)
+async def admin_update_user(
+    user_id: int,
+    user_data: AdminUserUpdate,
+    current_admin: User = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """管理员更新指定ID的用户信息"""
+    try:
+        updated_user = service.admin_update_user(db=db, user_id=user_id, user_data=user_data)
+        return updated_user
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )

@@ -4,7 +4,7 @@
 
 公开接口：
 - `UserProfile`、`UserCreate`、`UserUpdate`、`UserLogin`、`TokenResponse`、`PasswordChange`
-- `VerificationCodeRequest`、`UserRegisterWithCode`
+- `VerificationCodeRequest`、`UserRegisterWithCode`、`AdminUserUpdate`
 """
 
 from pydantic import BaseModel, Field, EmailStr, ConfigDict
@@ -75,5 +75,14 @@ class AdminUserCreate(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=8)
     role: Role
+    # 渠道信息（仅对 STAFF 角色有效）
+    channel_id: Optional[int] = None
+
+
+class AdminUserUpdate(BaseModel):
+    email: Optional[EmailStr] = None
+    name: Optional[str] = Field(default=None, max_length=100)
+    role: Optional[Role] = None
+    status: Optional[str] = None
     # 渠道信息（仅对 STAFF 角色有效）
     channel_id: Optional[int] = None
