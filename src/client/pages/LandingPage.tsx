@@ -278,21 +278,21 @@ const LandingPage: React.FC = () => {
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {/* 评价卡片1 - 纯图片展示 */}
             <div className="w-full">
-              <img src="/images/image_1756607004003.png"
+              <img src="https://tuchuang-1317479375.cos.ap-beijing.myqcloud.com/img1.jpg"
                    className="w-full h-auto object-contain rounded-lg"
                    alt="ChatGPT Plus充值客户好评截图 - 快速到账服务满意度高" loading="lazy" />
             </div>
 
             {/* 评价卡片2 - 纯图片展示 */}
             <div className="w-full">
-              <img src="/images/image_1756607013801.png"
+              <img src="https://tuchuang-1317479375.cos.ap-beijing.myqcloud.com/img2.jpg"
                    className="w-full h-auto object-contain rounded-lg"
                    alt="ChatGPT会员代充成功案例 - 20秒完成充值客户反馈" loading="lazy" />
             </div>
 
             {/* 评价卡片3 - 纯图片展示 */}
             <div className="w-full">
-              <img src="/images/image_1756607018341.png"
+              <img src="https://tuchuang-1317479375.cos.ap-beijing.myqcloud.com/img3.jpg"
                    className="w-full h-auto object-contain rounded-lg"
                    alt="ChatGPT充值服务用户推荐 - 安全可靠官方渠道" loading="lazy" />
             </div>
