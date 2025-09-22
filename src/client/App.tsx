@@ -16,6 +16,7 @@ import { SWRProvider } from './providers/SWRProvider'
 import PurchaseHistoryPage from './pages/user/PurchaseHistoryPage'
 import LandingPage from './pages/LandingPage'
 import RechargePlusPage from './pages/RechargePlusPage'
+import ChannelManagementPage from './pages/admin/ChannelManagementPage'
 
 export default function App() {
   return (
@@ -56,6 +57,7 @@ export default function App() {
               <Route index element={<AdminDashboardPage />} />
               <Route path="cards" element={<CardManagementPage />} />
               <Route path="codes" element={<ActivationCodeManagementPage />} />
+              <Route path="channels" element={<ChannelManagementPage />} />
               <Route path="sales" element={<SalesRecordPage />} />
               <Route path="order-processing" element={<OrderProcessingPage />} />
             </Route>

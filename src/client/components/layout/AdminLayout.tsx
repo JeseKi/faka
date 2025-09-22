@@ -16,6 +16,7 @@ import {
   CreditCardOutlined,
   KeyOutlined,
   ShoppingCartOutlined,
+  ApiOutlined,
 } from '@ant-design/icons'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
@@ -32,6 +33,7 @@ export default function AdminLayout() {
     const path = location.pathname
     if (path.startsWith('/admin/cards')) return ['cards']
     if (path.startsWith('/admin/codes')) return ['codes']
+    if (path.startsWith('/admin/channels')) return ['channels']
     if (path.startsWith('/admin/sales')) return ['sales']
     if (path.startsWith('/admin/order-processing')) return ['orders']
     return ['dashboard']
@@ -58,6 +60,11 @@ export default function AdminLayout() {
           key: 'codes',
           icon: <KeyOutlined />,
           label: <Link to="/admin/codes">卡密管理</Link>,
+        },
+        {
+          key: 'channels',
+          icon: <ApiOutlined />,
+          label: <Link to="/admin/channels">渠道管理</Link>,
         },
         {
           key: 'sales',

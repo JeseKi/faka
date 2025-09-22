@@ -11,6 +11,7 @@ const RechargePlusPage: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [activationCode, setActivationCode] = useState('');
   const [cookies, setCookies] = useState('');
+  const [channelId, setChannelId] = useState<number | null>(null);
   const [isConfirmChecked, setIsConfirmChecked] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCheckingCode, setIsCheckingCode] = useState(false);
@@ -28,6 +29,7 @@ const RechargePlusPage: React.FC = () => {
     try {
       const result = await checkActivationCode(activationCode);
       if (result.available) {
+        setChannelId(result.channel_id);
         setCurrentStep(1);
         message.success('卡密有效');
       } else {
@@ -62,9 +64,10 @@ const RechargePlusPage: React.FC = () => {
       // 调用创建订单的 API
       const orderData = {
         code: activationCode,
+        channel_id: channelId, // 将获取到的渠道 ID 提交
         remarks: cookies // 将 cookies 作为备注信息提交
       };
-      
+
       const result = await createOrder(orderData);
       
       // 如果订单创建成功

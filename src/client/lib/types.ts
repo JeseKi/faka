@@ -68,6 +68,7 @@ export interface Card {
   description: string
   price: number
   is_active: boolean
+  channel_id: number | null
 }
 
 export interface CardCreate {
@@ -132,6 +133,7 @@ export interface Order {
   created_at: string
   completed_at: string | null
   remarks: string | null
+  channel_id: number | null
 }
 
 export interface OrderVerify {
@@ -141,4 +143,21 @@ export interface OrderVerify {
 export interface OrderUpdate {
   status?: 'pending' | 'processing' | 'completed'
   remarks?: string
+}
+
+// 渠道类型
+export interface Channel {
+  id: number
+  name: string
+  description: string | null
+}
+
+export interface ChannelCreate {
+  name: string
+  description?: string | null
+}
+
+export interface ChannelUpdate {
+  name?: string
+  description?: string | null
 }

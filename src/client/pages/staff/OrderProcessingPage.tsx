@@ -138,6 +138,13 @@ export default function OrderProcessingPage() {
       key: 'id',
       width: 100,
     },
+    ...(isAdmin ? [{
+      title: '渠道 ID',
+      dataIndex: 'channel_id',
+      key: 'channel_id',
+      width: 100,
+      render: (channelId: number | null) => channelId || '-',
+    }] : []),
     {
       title: '卡密',
       dataIndex: 'activation_code',

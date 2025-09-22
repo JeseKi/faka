@@ -1,6 +1,7 @@
 // 定义与后端 OrderCreate 对应的 TypeScript 类型
 interface OrderCreate {
   code: string;
+  channel_id?: number | null;
   remarks?: string;
 }
 
@@ -17,8 +18,8 @@ interface OrderOut {
 import api from './api'
 
 // 检查卡密是否可用
-export async function checkActivationCode(code: string): Promise<{ available: boolean }> {
-  const response = await api.get<{ available: boolean }>(`/activation-codes/check`, {
+export async function checkActivationCode(code: string): Promise<{ available: boolean; channel_id: number | null }> {
+  const response = await api.get<{ available: boolean; channel_id: number | null }>(`/activation-codes/check`, {
     params: { code }
   })
   return response.data
@@ -26,6 +27,8 @@ export async function checkActivationCode(code: string): Promise<{ available: bo
 
 // 创建订单
 export async function createOrder(orderData: OrderCreate): Promise<OrderOut> {
+  console.log('【订单 API】准备创建订单', { 卡密: orderData.code, 渠道ID: orderData.channel_id })
   const response = await api.post<OrderOut>('/orders/create', orderData)
+  console.log('【订单 API】订单创建成功', { 订单ID: response.data.id })
   return response.data
 }

@@ -176,6 +176,13 @@ export default function CardManagementPage() {
       width: 80,
     },
     {
+      title: '渠道 ID',
+      dataIndex: 'channel_id',
+      key: 'channel_id',
+      width: 100,
+      render: (channelId: number | null) => channelId || '-',
+    },
+    {
       title: '卡名',
       dataIndex: 'name',
       key: 'name',
