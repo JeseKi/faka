@@ -330,24 +330,16 @@ const LandingPage: React.FC = () => {
               <div className="flex items-center justify-between p-6 bg-red-50 cursor-pointer hover:bg-red-100 hover:shadow-md hover:scale-[1.02] transition-all duration-300 group" onClick={() => window.open(card_site ? card_site : '/purchase', '_blank')}>
                 <span className="text-gray-700">官方充值</span>
                 <div className="flex items-center">
-                  <span className="text-red-600 font-bold text-xl">¥158</span>
+                  <span className="text-red-600 font-bold text-xl">¥168</span>
                   <span className="ml-2 text-red-400 group-hover:translate-x-1 transition-transform duration-300">→</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between p-6 bg-blue-50 cursor-pointer hover:bg-blue-100 hover:shadow-md hover:scale-[1.02] transition-all duration-300 group" onClick={() => window.open(card_site ? card_site : '/purchase', '_blank')}>
-                <span className="text-gray-700">新用户官方福利价</span>
-                <div className="flex items-center">
-                  <span className="text-blue-600 font-bold text-xl">¥140</span>
-                  <span className="ml-2 text-blue-400 group-hover:translate-x-1 transition-transform duration-300">→</span>
                 </div>
               </div>
               <div className="flex items-center justify-between p-6 bg-green-50 cursor-pointer hover:bg-green-100 hover:shadow-md hover:scale-[1.02] transition-all duration-300 group" onClick={() => window.open(card_site ? card_site : '/purchase', '_blank')}>
                 <div className="flex items-center">
                   <span className="text-gray-700">三个月官方会员</span>
-                  <span className="ml-2 px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full font-medium">联系客服</span>
                 </div>
                 <div className="flex items-center">
-                  <span className="text-green-600 font-bold text-xl">¥348</span>
+                  <span className="text-green-600 font-bold text-xl">¥360</span>
                   <span className="ml-2 text-green-400 group-hover:translate-x-1 transition-transform duration-300">→</span>
                 </div>
               </div>
@@ -499,7 +491,7 @@ const LandingPage: React.FC = () => {
                     </div>
                   </div>
                   <div className="text-sm text-gray-500 bg-gray-50 p-3 rounded-lg">
-                    <p>💡 温馨提示：已添加过 <span className="font-mono">{wechatId}</span> 的用户无需重复添加</p>
+                    <p>💡 温馨提示：充值成功还能领 5 元红包哦！<br/>已添加过 <span className="font-mono">{wechatId}</span> 的用户无需重复添加</p>
                   </div>
                 </div>
               </div>
