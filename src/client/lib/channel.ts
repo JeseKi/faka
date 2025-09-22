@@ -33,7 +33,7 @@ import type {
  */
 export async function createChannel(payload: ChannelCreate): Promise<Channel> {
   console.log('【渠道 API】准备创建渠道', { 渠道名称: payload.name })
-  const { data } = await api.post<Channel>('/channels', payload)
+  const { data } = await api.post<Channel>('/channels/', payload)
   console.log('【渠道 API】渠道创建成功', { 渠道ID: data.id })
   return data
 }
