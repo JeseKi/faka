@@ -629,17 +629,21 @@ const LandingPage: React.FC = () => {
       </footer>
 
       {/* 博客侧边栏 */}
-      <div className="fixed bottom-20 right-6 z-40" id="blogSidebar">
+      <div className="fixed bottom-20 right-6 z-40 pointer-events-none" id="blogSidebar">
         {/* 博客标签按钮 */}
-        <div className="flex justify-end mb-3">
-          <button ref={blogToggleRef} onClick={toggleBlogPanel} className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-4 py-2 rounded-l-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 font-medium text-sm flex items-center space-x-2">
+        <div className="flex justify-end mb-3 w-fit ml-auto pointer-events-none">
+          <button ref={blogToggleRef} onClick={toggleBlogPanel} className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-4 py-2 rounded-l-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 font-medium text-sm flex items-center space-x-2 pointer-events-auto">
             <span>📖 博客推荐</span>
             <span ref={toggleArrowRef} className="transition-transform duration-300">◀</span>
           </button>
         </div>
 
         {/* 博客内容面板 */}
-        <div ref={blogPanelRef} id="blogPanel" className="bg-white/95 backdrop-blur-md rounded-l-xl shadow-2xl p-4 w-80 sm:w-72 md:w-80 transform transition-all duration-300 border border-white/20 blog-panel-closed">
+        <div
+          ref={blogPanelRef}
+          id="blogPanel"
+          className={`bg-white/95 backdrop-blur-md rounded-l-xl shadow-2xl p-4 w-80 sm:w-72 md:w-80 transform transition-all duration-300 border border-white/20 ${blogPanelOpen ? 'blog-panel-open pointer-events-auto' : 'blog-panel-closed pointer-events-none'}`}
+        >
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-bold text-gray-800 flex items-center">
               <span className="mr-2">📚</span>
