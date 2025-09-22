@@ -1,10 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { Button } from 'antd';
 
 const wechatId = import.meta.env.VITE_WECHAT_ID;
 const card_site = import.meta.env.VITE_CARD_SITE;
 
 const LandingPage: React.FC = () => {
   const [blogPanelOpen, setBlogPanelOpen] = useState(false);
+  const [isMobileModalOpen, setIsMobileModalOpen] = useState(false);
   const blogPanelRef = useRef<HTMLDivElement>(null);
   const blogToggleRef = useRef<HTMLButtonElement>(null);
   const closeBlogRef = useRef<HTMLButtonElement>(null);
@@ -26,6 +28,18 @@ const LandingPage: React.FC = () => {
         }, index * 200);
       }
     });
+  }, []);
+
+  // 检测移动设备并显示提示
+  useEffect(() => {
+    const isMobile = () => {
+      const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+      return /android|avantgo|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i.test(userAgent);
+    };
+
+    if (isMobile()) {
+      setIsMobileModalOpen(true);
+    }
   }, []);
 
   // 事件追踪 (预留接口)
@@ -222,15 +236,87 @@ const LandingPage: React.FC = () => {
 
           {/* 主按钮组 */}
           <div className="flex flex-row flex-wrap gap-4 justify-center mb-12">
-            <a href={card_site ? card_site : '/purchase'} target="_blank" style={{ backgroundColor: 'white', color: '#4f46e5', borderRadius: '1rem', padding: '1rem 2rem', fontWeight: '600', boxShadow: '0 10px 15px -3px rgba(255, 255, 255, 0.3), 0 4px 6px -2px rgba(255, 255, 255, 0.3)', border: '2px solid white', transition: 'all 0.3s ease' }} onMouseOver={(e) => { e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(255, 255, 255, 0.5), 0 20px 25px -5px rgba(255, 255, 255, 0.5), 0 0 30px rgba(255, 255, 255, 0.5)'; e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)'; }} onMouseOut={(e) => { e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(255, 255, 255, 0.3), 0 4px 6px -2px rgba(255, 255, 255, 0.3)'; e.currentTarget.style.transform = 'translateY(0) scale(1)'; }} className="inline-flex items-center" onClick={() => trackEvent('purchase_click')}>
-              <span>💎 购买卡密</span>
-            </a>
-            <a href="/recharge-plus" style={{ backgroundColor: 'white', color: '#4f46e5', borderRadius: '1rem', padding: '1rem 2rem', fontWeight: '600', boxShadow: '0 10px 15px -3px rgba(255, 255, 255, 0.3), 0 4px 6px -2px rgba(255, 255, 255, 0.3)', border: '2px solid white', transition: 'all 0.3s ease' }} onMouseOver={(e) => { e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(255, 255, 255, 0.5), 0 20px 25px -5px rgba(255, 255, 255, 0.5), 0 0 30px rgba(255, 255, 255, 0.5)'; e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)'; }} onMouseOut={(e) => { e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(255, 255, 255, 0.3), 0 4px 6px -2px rgba(255, 255, 255, 0.3)'; e.currentTarget.style.transform = 'translateY(0) scale(1)'; }} className="inline-flex items-center" onClick={() => trackEvent('recharge_click')}>
-              <span>⚡ 充值Plus</span>
-            </a>
-            <button onClick={openVideoModal} style={{ backgroundColor: 'white', color: '#4f46e5', borderRadius: '1rem', padding: '1rem 2rem', fontWeight: '600', boxShadow: '0 10px 15px -3px rgba(255, 255, 255, 0.3), 0 4px 6px -2px rgba(255, 255, 255, 0.3)', border: '2px solid white', transition: 'all 0.3s ease'}} onMouseOver={(e) => { e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(255, 255, 255, 0.5), 0 20px 25px -5px rgba(255, 255, 255, 0.5), 0 0 30px rgba(255, 255, 255, 0.5)'; e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)'; }} onMouseOut={(e) => { e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(255, 255, 255, 0.3), 0 4px 6px -2px rgba(255, 255, 255, 0.3)'; e.currentTarget.style.transform = 'translateY(0) scale(1)'; }} className="inline-flex items-center">
-              <span>📺 视频教程</span>
-            </button>
+            <Button
+              type="primary"
+              size="large"
+              href={card_site ? card_site : '/purchase'}
+              target="_blank"
+              style={{
+                backgroundColor: 'white',
+                color: '#4f46e5',
+                borderRadius: '1rem',
+                fontWeight: '600',
+                boxShadow: '0 10px 15px -3px rgba(255, 255, 255, 0.3), 0 4px 6px -2px rgba(255, 255, 255, 0.3)',
+                border: '2px solid white',
+                transition: 'all 0.3s ease',
+                height: 'auto',
+                padding: '1rem 2rem'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(255, 255, 255, 0.5), 0 20px 25px -5px rgba(255, 255, 255, 0.5), 0 0 30px rgba(255, 255, 255, 0.5)';
+                e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(255, 255, 255, 0.3), 0 4px 6px -2px rgba(255, 255, 255, 0.3)';
+                e.currentTarget.style.transform = 'translateY(0) scale(1)';
+              }}
+              onClick={() => trackEvent('purchase_click')}
+            >
+              💎 购买卡密
+            </Button>
+            <Button
+              type="primary"
+              size="large"
+              href="/recharge-plus"
+              style={{
+                backgroundColor: 'white',
+                color: '#4f46e5',
+                borderRadius: '1rem',
+                fontWeight: '600',
+                boxShadow: '0 10px 15px -3px rgba(255, 255, 255, 0.3), 0 4px 6px -2px rgba(255, 255, 255, 0.3)',
+                border: '2px solid white',
+                transition: 'all 0.3s ease',
+                height: 'auto',
+                padding: '1rem 2rem'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(255, 255, 255, 0.5), 0 20px 25px -5px rgba(255, 255, 255, 0.5), 0 0 30px rgba(255, 255, 255, 0.5)';
+                e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(255, 255, 255, 0.3), 0 4px 6px -2px rgba(255, 255, 255, 0.3)';
+                e.currentTarget.style.transform = 'translateY(0) scale(1)';
+              }}
+              onClick={() => trackEvent('recharge_click')}
+            >
+              ⚡ 充值Plus
+            </Button>
+            <Button
+              type="primary"
+              size="large"
+              onClick={openVideoModal}
+              style={{
+                backgroundColor: 'white',
+                color: '#4f46e5',
+                borderRadius: '1rem',
+                fontWeight: '600',
+                boxShadow: '0 10px 15px -3px rgba(255, 255, 255, 0.3), 0 4px 6px -2px rgba(255, 255, 255, 0.3)',
+                border: '2px solid white',
+                transition: 'all 0.3s ease',
+                height: 'auto',
+                padding: '1rem 2rem'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(255, 255, 255, 0.5), 0 20px 25px -5px rgba(255, 255, 255, 0.5), 0 0 30px rgba(255, 255, 255, 0.5)';
+                e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(255, 255, 255, 0.3), 0 4px 6px -2px rgba(255, 255, 255, 0.3)';
+                e.currentTarget.style.transform = 'translateY(0) scale(1)';
+              }}
+            >
+              📺 视频教程
+            </Button>
           </div>
 
           {/* 价格对比 */}
@@ -639,6 +725,36 @@ const LandingPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* 移动端提示弹窗 */}
+      {isMobileModalOpen && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-8 relative">
+            <button
+              onClick={() => setIsMobileModalOpen(false)}
+              className="absolute top-4 right-4 w-8 h-8 bg-gray-100 text-gray-600 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
+            >
+              ✕
+            </button>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span className="text-2xl">💻</span>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">建议使用桌面端访问</h3>
+              <p className="text-gray-600 mb-6">
+                为了获得更好的使用体验，建议您切换到桌面设备（电脑）访问我们的网站。
+                移动端部分功能可能无法正常显示或操作不便。
+              </p>
+              <button
+                onClick={() => setIsMobileModalOpen(false)}
+                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 px-6 rounded-lg font-medium hover:shadow-lg transition-all duration-300"
+              >
+                我知道了
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
