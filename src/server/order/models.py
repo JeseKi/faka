@@ -33,3 +33,6 @@ class Order(Base):
 
     # 渠道关联 - 存储渠道ID而非外键
     channel_id: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    # 充值卡名称
+    card_name: Mapped[str | None] = mapped_column(String(255), nullable=True)

@@ -26,6 +26,7 @@ class OrderOut(BaseModel):
     completed_at: Optional[datetime] = None
     remarks: Optional[str] = None
     channel_id: int
+    card_name: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -39,3 +40,4 @@ class OrderCreate(BaseModel):
     code: str = Field(..., min_length=1, max_length=88)
     channel_id: int = Field(..., gt=0)
     remarks: Optional[str] = Field(default=None)
+    card_name: Optional[str] = Field(default=None)

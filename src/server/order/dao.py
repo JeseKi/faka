@@ -26,6 +26,7 @@ class OrderDAO(BaseDAO):
         channel_id: int,
         status: OrderStatus = OrderStatus.PENDING,
         remarks: str | None = None,
+        card_name: str | None = None,
     ) -> Order:
         """创建订单"""
         # 对于匿名用户，我们使用一个固定的用户ID，比如0
@@ -36,6 +37,7 @@ class OrderDAO(BaseDAO):
             channel_id=channel_id,
             status=status,
             remarks=remarks,
+            card_name=card_name,
         )
         self.db_session.add(order)
         self.db_session.commit()

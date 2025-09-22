@@ -30,8 +30,14 @@ def test_create_order(test_db_session: Session):
     channel_id = channel.id
     remarks = "测试订单备注"
 
+    card_name = "测试充值卡"
     order = create_order(
-        test_db_session, activation_code, channel_id, OrderStatus.PENDING, remarks
+        test_db_session,
+        activation_code,
+        channel_id,
+        OrderStatus.PENDING,
+        remarks,
+        card_name,
     )
 
     assert order is not None
@@ -39,6 +45,7 @@ def test_create_order(test_db_session: Session):
     assert order.channel_id == channel_id
     assert order.status == OrderStatus.PENDING
     assert order.remarks == remarks
+    assert order.card_name == card_name
 
 
 def test_get_order(test_db_session: Session):
@@ -216,3 +223,102 @@ def test_get_order_stats(test_db_session: Session):
         status=OrderStatus.PENDING,
         user_id=0,
     )
+
+
+def test_create_order_with_card_name(test_db_session: Session):
+    """测试创建订单时包含充值卡名称"""
+    # 先创建一个渠道
+    channel = Channel(name="测试渠道7", description="用于测试的渠道7")
+    test_db_session.add(channel)
+    test_db_session.commit()
+    test_db_session.refresh(channel)
+
+    activation_code = "TEST-CODE-013"
+    channel_id = channel.id
+    card_name = "ChatGPT Plus 充值卡"
+
+    order = create_order(
+        test_db_session,
+        activation_code,
+        channel_id,
+        OrderStatus.PENDING,
+        None,
+        card_name,
+    )
+
+    assert order is not None
+    assert order.card_name == card_name
+    assert order.activation_code == activation_code
+
+
+def test_create_order_without_card_name(test_db_session: Session):
+    """测试创建订单时不包含充值卡名称"""
+    # 先创建一个渠道
+    channel = Channel(name="测试渠道8", description="用于测试的渠道8")
+    test_db_session.add(channel)
+    test_db_session.commit()
+    test_db_session.refresh(channel)
+
+    activation_code = "TEST-CODE-014"
+    channel_id = channel.id
+
+    order = create_order(
+        test_db_session, activation_code, channel_id, OrderStatus.PENDING, None, None
+    )
+
+    assert order is not None
+    assert order.card_name is None
+    assert order.activation_code == activation_code
+
+
+def test_create_order_with_empty_card_name(test_db_session: Session):
+    """测试创建订单时包含空的充值卡名称"""
+    # 先创建一个渠道
+    channel = Channel(name="测试渠道9", description="用于测试的渠道9")
+    test_db_session.add(channel)
+    test_db_session.commit()
+    test_db_session.refresh(channel)
+
+    activation_code = "TEST-CODE-015"
+    channel_id = channel.id
+    card_name = ""
+
+    order = create_order(
+        test_db_session,
+        activation_code,
+        channel_id,
+        OrderStatus.PENDING,
+        None,
+        card_name,
+    )
+
+    assert order is not None
+    assert order.card_name == card_name
+    assert order.activation_code == activation_code
+
+
+def test_create_order_with_long_card_name(test_db_session: Session):
+    """测试创建订单时包含超长的充值卡名称"""
+    # 先创建一个渠道
+    channel = Channel(name="测试渠道10", description="用于测试的渠道10")
+    test_db_session.add(channel)
+    test_db_session.commit()
+    test_db_session.refresh(channel)
+
+    activation_code = "TEST-CODE-016"
+    channel_id = channel.id
+    # 创建一个超过255字符的卡名称（数据库字段限制）
+    card_name = "A" * 300
+
+    order = create_order(
+        test_db_session,
+        activation_code,
+        channel_id,
+        OrderStatus.PENDING,
+        None,
+        card_name,
+    )
+
+    assert order is not None
+    assert order.card_name == card_name
+    assert order.activation_code == activation_code

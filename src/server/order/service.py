@@ -42,7 +42,11 @@ from src.server.mail_sender.schemas import NewOrderNotificationPayload, MailAddr
 
 
 def verify_activation_code(
-    db: Session, code: str, channel_id: int, remarks: str | None = None
+    db: Session,
+    code: str,
+    channel_id: int,
+    remarks: str | None = None,
+    card_name: str | None = None,
 ) -> Order:
     """验证卡密并创建订单"""
     # 首先检查卡密是否存在且可用
@@ -71,9 +75,15 @@ def verify_activation_code(
     # 将卡密状态设置为 consuming
     activation_code = set_code_consuming(db, code)
 
-    # 创建订单，使用卡密对应商品的渠道ID
+    # 创建订单，使用传入的充值卡名称或商品的默认名称
+    card_name_to_use = card_name if card_name is not None else card.name
     order = create_order(
-        db, activation_code.code, channel_id, OrderStatus.PROCESSING, remarks
+        db,
+        activation_code.code,
+        channel_id,
+        OrderStatus.PROCESSING,
+        remarks,
+        card_name_to_use,
     )
 
     # 发送新订单通知邮件给该渠道的所有员工
@@ -114,10 +124,11 @@ def create_order(
     channel_id: int,
     status: OrderStatus = OrderStatus.PROCESSING,
     remarks: str | None = None,
+    card_name: str | None = None,
 ) -> Order:
     """创建订单"""
     dao = OrderDAO(db)
-    return dao.create(activation_code, channel_id, status, remarks)
+    return dao.create(activation_code, channel_id, status, remarks, card_name)
 
 
 def get_order(db: Session, order_id: int) -> Order:

@@ -46,7 +46,11 @@ async def create_order(
 
     def _verify():
         return service.verify_activation_code(
-            db, verify_data.code, verify_data.channel_id, verify_data.remarks
+            db,
+            verify_data.code,
+            verify_data.channel_id,
+            verify_data.remarks,
+            verify_data.card_name,
         )
 
     return await run_in_thread(_verify)

@@ -337,6 +337,7 @@ const LandingPage: React.FC = () => {
               <div className="flex items-center justify-between p-6 bg-green-50 cursor-pointer hover:bg-green-100 hover:shadow-md hover:scale-[1.02] transition-all duration-300 group" onClick={() => window.open(card_site ? card_site : '/purchase', '_blank')}>
                 <div className="flex items-center">
                   <span className="text-gray-700">三个月官方会员</span>
+                  <span className="ml-2 px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full font-medium">联系客服</span>
                 </div>
                 <div className="flex items-center">
                   <span className="text-green-600 font-bold text-xl">¥360</span>

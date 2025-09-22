@@ -179,6 +179,13 @@ export default function OrderProcessingPage() {
       },
     },
     {
+      title: '充值卡名称',
+      dataIndex: 'card_name',
+      key: 'card_name',
+      width: 150,
+      render: (card_name: string | null) => card_name || '-',
+    },
+    {
       title: '状态',
       dataIndex: 'status',
       key: 'status',
@@ -420,6 +427,12 @@ export default function OrderProcessingPage() {
                   )
                 })()}
               </div>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <Text strong>充值卡名称：</Text>
+              <br />
+              <Text>{selectedOrder.card_name || '未设置'}</Text>
             </div>
 
             <Row gutter={16}>
