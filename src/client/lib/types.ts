@@ -76,6 +76,7 @@ export interface CardCreate {
   description: string
   price: number
   is_active?: boolean
+  channel_id?: number | null
 }
 
 export interface CardUpdate {
@@ -83,6 +84,7 @@ export interface CardUpdate {
   description?: string
   price?: number
   is_active?: boolean
+  channel_id?: number | null
 }
 
 // 卡密类型

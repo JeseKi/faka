@@ -16,6 +16,7 @@ import {
   Row,
   Col,
   Statistic,
+  Select,
 } from 'antd'
 import {
   PlusOutlined,
@@ -27,15 +28,19 @@ import {
 import { isAxiosError } from 'axios'
 import api from '../../lib/api'
 import type { Card, CardCreate, CardUpdate } from '../../lib/types'
+import type { Channel } from '../../lib/types'
+import { getChannels } from '../../lib/channel'
 
 const { Title } = Typography
 const { TextArea } = Input
+const { Option } = Select
 
 interface CardFormData {
   name: string
   description: string
   price: number
   is_active: boolean
+  channel_id: number | null
 }
 
 function resolveErrorMessage(error: unknown): string {
@@ -63,6 +68,7 @@ export default function CardManagementPage() {
   })
 
   const [form] = Form.useForm<CardFormData>()
+  const [channels, setChannels] = useState<Channel[]>([])
 
   // 获取充值卡列表
   const fetchCards = useCallback(async () => {
@@ -84,9 +90,23 @@ export default function CardManagementPage() {
     }
   }, [includeInactive, message])
 
+  // 获取渠道列表
+  const fetchChannels = useCallback(async () => {
+    try {
+      const data = await getChannels(0, 100)
+      // 按照 ID 倒序排序
+      const sortedData = data.sort((a, b) => b.id - a.id)
+      setChannels(sortedData)
+    } catch (error) {
+      console.error('获取渠道列表失败:', error)
+      message.error(resolveErrorMessage(error))
+    }
+  }, [message])
+
   useEffect(() => {
     fetchCards()
-  }, [fetchCards])
+    fetchChannels()
+  }, [fetchCards, fetchChannels])
 
   
 
@@ -100,6 +120,7 @@ export default function CardManagementPage() {
           description: values.description,
           price: values.price,
           is_active: values.is_active,
+          channel_id: values.channel_id,
         }
         await api.put(`/cards/${editingCard.id}`, updateData)
         message.success('充值卡更新成功')
@@ -110,6 +131,7 @@ export default function CardManagementPage() {
           description: values.description,
           price: values.price,
           is_active: values.is_active,
+          channel_id: values.channel_id,
         }
         await api.post('/cards', createData)
         message.success('充值卡创建成功')
@@ -145,6 +167,7 @@ export default function CardManagementPage() {
       description: card.description,
       price: card.price,
       is_active: card.is_active,
+      channel_id: card.channel_id,
     })
     setModalVisible(true)
   }
@@ -153,7 +176,7 @@ export default function CardManagementPage() {
   const handleCreate = () => {
     setEditingCard(null)
     form.resetFields()
-    form.setFieldsValue({ is_active: true })
+    form.setFieldsValue({ is_active: true, channel_id: null })
     setModalVisible(true)
   }
 
@@ -378,6 +401,27 @@ export default function CardManagementPage() {
               style={{ width: '100%' }}
               prefix="¥"
             />
+          </Form.Item>
+
+          <Form.Item
+            label="渠道"
+            name="channel_id"
+            rules={[
+              { required: false, message: '请选择渠道' },
+            ]}
+          >
+            <Select
+              placeholder="请选择渠道"
+              allowClear
+              showSearch
+              optionFilterProp="children"
+            >
+              {channels.map((channel) => (
+                <Option key={channel.id} value={channel.id}>
+                  {channel.name} (ID: {channel.id})
+                </Option>
+              ))}
+            </Select>
           </Form.Item>
 
           <Form.Item
