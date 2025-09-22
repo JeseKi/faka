@@ -69,7 +69,7 @@ const LandingPage: React.FC = () => {
     toast.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300';
     toast.textContent = message;
     document.body.appendChild(toast);
-    
+
     setTimeout(() => {
       toast.style.opacity = '0';
       setTimeout(() => {
@@ -107,11 +107,11 @@ const LandingPage: React.FC = () => {
         source.src = 'https://tuchuang-1317479375.cos.ap-beijing.myqcloud.com/%E6%95%99%E7%A8%8B%E8%A7%86%E9%A2%91.mp4';
         source.type = 'video/mp4';
         videoPlayerRef.current.appendChild(source);
-        
+
         // 加载视频
         videoPlayerRef.current.load();
       }
-      
+
       videoModalRef.current.classList.remove('hidden');
       document.body.style.overflow = 'hidden';
       videoPlayerRef.current.play().catch(error => {
@@ -157,9 +157,9 @@ const LandingPage: React.FC = () => {
   useEffect(() => {
     const handleClickOutsideBlog = (event: MouseEvent) => {
       if (blogPanelRef.current && blogToggleRef.current) {
-        if (!blogPanelRef.current.contains(event.target as Node) && 
-            !blogToggleRef.current.contains(event.target as Node) && 
-            blogPanelOpen) {
+        if (!blogPanelRef.current.contains(event.target as Node) &&
+          !blogToggleRef.current.contains(event.target as Node) &&
+          blogPanelOpen) {
           closeBlogPanel();
         }
       }
@@ -215,24 +215,24 @@ const LandingPage: React.FC = () => {
               <span className="mr-2 md:mr-3 text-lg md:text-xl">🕒</span>24/7小时在线客服
             </span>
           </div>
-          
+
           <p className="text-xl md:text-2xl text-white/90 mb-8 font-light">
             20 秒完成充值，永久免费教程
           </p>
-          
+
           {/* 主按钮组 */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <a href={card_site ? card_site : '/purchase'} target="_blank" className="inline-flex items-center px-8 py-4 bg-white text-indigo-600 font-semibold rounded-2xl shadow-lg shadow-white/30 hover:shadow-white/50 hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] hover:-translate-y-0.5 hover:scale-105 transition-all duration-300" onClick={() => trackEvent('purchase_click')}>
+          <div className="flex flex-row flex-wrap gap-4 justify-center mb-12">
+            <a href={card_site ? card_site : '/purchase'} target="_blank" style={{ backgroundColor: 'white', color: '#4f46e5', borderRadius: '1rem', padding: '1rem 2rem', fontWeight: '600', boxShadow: '0 10px 15px -3px rgba(255, 255, 255, 0.3), 0 4px 6px -2px rgba(255, 255, 255, 0.3)', border: '2px solid white', transition: 'all 0.3s ease' }} onMouseOver={(e) => { e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(255, 255, 255, 0.5), 0 20px 25px -5px rgba(255, 255, 255, 0.5), 0 0 30px rgba(255, 255, 255, 0.5)'; e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)'; }} onMouseOut={(e) => { e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(255, 255, 255, 0.3), 0 4px 6px -2px rgba(255, 255, 255, 0.3)'; e.currentTarget.style.transform = 'translateY(0) scale(1)'; }} className="inline-flex items-center" onClick={() => trackEvent('purchase_click')}>
               <span>💎 购买卡密</span>
             </a>
-            <a href="/recharge-plus" className="inline-flex items-center px-8 py-4 bg-transparent border-2 border-white text-white font-semibold rounded-2xl hover:bg-white hover:text-indigo-600 hover:-translate-y-0.5 transition-all duration-300" onClick={() => trackEvent('recharge_click')}>
+            <a href="/recharge-plus" style={{ backgroundColor: 'white', color: '#4f46e5', borderRadius: '1rem', padding: '1rem 2rem', fontWeight: '600', boxShadow: '0 10px 15px -3px rgba(255, 255, 255, 0.3), 0 4px 6px -2px rgba(255, 255, 255, 0.3)', border: '2px solid white', transition: 'all 0.3s ease' }} onMouseOver={(e) => { e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(255, 255, 255, 0.5), 0 20px 25px -5px rgba(255, 255, 255, 0.5), 0 0 30px rgba(255, 255, 255, 0.5)'; e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)'; }} onMouseOut={(e) => { e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(255, 255, 255, 0.3), 0 4px 6px -2px rgba(255, 255, 255, 0.3)'; e.currentTarget.style.transform = 'translateY(0) scale(1)'; }} className="inline-flex items-center" onClick={() => trackEvent('recharge_click')}>
               <span>⚡ 充值Plus</span>
             </a>
-            <button onClick={openVideoModal} className="inline-flex items-center px-8 py-4 bg-transparent border-2 border-white text-white font-semibold rounded-2xl hover:bg-white hover:text-indigo-600 hover:-translate-y-0.5 transition-all duration-300">
+            <button onClick={openVideoModal} style={{ backgroundColor: 'white', color: '#4f46e5', borderRadius: '1rem', padding: '1rem 2rem', fontWeight: '600', boxShadow: '0 10px 15px -3px rgba(255, 255, 255, 0.3), 0 4px 6px -2px rgba(255, 255, 255, 0.3)', border: '2px solid white', transition: 'all 0.3s ease'}} onMouseOver={(e) => { e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(255, 255, 255, 0.5), 0 20px 25px -5px rgba(255, 255, 255, 0.5), 0 0 30px rgba(255, 255, 255, 0.5)'; e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)'; }} onMouseOut={(e) => { e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(255, 255, 255, 0.3), 0 4px 6px -2px rgba(255, 255, 255, 0.3)'; e.currentTarget.style.transform = 'translateY(0) scale(1)'; }} className="inline-flex items-center">
               <span>📺 视频教程</span>
             </button>
           </div>
-          
+
           {/* 价格对比 */}
           <div className="max-w-2xl mx-auto mb-12">
             <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
@@ -279,22 +279,22 @@ const LandingPage: React.FC = () => {
             {/* 评价卡片1 - 纯图片展示 */}
             <div className="w-full">
               <img src="https://tuchuang-1317479375.cos.ap-beijing.myqcloud.com/img1.jpg"
-                   className="w-full h-auto object-contain rounded-lg"
-                   alt="ChatGPT Plus充值客户好评截图 - 快速到账服务满意度高" loading="lazy" />
+                className="w-full h-auto object-contain rounded-lg"
+                alt="ChatGPT Plus充值客户好评截图 - 快速到账服务满意度高" loading="lazy" />
             </div>
 
             {/* 评价卡片2 - 纯图片展示 */}
             <div className="w-full">
               <img src="https://tuchuang-1317479375.cos.ap-beijing.myqcloud.com/img2.jpg"
-                   className="w-full h-auto object-contain rounded-lg"
-                   alt="ChatGPT会员代充成功案例 - 20秒完成充值客户反馈" loading="lazy" />
+                className="w-full h-auto object-contain rounded-lg"
+                alt="ChatGPT会员代充成功案例 - 20秒完成充值客户反馈" loading="lazy" />
             </div>
 
             {/* 评价卡片3 - 纯图片展示 */}
             <div className="w-full">
               <img src="https://tuchuang-1317479375.cos.ap-beijing.myqcloud.com/img3.jpg"
-                   className="w-full h-auto object-contain rounded-lg"
-                   alt="ChatGPT充值服务用户推荐 - 安全可靠官方渠道" loading="lazy" />
+                className="w-full h-auto object-contain rounded-lg"
+                alt="ChatGPT充值服务用户推荐 - 安全可靠官方渠道" loading="lazy" />
             </div>
           </div>
         </div>
@@ -364,7 +364,7 @@ const LandingPage: React.FC = () => {
               <h2 className="text-3xl font-bold text-gray-900 mb-4">🛡️ 信任保障</h2>
               <p className="text-lg text-gray-600">正规代充服务，全自动化充值技术</p>
             </div>
-            
+
             <div className="grid md:grid-cols-2 gap-8 mb-8">
               {/* 左侧：正规服务说明 */}
               <div className="bg-white rounded-2xl p-8 shadow-lg">
@@ -393,7 +393,7 @@ const LandingPage: React.FC = () => {
                   </li>
                 </ul>
               </div>
-              
+
               {/* 右侧：客服联系 */}
               <div className="bg-white rounded-2xl p-8 shadow-lg">
                 <div className="flex items-center mb-6">
@@ -422,7 +422,7 @@ const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      
+
 
       {/* 使用说明区域 */}
       <section className="py-20 px-4 bg-white">
@@ -432,7 +432,7 @@ const LandingPage: React.FC = () => {
               <h2 className="text-3xl font-bold text-gray-900 mb-4">💡 使用说明</h2>
               <p className="text-lg text-gray-600">简单两步，快速完成充值</p>
             </div>
-            
+
             <div className="space-y-6">
               <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-8 border border-blue-100">
                 <div className="space-y-4 text-gray-700">
@@ -454,7 +454,7 @@ const LandingPage: React.FC = () => {
                   </div>
                 </div>
               </div>
-              
+
               {/* 代理联系提示 */}
               <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-2xl p-6 border border-yellow-200 text-center">
                 <div className="flex items-center justify-center text-gray-700">
@@ -617,7 +617,7 @@ const LandingPage: React.FC = () => {
         </a>
       </div>
 
-      
+
       {/* 暗黑模式切换按钮 */}
       <div className="fixed top-6 left-6 z-50">
         <button ref={darkModeToggleRef} onClick={toggleDarkMode} className="w-12 h-12 bg-white/20 backdrop-blur-sm text-white rounded-full flex items-center justify-center hover:bg-white/30 transition-all duration-300">
