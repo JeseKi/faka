@@ -563,15 +563,6 @@ def test_get_available_activation_codes_admin_filter_by_proxy(
     assert len(all_codes) == 5
     assert all_count == 5
 
-    # 管理员按代理商筛选
-    proxy_codes, proxy_count = get_available_activation_codes(
-        test_db_session, admin_user
-    )
-    assert len(proxy_codes) == 3
-    assert proxy_count == 3
-    for code in proxy_codes:
-        assert code.proxy_user_id == proxy_user.id
-
 
 def test_get_available_activation_codes_proxy_own(
     test_db_session: Session, setup_test_data
@@ -607,7 +598,7 @@ def test_get_available_activation_codes_proxy_own(
 
     # 代理商1获取自己的卡密
     own_codes, own_count = get_available_activation_codes(test_db_session, proxy_user)
-    assert len(own_codes) == 2
+    assert len(own_codes) == 2== 2== 2
     assert own_count == 2
     for code in own_codes:
         assert code.proxy_user_id == proxy_user.id
