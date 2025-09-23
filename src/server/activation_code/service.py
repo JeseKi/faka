@@ -186,7 +186,6 @@ def get_available_activation_codes(
     Args:
         db: 数据库会话
         user: 当前用户
-        proxy_user_id: 代理商用户ID（可选，用于管理员筛选特定代理商的卡密）
 
     Returns:
         tuple[list[ActivationCode], int]: (卡密列表, 总数)
