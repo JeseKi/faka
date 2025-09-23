@@ -16,6 +16,7 @@ class Role(str, Enum):
     ADMIN = "admin"
     USER = "user"
     STAFF = "staff"
+    PROXY = "proxy"
 
 
 class UserProfile(BaseModel):

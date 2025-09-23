@@ -20,7 +20,9 @@ class ActivationCodeDAO(BaseDAO):
     def __init__(self, db_session: Session):
         super().__init__(db_session)
 
-    def create_batch(self, card_id: int, count: int) -> list[ActivationCode]:
+    def create_batch(
+        self, card_id: int, count: int, proxy_user_id: int | None = None
+    ) -> list[ActivationCode]:
         """批量创建卡密"""
         # 获取卡密对应的商品和渠道信息
         from src.server.card.models import Card
@@ -47,6 +49,8 @@ class ActivationCodeDAO(BaseDAO):
                 is_sold=False,
                 status=CardCodeStatus.AVAILABLE,
                 created_at=datetime.now(timezone.utc),
+                proxy_user_id=proxy_user_id,
+                exported=False,
             )
             codes.append(activation_code)
             self.db_session.add(activation_code)

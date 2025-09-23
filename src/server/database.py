@@ -80,6 +80,7 @@ def init_database() -> None:
         from src.server.activation_code import models as _4  # noqa
         from src.server.sale import models as _5  # noqa
         from src.server.order import models as _6  # noqa
+        from src.server.proxy import models as _8  # noqa
     except Exception as e:
         logger.warning(f"导入模型时出现警告：{e}")
 

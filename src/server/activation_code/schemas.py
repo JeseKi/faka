@@ -8,7 +8,7 @@
 
 from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict
-from typing import Optional
+from typing import Optional, List
 from enum import Enum
 
 
@@ -21,6 +21,9 @@ class CardCodeStatus(str, Enum):
 class ActivationCodeCreate(BaseModel):
     card_id: int = Field(..., gt=0)
     count: int = Field(..., gt=0, le=1000)  # 批量生成的数量
+    proxy_user_id: Optional[int] = Field(
+        default=None, description="代理商用户ID，用于指定卡密归属"
+    )
 
 
 class CardSummary(BaseModel):
@@ -40,6 +43,7 @@ class ActivationCodeOut(BaseModel):
     status: CardCodeStatus
     created_at: datetime
     used_at: Optional[datetime] = None
+    exported: bool
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -51,3 +55,10 @@ class ActivationCodeVerify(BaseModel):
 class ActivationCodeCheckResult(BaseModel):
     available: bool
     channel_id: Optional[int] = None
+
+
+class AvailableActivationCodesResponse(BaseModel):
+    """获取可用卡密的响应模型"""
+
+    codes: List[ActivationCodeOut] = Field(..., description="可用卡密列表")
+    total_count: int = Field(..., description="总数量")

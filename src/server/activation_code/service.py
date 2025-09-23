@@ -35,11 +35,11 @@ from src.server.card.models import Card
 
 
 def create_activation_codes(
-    db: Session, card_id: int, count: int
+    db: Session, card_id: int, count: int, proxy_user_id: int | None = None
 ) -> list[ActivationCode]:
     """批量创建卡密"""
     dao = ActivationCodeDAO(db)
-    return dao.create_batch(card_id, count)
+    return dao.create_batch(card_id, count, proxy_user_id)
 
 
 def get_activation_code_by_code(db: Session, code: str) -> ActivationCode | None:
@@ -176,3 +176,52 @@ def is_code_available_for_user(db: Session, code: str, user: User) -> bool:
             return False
 
     return True
+
+
+def get_available_activation_codes(
+    db: Session, user: User
+) -> tuple[list[ActivationCode], int]:
+    """根据用户角色获取可用卡密列表
+
+    Args:
+        db: 数据库会话
+        user: 当前用户
+        proxy_user_id: 代理商用户ID（可选，用于管理员筛选特定代理商的卡密）
+
+    Returns:
+        tuple[list[ActivationCode], int]: (卡密列表, 总数)
+
+    Raises:
+        HTTPException: 当用户权限不足时
+    """
+    from fastapi import HTTPException, status
+
+    # 检查用户权限
+    if user.role not in [Role.ADMIN, Role.PROXY]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="无权限访问此接口"
+        )
+
+    # 构建查询
+    query = db.query(ActivationCode).filter(
+        ActivationCode.status == CardCodeStatus.AVAILABLE
+    )
+
+    # 根据用户角色和参数筛选
+    if user.role == Role.ADMIN:
+        pass
+    else:
+        # 代理商只能查看自己名下的卡密
+        query = query.filter(ActivationCode.proxy_user_id == user.id)
+
+    # 获取总数
+    total_count = query.count()
+
+    # 获取卡密列表，预加载关联的 Card 对象
+    codes = (
+        query.options(joinedload(ActivationCode.card))
+        .order_by(ActivationCode.created_at.desc())
+        .all()
+    )
+
+    return codes, total_count

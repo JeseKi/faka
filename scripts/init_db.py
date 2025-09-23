@@ -80,6 +80,33 @@ def seed_initial_data() -> None:
             db.add(staff_2)
             logger.info("创建员工用户：staff-2")
 
+        # 2.5. 检查并创建代理商用户
+        proxy_1 = db.query(User).filter(User.username == "proxy-1").first()
+        if not proxy_1:
+            proxy_1 = User(
+                username="proxy-1",
+                email="proxy1@example.com",
+                name="代理商 1",
+                role=Role.PROXY,
+                channel_id=channel_a.id,
+            )
+            proxy_1.set_password("proxy123")
+            db.add(proxy_1)
+            logger.info("创建代理商用户：proxy-1")
+
+        proxy_2 = db.query(User).filter(User.username == "proxy-2").first()
+        if not proxy_2:
+            proxy_2 = User(
+                username="proxy-2",
+                email="proxy2@example.com",
+                name="代理商 2",
+                role=Role.PROXY,
+                channel_id=channel_b.id,
+            )
+            proxy_2.set_password("proxy123")
+            db.add(proxy_2)
+            logger.info("创建代理商用户：proxy-2")
+
         # 3. 检查并创建卡
         card_a = db.query(Card).filter(Card.name == "卡 A").first()
         if not card_a:
@@ -122,7 +149,9 @@ def seed_initial_data() -> None:
                 activation_code_value = generate_activation_code()
 
                 activation_code = ActivationCode(
-                    card_id=card_a.id, code=activation_code_value
+                    card_id=card_a.id,
+                    code=activation_code_value,
+                    proxy_user_id=proxy_1.id,
                 )
                 db.add(activation_code)
             logger.info("为卡 A 创建了 {} 个卡密", 10 - existing_codes_a)
@@ -136,13 +165,36 @@ def seed_initial_data() -> None:
                 activation_code_value = generate_activation_code()
 
                 activation_code = ActivationCode(
-                    card_id=card_b.id, code=activation_code_value
+                    card_id=card_b.id,
+                    code=activation_code_value,
+                    proxy_user_id=proxy_2.id,
                 )
                 db.add(activation_code)
             logger.info("为卡 B 创建了 {} 个卡密", 10 - existing_codes_b)
 
         # 提交卡密数据
         db.commit()
+
+        # 5. 检查并创建代理商与卡的关联
+        from src.server.proxy.service import link_proxy_to_cards
+
+        # 确保 proxy_1 和 proxy_2 已经刷新，以获取它们的 ID
+        db.refresh(proxy_1)
+        db.refresh(proxy_2)
+
+        # 为代理商 1 绑定卡 A
+        try:
+            link_proxy_to_cards(db, proxy_1.id, [card_a.id])
+            logger.info("代理商 proxy-1 已绑定卡 A")
+        except Exception as e:
+            logger.warning("代理商 proxy-1 绑定卡 A 时出现问题：{}", e)
+
+        # 为代理商 2 绑定卡 B
+        try:
+            link_proxy_to_cards(db, proxy_2.id, [card_b.id])
+            logger.info("代理商 proxy-2 已绑定卡 B")
+        except Exception as e:
+            logger.warning("代理商 proxy-2 绑定卡 B 时出现问题：{}", e)
 
         # 提交所有数据
         db.commit()
