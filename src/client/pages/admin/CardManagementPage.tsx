@@ -22,7 +22,6 @@ import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
-  KeyOutlined,
   ReloadOutlined,
 } from '@ant-design/icons'
 import { isAxiosError } from 'axios'
@@ -180,16 +179,6 @@ export default function CardManagementPage() {
     setModalVisible(true)
   }
 
-  // 生成卡密
-  const handleGenerateCodes = async (cardName: string) => {
-    try {
-      await api.post(`/cards/${cardName}/generate-codes`, { count: 10 })
-      message.success('卡密生成成功')
-    } catch (error) {
-      console.error('生成卡密失败:', error)
-      message.error(resolveErrorMessage(error))
-    }
-  }
 
   const columns = [
     {
@@ -248,14 +237,6 @@ export default function CardManagementPage() {
             onClick={() => handleEdit(record)}
           >
             编辑
-          </Button>
-          <Button
-            type="link"
-            size="small"
-            icon={<KeyOutlined />}
-            onClick={() => handleGenerateCodes(record.name)}
-          >
-            生成卡密
           </Button>
           <Popconfirm
             title="确定要删除这个充值卡吗？"
