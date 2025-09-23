@@ -87,10 +87,10 @@ class CardDAO(BaseDAO):
         self.db_session.delete(card)
         self.db_session.commit()
 
-    def get_stock_count(self, card_name: str) -> int:
-        """获取充值卡库存数量"""
+    def get_stock_count_by_id(self, card_id: int) -> int:
+        """获取充值卡库存数量 (通过ID)"""
         from src.server.activation_code.service import count_activation_codes_by_card
 
         return count_activation_codes_by_card(
-            self.db_session, card_name, only_unused=True
+            self.db_session, card_id, only_unused=True
         )

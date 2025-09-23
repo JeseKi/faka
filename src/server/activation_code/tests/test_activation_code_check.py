@@ -43,8 +43,10 @@ def test_check_code_availability_success(
     setup_test_data,
 ):
     """测试成功检查卡密是否可用"""
+    _, card = setup_test_data
+    card_id = card.id  # "可用性测试" 的 ID
     # 创建测试数据
-    codes = create_activation_codes(test_db_session, "可用性测试", 1)
+    codes = create_activation_codes(test_db_session, card_id, 1)
     code_value = codes[0].code
 
     # 直接调用服务函数检查卡密是否可用
@@ -83,8 +85,10 @@ def test_check_code_availability_consumed(
     test_client: TestClient, test_db_session: Session, setup_test_data
 ):
     """测试检查已消费的卡密"""
+    _, card = setup_test_data
+    card_id = card.id  # "可用性测试" 的 ID
     # 创建测试数据
-    codes = create_activation_codes(test_db_session, "可用性测试", 1)
+    codes = create_activation_codes(test_db_session, card_id, 1)
     code_value = codes[0].code
 
     # 将卡密状态设置为 consuming
@@ -115,8 +119,10 @@ def test_check_code_availability_consuming(
     test_client: TestClient, test_db_session: Session, setup_test_data
 ):
     """测试检查正在消费的卡密"""
+    _, card = setup_test_data
+    card_id = card.id  # "可用性测试" 的 ID
     # 创建测试数据
-    codes = create_activation_codes(test_db_session, "可用性测试", 1)
+    codes = create_activation_codes(test_db_session, card_id, 1)
     code_value = codes[0].code
 
     # 将卡密状态设置为 consuming
@@ -130,11 +136,6 @@ def test_check_code_availability_consuming(
         "/api/activation-codes/check",
         params={"code": code_value},
     )
-
-    # 验证响应
-    assert response.status_code == 200
-    data = response.json()
-    assert data["available"] is False
 
     # 验证响应
     assert response.status_code == 200

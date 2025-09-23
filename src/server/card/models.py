@@ -7,11 +7,15 @@
 """
 
 from __future__ import annotations
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Integer, String, Float, Boolean
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.server.database import Base
+
+if TYPE_CHECKING:
+    from src.server.activation_code.models import ActivationCode
 
 
 class Card(Base):
@@ -25,3 +29,8 @@ class Card(Base):
 
     # 渠道关联 - 存储渠道ID而非外键
     channel_id: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    # 添加与 ActivationCode 模型的反向关联关系
+    activation_codes: Mapped[list["ActivationCode"]] = relationship(
+        "ActivationCode", back_populates="card"
+    )  # type: ignore

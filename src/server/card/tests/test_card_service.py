@@ -250,5 +250,5 @@ def test_delete_card(test_db_session: Session):
 def test_get_card_stock(test_db_session: Session):
     """测试获取充值卡库存"""
     # 由于库存计算依赖 activation_code 表，这里先测试基本功能
-    stock = get_card_stock(test_db_session, "不存在的卡")
+    stock = get_card_stock(test_db_session, 999999)  # 使用不存在的 card_id
     assert stock == 0

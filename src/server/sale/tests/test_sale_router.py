@@ -64,7 +64,7 @@ def test_list_sales_success(
     test_db_session.refresh(card)
 
     # 创建卡密
-    codes = create_activation_codes(test_db_session, "测试充值卡", 5)
+    codes = create_activation_codes(test_db_session, card.id, 5)
 
     # 创建销售记录
     sale = Sale(

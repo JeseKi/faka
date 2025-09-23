@@ -60,7 +60,7 @@ def verify_activation_code(
         )
 
     # 获取卡密对应的商品
-    card = db.query(Card).filter(Card.name == activation_code.card_name).first()
+    card = db.query(Card).filter(Card.id == activation_code.card_id).first()
     if not card:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="卡密对应的商品不存在"

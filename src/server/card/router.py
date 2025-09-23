@@ -8,7 +8,7 @@
 - GET /api/cards/{card_id}
 - PUT /api/cards/{card_id}
 - DELETE /api/cards/{card_id}
-- GET /api/cards/{card_name}/stock
+- GET /api/cards/{card_id}/stock
 """
 
 from __future__ import annotations
@@ -125,16 +125,16 @@ async def delete_card(
     return {"message": "充值卡已删除"}
 
 
-@router.get("/{card_name}/stock", summary="获取充值卡库存数量")
+@router.get("/{card_id}/stock", summary="获取充值卡库存数量")
 async def get_card_stock(
-    card_name: str,
+    card_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_admin),
 ):
     """获取充值卡库存数量（管理员权限）"""
 
     def _get_stock():
-        return service.get_card_stock(db, card_name)
+        return service.get_card_stock(db, card_id)
 
     stock_count = await run_in_thread(_get_stock)
-    return {"card_name": card_name, "stock": stock_count}
+    return {"card_id": card_id, "stock": stock_count}

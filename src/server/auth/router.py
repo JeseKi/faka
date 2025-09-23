@@ -174,6 +174,7 @@ async def register_user_with_code(
     new_user = service.create_user(db=db, user_data=user_create)
     return new_user
 
+
 @router.post("/refresh", response_model=TokenResponse, summary="刷新访问令牌")
 async def refresh_access_token(current_user: User = Depends(get_current_user)):
     new_access_token = service.create_access_token(data={"sub": current_user.username})

@@ -79,7 +79,7 @@ def test_create_order(test_client, test_db_session):
     test_db_session.refresh(card)
 
     # 创建卡密
-    codes = create_activation_codes(test_db_session, "测试充值卡", 5)
+    codes = create_activation_codes(test_db_session, card.id, 5)
     code_value = codes[0].code
 
     # 创建订单
@@ -122,7 +122,7 @@ def test_create_order_with_custom_card_name(test_client, test_db_session):
     test_db_session.refresh(card)
 
     # 创建卡密
-    codes = create_activation_codes(test_db_session, "测试充值卡2", 5)
+    codes = create_activation_codes(test_db_session, card.id, 5)
     code_value = codes[0].code
 
     # 创建订单，传入自定义的充值卡名称
@@ -165,7 +165,7 @@ def test_create_order_without_card_name(test_client, test_db_session):
     test_db_session.refresh(card)
 
     # 创建卡密
-    codes = create_activation_codes(test_db_session, "测试充值卡3", 5)
+    codes = create_activation_codes(test_db_session, card.id, 5)
     code_value = codes[0].code
 
     # 创建订单，不传入充值卡名称

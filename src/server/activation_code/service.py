@@ -3,14 +3,14 @@
 卡密模块服务层
 
 公开接口：
-- create_activation_codes(db, card_name, count)
+- create_activation_codes(db, card_id, count)
 - get_activation_code_by_code(db, code)
-- get_available_activation_code(db, card_name)
+- get_available_activation_code(db, card_id)
 - set_code_consuming(db, code)
 - set_code_consumed(db, code)
-- list_activation_codes_by_card(db, card_name, include_used)
-- count_activation_codes_by_card(db, card_name, only_unused)
-- delete_activation_codes_by_card(db, card_name)
+- list_activation_codes_by_card(db, card_id, include_used)
+- count_activation_codes_by_card(db, card_id, only_unused)
+- delete_activation_codes_by_card(db, card_id)
 - is_code_available(db, code) -> ActivationCodeCheckResult
 - is_code_available_for_user(db, code, user)
 
@@ -24,7 +24,7 @@
 from __future__ import annotations
 
 from loguru import logger
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from fastapi import HTTPException, status
 from .dao import ActivationCodeDAO
 from .models import ActivationCode, CardCodeStatus
@@ -35,11 +35,11 @@ from src.server.card.models import Card
 
 
 def create_activation_codes(
-    db: Session, card_name: str, count: int
+    db: Session, card_id: int, count: int
 ) -> list[ActivationCode]:
     """批量创建卡密"""
     dao = ActivationCodeDAO(db)
-    return dao.create_batch(card_name, count)
+    return dao.create_batch(card_id, count)
 
 
 def get_activation_code_by_code(db: Session, code: str) -> ActivationCode | None:
@@ -48,10 +48,10 @@ def get_activation_code_by_code(db: Session, code: str) -> ActivationCode | None
     return dao.get_by_code(code)
 
 
-def get_available_activation_code(db: Session, card_name: str) -> ActivationCode | None:
+def get_available_activation_code(db: Session, card_id: int) -> ActivationCode | None:
     """获取指定充值卡的可用卡密"""
     dao = ActivationCodeDAO(db)
-    return dao.get_available_by_card_name(card_name)
+    return dao.get_available_by_card_id(card_id)
 
 
 def mark_activation_code_sold(
@@ -101,25 +101,32 @@ def set_code_consumed(db: Session, code: str) -> ActivationCode:
 
 
 def list_activation_codes_by_card(
-    db: Session, card_name: str, include_used: bool = False
+    db: Session, card_id: int, include_used: bool = False
 ) -> list[ActivationCode]:
     """获取指定充值卡的所有卡密"""
-    dao = ActivationCodeDAO(db)
-    return dao.list_by_card_name(card_name, include_used)
+    # 使用 joinedload 预加载关联的 Card 对象，避免 N+1 查询
+    query = (
+        db.query(ActivationCode)
+        .options(joinedload(ActivationCode.card))
+        .filter(ActivationCode.card_id == card_id)
+    )
+    if not include_used:
+        query = query.filter(ActivationCode.status == CardCodeStatus.AVAILABLE)
+    return query.order_by(ActivationCode.created_at.desc()).all()
 
 
 def count_activation_codes_by_card(
-    db: Session, card_name: str, only_unused: bool = True
+    db: Session, card_id: int, only_unused: bool = True
 ) -> int:
     """统计指定充值卡的卡密数量"""
     dao = ActivationCodeDAO(db)
-    return dao.count_by_card_name(card_name, only_unused)
+    return dao.count_by_card_id(card_id, only_unused)
 
 
-def delete_activation_codes_by_card(db: Session, card_name: str) -> int:
+def delete_activation_codes_by_card(db: Session, card_id: int) -> int:
     """删除指定充值卡的所有卡密"""
     dao = ActivationCodeDAO(db)
-    return dao.delete_by_card_name(card_name)
+    return dao.delete_by_card_id(card_id)
 
 
 def is_code_available(db: Session, code: str) -> ActivationCodeCheckResult:
@@ -138,7 +145,7 @@ def is_code_available(db: Session, code: str) -> ActivationCodeCheckResult:
     # 获取卡密对应的商品和渠道ID
     channel_id = None
     if available:
-        card = db.query(Card).filter(Card.name == activation_code.card_name).first()
+        card = db.query(Card).filter(Card.id == activation_code.card_id).first()
         if card:
             channel_id = card.channel_id
 
@@ -159,7 +166,7 @@ def is_code_available_for_user(db: Session, code: str, user: User) -> bool:
     # 如果用户是 STAFF，需要检查渠道是否匹配
     if user.role == Role.STAFF:
         # 获取卡密对应的商品
-        card = db.query(Card).filter(Card.name == activation_code.card_name).first()
+        card = db.query(Card).filter(Card.id == activation_code.card_id).first()
         if not card:
             # 如果商品不存在，认为卡密不可用
             return False

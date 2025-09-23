@@ -173,10 +173,26 @@ def test_get_card_stock(test_client, test_admin_token):
     """测试获取充值卡库存"""
     headers = {"Authorization": f"Bearer {test_admin_token}"}
 
-    resp = test_client.get("/api/cards/月度会员/stock", headers=headers)
-    assert resp.status_code == HTTPStatus.OK
-    stock_info = resp.json()
-    assert "card_name" in stock_info
+    # 先创建一个测试卡
+    resp = test_client.post(
+        "/api/cards",
+        json={
+            "name": "库存测试卡",
+            "description": "用于测试库存的卡",
+            "price": 10.0,
+            "is_active": True,
+            "channel_id": 1,
+        },
+        headers=headers,
+    )
+    assert resp.status_code == HTTPStatus.CREATED
+    card_id = resp.json()["id"]
+
+    # 测试获取库存
+    resp2 = test_client.get(f"/api/cards/{card_id}/stock", headers=headers)
+    assert resp2.status_code == HTTPStatus.OK
+    stock_info = resp2.json()
+    assert "card_id" in stock_info
     assert "stock" in stock_info
     assert stock_info["stock"] >= 0
 

@@ -33,7 +33,7 @@ const { Title } = Typography
 const { Option } = Select
 
 interface CodeFormData {
-  card_name: string
+  card_id: number
   count: number
 }
 
@@ -75,15 +75,15 @@ export default function ActivationCodeManagementPage() {
   }, [])
 
   // 获取卡密列表
-  const fetchCodes = useCallback(async (cardName?: string) => {
-    if (!cardName && !searchCard) return
+  const fetchCodes = useCallback(async (cardId?: string) => {
+    if (!cardId && !searchCard) return
 
-    const targetCard = cardName || searchCard
-    if (!targetCard) return
+    const targetCardId = cardId || searchCard
+    if (!targetCardId) return
 
     try {
       setLoading(true)
-      const { data } = await api.get<ActivationCode[]>(`/activation-codes/${targetCard}?include_used=${includeUsed}`)
+      const { data } = await api.get<ActivationCode[]>(`/activation-codes/${targetCardId}?include_used=${includeUsed}`)
       setCodes(data)
 
       // 计算统计信息
@@ -118,7 +118,7 @@ export default function ActivationCodeManagementPage() {
       message.success(`成功生成 ${values.count} 个卡密`)
       setModalVisible(false)
       form.resetFields()
-      fetchCodes(values.card_name)
+      fetchCodes(values.card_id.toString())
     } catch (error) {
       console.error('生成卡密失败:', error)
       message.error(resolveErrorMessage(error))
@@ -126,9 +126,9 @@ export default function ActivationCodeManagementPage() {
   }
 
   // 删除所有卡密
-  const handleDeleteAll = async (cardName: string) => {
+  const handleDeleteAll = async (cardId: string) => {
     try {
-      await api.delete(`/activation-codes/${cardName}`)
+      await api.delete(`/activation-codes/${cardId}`)
       message.success('所有卡密删除成功')
       setCodes([])
       setStats({ total: 0, used: 0, unused: 0 })
@@ -162,7 +162,7 @@ export default function ActivationCodeManagementPage() {
     },
     {
       title: '卡名',
-      dataIndex: 'card_name',
+      dataIndex: ['card', 'name'],
       key: 'card_name',
       width: 150,
     },
@@ -275,7 +275,7 @@ export default function ActivationCodeManagementPage() {
             onChange={setSearchCard}
           >
             {cards.map((card) => (
-              <Option key={card.name} value={card.name}>
+              <Option key={card.id} value={card.id.toString()}>
                 {card.name} - ¥{card.price}
               </Option>
             ))}
@@ -302,7 +302,7 @@ export default function ActivationCodeManagementPage() {
           </Button>
           {searchCard && (
             <Popconfirm
-              title={`确定要删除 ${searchCard} 的所有卡密吗？`}
+              title={`确定要删除 ${cards.find(c => c.id.toString() === searchCard)?.name || searchCard} 的所有卡密吗？`}
               description="此操作不可恢复，请谨慎操作。"
               onConfirm={() => handleDeleteAll(searchCard)}
               okText="确定"
@@ -351,12 +351,12 @@ export default function ActivationCodeManagementPage() {
         >
           <Form.Item
             label="选择充值卡"
-            name="card_name"
+            name="card_id"
             rules={[{ required: true, message: '请选择充值卡' }]}
           >
             <Select placeholder="请选择要生成卡密的充值卡">
               {cards.map((card) => (
-                <Option key={card.name} value={card.name}>
+                <Option key={card.id} value={card.id}>
                   {card.name} - ¥{card.price}
                 </Option>
               ))}

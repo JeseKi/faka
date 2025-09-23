@@ -44,8 +44,10 @@ def setup_test_data(test_db_session: Session):
 
 def test_consuming_api_success(test_db_session: Session, setup_test_data):
     """测试 consuming API 成功场景"""
+    _, card = setup_test_data
+    card_id = card.id  # "消费测试" 的 ID
     # 创建测试数据
-    codes = create_activation_codes(test_db_session, "消费测试", 1)
+    codes = create_activation_codes(test_db_session, card_id, 1)
     code_value = codes[0].code
 
     # 调用 consuming API
@@ -58,8 +60,10 @@ def test_consuming_api_success(test_db_session: Session, setup_test_data):
 
 def test_consuming_api_invalid_status(test_db_session: Session, setup_test_data):
     """测试对非 available 状态的卡密调用 consuming 接口失败"""
+    _, card = setup_test_data
+    card_id = card.id  # "消费测试" 的 ID
     # 创建测试数据
-    codes = create_activation_codes(test_db_session, "消费测试", 1)
+    codes = create_activation_codes(test_db_session, card_id, 1)
     code_value = codes[0].code
 
     # 先将卡密状态设置为 consuming
@@ -78,8 +82,10 @@ def test_consuming_api_invalid_status(test_db_session: Session, setup_test_data)
 
 def test_consumed_api_success(test_db_session: Session, setup_test_data):
     """测试 consumed API 成功场景"""
+    _, card = setup_test_data
+    card_id = card.id  # "消费测试" 的 ID
     # 创建测试数据
-    codes = create_activation_codes(test_db_session, "消费测试", 1)
+    codes = create_activation_codes(test_db_session, card_id, 1)
     code_value = codes[0].code
 
     # 先将卡密状态设置为 consuming
@@ -95,8 +101,10 @@ def test_consumed_api_success(test_db_session: Session, setup_test_data):
 
 def test_consumed_api_invalid_status(test_db_session: Session, setup_test_data):
     """测试对非 consuming 状态的卡密调用 consumed 接口失败"""
+    _, card = setup_test_data
+    card_id = card.id  # "消费测试" 的 ID
     # 创建测试数据
-    codes = create_activation_codes(test_db_session, "消费测试", 1)
+    codes = create_activation_codes(test_db_session, card_id, 1)
     code_value = codes[0].code
 
     # 直接调用 consumed API，应该失败（因为状态是 available）

@@ -109,8 +109,12 @@ def seed_initial_data() -> None:
         # 4. 检查并创建卡密
         from src.server.crypto.service import generate_activation_code
 
+        # 确保 card_a 和 card_b 已经刷新，以获取它们的 ID
+        db.refresh(card_a)
+        db.refresh(card_b)
+
         existing_codes_a = (
-            db.query(ActivationCode).filter(ActivationCode.card_name == "卡 A").count()
+            db.query(ActivationCode).filter(ActivationCode.card_id == card_a.id).count()
         )
         if existing_codes_a < 10:
             for i in range(10 - existing_codes_a):
@@ -118,13 +122,13 @@ def seed_initial_data() -> None:
                 activation_code_value = generate_activation_code()
 
                 activation_code = ActivationCode(
-                    card_name="卡 A", code=activation_code_value
+                    card_id=card_a.id, code=activation_code_value
                 )
                 db.add(activation_code)
             logger.info("为卡 A 创建了 {} 个卡密", 10 - existing_codes_a)
 
         existing_codes_b = (
-            db.query(ActivationCode).filter(ActivationCode.card_name == "卡 B").count()
+            db.query(ActivationCode).filter(ActivationCode.card_id == card_b.id).count()
         )
         if existing_codes_b < 10:
             for i in range(10 - existing_codes_b):
@@ -132,7 +136,7 @@ def seed_initial_data() -> None:
                 activation_code_value = generate_activation_code()
 
                 activation_code = ActivationCode(
-                    card_name="卡 B", code=activation_code_value
+                    card_id=card_b.id, code=activation_code_value
                 )
                 db.add(activation_code)
             logger.info("为卡 B 创建了 {} 个卡密", 10 - existing_codes_b)

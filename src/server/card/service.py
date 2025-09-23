@@ -81,7 +81,7 @@ def delete_card(db: Session, card: Card) -> None:
     dao.delete(card)
 
 
-def get_card_stock(db: Session, card_name: str) -> int:
+def get_card_stock(db: Session, card_id: int) -> int:
     """获取充值卡库存数量"""
     dao = CardDAO(db)
-    return dao.get_stock_count(card_name)
+    return dao.get_stock_count_by_id(card_id)

@@ -10,10 +10,11 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from enum import Enum
-from sqlalchemy import Integer, String, Boolean, DateTime, Text
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import Integer, String, Boolean, DateTime, Text, ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.server.database import Base
+from src.server.card.models import Card
 
 
 class CardCodeStatus(str, Enum):
@@ -26,7 +27,9 @@ class ActivationCode(Base):
     __tablename__ = "activation_codes"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    card_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    card_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("cards.id"), nullable=False
+    )
     code: Mapped[str] = mapped_column(Text, unique=True, nullable=False)  # 改为 Text
     is_sold: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     status: Mapped[str] = mapped_column(
@@ -36,3 +39,6 @@ class ActivationCode(Base):
         DateTime, default=datetime.now(timezone.utc), nullable=False
     )
     used_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+
+    # 添加与 Card 模型的关联关系
+    card: Mapped["Card"] = relationship("Card", back_populates="activation_codes")

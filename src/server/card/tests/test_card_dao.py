@@ -268,23 +268,23 @@ def test_get_stock_count(test_db_session: Session):
 
     # 创建卡密数据
     activation_dao = ActivationCodeDAO(test_db_session)
-    codes = activation_dao.create_batch("库存测试卡", 5)
+    codes = activation_dao.create_batch(card.id, 5)
 
     # 测试库存数量
     card_dao = CardDAO(test_db_session)
-    stock_count = card_dao.get_stock_count("库存测试卡")
+    stock_count = card_dao.get_stock_count_by_id(card.id)
     assert stock_count == 5
 
     # 更新一个卡密状态为 consuming
     activation_dao.update_status(codes[0], CardCodeStatus.CONSUMING)
 
     # 再次测试库存数量
-    stock_count = card_dao.get_stock_count("库存测试卡")
+    stock_count = card_dao.get_stock_count_by_id(card.id)
     assert stock_count == 4
 
     # 更新一个卡密状态为 consumed
     activation_dao.update_status(codes[1], CardCodeStatus.CONSUMED)
 
     # 再次测试库存数量
-    stock_count = card_dao.get_stock_count("库存测试卡")
+    stock_count = card_dao.get_stock_count_by_id(card.id)
     assert stock_count == 3

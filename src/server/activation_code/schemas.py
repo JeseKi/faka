@@ -19,13 +19,23 @@ class CardCodeStatus(str, Enum):
 
 
 class ActivationCodeCreate(BaseModel):
-    card_name: str = Field(..., min_length=1, max_length=100)
+    card_id: int = Field(..., gt=0)
     count: int = Field(..., gt=0, le=1000)  # 批量生成的数量
+
+
+class CardSummary(BaseModel):
+    """卡片信息摘要，用于在卡密响应中嵌套显示"""
+
+    id: int
+    name: str
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ActivationCodeOut(BaseModel):
     id: int
-    card_name: str
+    card_id: int
+    card: CardSummary  # 嵌套的卡片信息，包含 id 和 name
     code: str
     status: CardCodeStatus
     created_at: datetime

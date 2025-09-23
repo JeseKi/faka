@@ -4,9 +4,9 @@
 
 公开接口：
 - POST /api/activation-codes/generate
-- GET /api/activation-codes/{card_name}
-- GET /api/activation-codes/{card_name}/count
-- DELETE /api/activation-codes/{card_name}
+- GET /api/activation-codes/{card_id}
+- GET /api/activation-codes/{card_id}/count
+- DELETE /api/activation-codes/{card_id}
 - POST /api/activation-codes/consuming
 - POST /api/activation-codes/consumed
 - GET /api/activation-codes/check
@@ -48,7 +48,7 @@ async def generate_activation_codes(
 
     def _generate():
         return service.create_activation_codes(
-            db=db, card_name=code_data.card_name, count=code_data.count
+            db=db, card_id=code_data.card_id, count=code_data.count
         )
 
     return await run_in_thread(_generate)
@@ -70,12 +70,12 @@ async def check_code_availability(
 
 
 @router.get(
-    "/{card_name}",
+    "/{card_id}",
     response_model=list[ActivationCodeOut],
     summary="获取指定充值卡的卡密列表",
 )
 async def list_activation_codes(
-    card_name: str,
+    card_id: int,
     include_used: bool = False,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_admin),
@@ -84,15 +84,15 @@ async def list_activation_codes(
 
     def _list():
         return service.list_activation_codes_by_card(
-            db=db, card_name=card_name, include_used=include_used
+            db=db, card_id=card_id, include_used=include_used
         )
 
     return await run_in_thread(_list)
 
 
-@router.get("/{card_name}/count", summary="获取指定充值卡的卡密数量")
+@router.get("/{card_id}/count", summary="获取指定充值卡的卡密数量")
 async def count_activation_codes(
-    card_name: str,
+    card_id: int,
     only_unused: bool = True,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_admin),
@@ -101,23 +101,23 @@ async def count_activation_codes(
 
     def _count():
         return service.count_activation_codes_by_card(
-            db=db, card_name=card_name, only_unused=only_unused
+            db=db, card_id=card_id, only_unused=only_unused
         )
 
     count = await run_in_thread(_count)
-    return {"card_name": card_name, "count": count, "only_unused": only_unused}
+    return {"card_id": card_id, "count": count, "only_unused": only_unused}
 
 
-@router.delete("/{card_name}", summary="删除指定充值卡的所有卡密")
+@router.delete("/{card_id}", summary="删除指定充值卡的所有卡密")
 async def delete_activation_codes(
-    card_name: str,
+    card_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_admin),
 ):
     """删除指定充值卡的所有卡密（管理员权限）"""
 
     def _delete():
-        return service.delete_activation_codes_by_card(db, card_name)
+        return service.delete_activation_codes_by_card(db, card_id)
 
     deleted_count = await run_in_thread(_delete)
     return {"message": f"已删除 {deleted_count} 个卡密"}

@@ -34,12 +34,10 @@ def test_create_sale_success(test_db_session: Session):
     test_db_session.refresh(card)
 
     # 创建卡密
-    _ = create_activation_codes(test_db_session, "测试充值卡", 5)
+    _ = create_activation_codes(test_db_session, card.id, 5)
 
     # 创建销售记录
-    sale = service.create_sale(
-        test_db_session, user_id=1, card_name="测试充值卡", quantity=1
-    )
+    sale = service.create_sale(test_db_session, user_id=1, card_id=card.id, quantity=1)
 
     # 验证销售记录已创建
     assert sale.id is not None
@@ -72,9 +70,7 @@ def test_create_sale_insufficient_stock(test_db_session: Session):
 
     # 尝试创建超过库存的销售记录，应该抛出HTTPException
     with pytest.raises(HTTPException) as exc_info:
-        service.create_sale(
-            test_db_session, user_id=1, card_name="测试充值卡", quantity=100
-        )
+        service.create_sale(test_db_session, user_id=1, card_id=card.id, quantity=100)
 
     assert exc_info.value.status_code == 400
     assert "库存不足" in exc_info.value.detail
@@ -101,11 +97,11 @@ def test_get_sale_success(test_db_session: Session):
     test_db_session.refresh(card)
 
     # 创建卡密
-    _ = create_activation_codes(test_db_session, "测试充值卡", 5)
+    _ = create_activation_codes(test_db_session, card.id, 5)
 
     # 创建销售记录
     created_sale = service.create_sale(
-        test_db_session, user_id=1, card_name="测试充值卡", quantity=1
+        test_db_session, user_id=1, card_id=card.id, quantity=1
     )
 
     # 获取销售记录
@@ -148,11 +144,11 @@ def test_list_sales(test_db_session: Session):
     test_db_session.refresh(card)
 
     # 创建卡密
-    _ = create_activation_codes(test_db_session, "测试充值卡", 5)
+    _ = create_activation_codes(test_db_session, card.id, 5)
 
     # 创建多个销售记录
-    service.create_sale(test_db_session, user_id=1, card_name="测试充值卡", quantity=1)
-    service.create_sale(test_db_session, user_id=2, card_name="测试充值卡", quantity=2)
+    service.create_sale(test_db_session, user_id=1, card_id=card.id, quantity=1)
+    service.create_sale(test_db_session, user_id=2, card_id=card.id, quantity=2)
 
     # 获取销售记录列表
     sales = service.list_sales(test_db_session)
@@ -182,12 +178,12 @@ def test_get_sales_by_user_id(test_db_session: Session):
     test_db_session.refresh(card)
 
     # 创建卡密
-    _ = create_activation_codes(test_db_session, "测试充值卡", 5)
+    _ = create_activation_codes(test_db_session, card.id, 5)
 
     # 创建属于不同用户的销售记录
-    service.create_sale(test_db_session, user_id=1, card_name="测试充值卡", quantity=1)
-    service.create_sale(test_db_session, user_id=2, card_name="测试充值卡", quantity=1)
-    service.create_sale(test_db_session, user_id=1, card_name="测试充值卡", quantity=2)
+    service.create_sale(test_db_session, user_id=1, card_id=card.id, quantity=1)
+    service.create_sale(test_db_session, user_id=2, card_id=card.id, quantity=1)
+    service.create_sale(test_db_session, user_id=1, card_id=card.id, quantity=2)
 
     # 获取用户1的销售记录
     user_sales = service.get_sales_by_user_id(test_db_session, 1)

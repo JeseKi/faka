@@ -90,7 +90,11 @@ export interface CardUpdate {
 // 卡密类型
 export interface ActivationCode {
   id: number
-  card_name: string
+  card_id: number
+  card: {
+    id: number
+    name: string
+  }
   code: string
   status: 'available' | 'consuming' | 'consumed'
   created_at: string
@@ -98,7 +102,7 @@ export interface ActivationCode {
 }
 
 export interface ActivationCodeCreate {
-  card_name: string
+  card_id: number
   count: number
 }
 
