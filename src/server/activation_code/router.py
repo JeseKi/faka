@@ -28,6 +28,7 @@ from .schemas import (
     ActivationCodeVerify,
     ActivationCodeCheckResult,
     AvailableActivationCodesResponse,
+    ActivationCodeExport,
 )
 from . import service
 from src.server.dao.dao_base import run_in_thread
@@ -183,3 +184,32 @@ async def delete_activation_codes(
 
     deleted_count = await run_in_thread(_delete)
     return {"message": f"已删除 {deleted_count} 个卡密"}
+
+
+@router.post(
+    "/export",
+    summary="批量导出卡密",
+    responses={
+        403: {"description": "无权限访问此接口"},
+        400: {"description": "请求参数错误"},
+    },
+)
+async def export_activation_codes(
+    export_data: ActivationCodeExport,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """批量导出卡密（管理员和代理商权限）
+
+    - 管理员：可以导出所有卡密
+    - 代理商：只能导出自己名下的卡密
+    - STAFF/USER：无权限访问此接口
+    """
+
+    def _export():
+        return service.mark_codes_as_exported(
+            db=db, code_ids=export_data.code_ids, user=current_user
+        )
+
+    exported_count = await run_in_thread(_export)
+    return {"message": f"成功导出了 {exported_count} 个卡密", "count": exported_count}

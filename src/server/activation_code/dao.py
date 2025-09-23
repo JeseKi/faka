@@ -126,3 +126,29 @@ class ActivationCodeDAO(BaseDAO):
         )
         self.db_session.commit()
         return deleted_count
+
+    def mark_as_exported(self, code_ids: list[int], user_id: int | None = None) -> int:
+        """批量标记卡密为已导出
+
+        Args:
+            code_ids: 要导出的卡密ID列表
+            user_id: 代理商用户ID，如果提供则只更新该代理商的卡密
+
+        Returns:
+            int: 成功导出的卡密数量
+        """
+        # 构建基础查询
+        query = self.db_session.query(ActivationCode).filter(
+            ActivationCode.id.in_(code_ids)
+        )
+
+        # 如果是代理商，只允许操作自己代理的卡密
+        if user_id is not None:
+            query = query.filter(ActivationCode.proxy_user_id == user_id)
+
+        # 更新 exported 状态为 True
+        updated_count = query.update(
+            {"exported": True}, synchronize_session=False
+        )
+        self.db_session.commit()
+        return updated_count

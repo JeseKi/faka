@@ -224,3 +224,38 @@ def get_available_activation_codes(
     )
 
     return codes, total_count
+
+
+def mark_codes_as_exported(
+    db: Session, code_ids: list[int], user: User
+) -> int:
+    """批量标记卡密为已导出
+
+    Args:
+        db: 数据库会话
+        code_ids: 要导出的卡密ID列表
+        user: 当前用户
+
+    Returns:
+        int: 成功导出的卡密数量
+
+    Raises:
+        HTTPException: 当用户权限不足时
+    """
+    from fastapi import HTTPException, status
+
+    # 检查用户权限
+    if user.role not in [Role.ADMIN, Role.PROXY]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="无权限访问此接口"
+        )
+
+    # 调用 DAO 层执行批量更新
+    dao = ActivationCodeDAO(db)
+
+    # 如果是代理商，只允许操作自己代理的卡密
+    if user.role == Role.PROXY:
+        return dao.mark_as_exported(code_ids, user_id=user.id)
+    else:
+        # 管理员可以操作所有卡密
+        return dao.mark_as_exported(code_ids)

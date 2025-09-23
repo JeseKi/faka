@@ -62,3 +62,9 @@ class AvailableActivationCodesResponse(BaseModel):
 
     codes: List[ActivationCodeOut] = Field(..., description="可用卡密列表")
     total_count: int = Field(..., description="总数量")
+
+
+class ActivationCodeExport(BaseModel):
+    """批量导出卡密的请求模型"""
+
+    code_ids: List[int] = Field(..., min_length=1, description="要导出的卡密ID列表")
