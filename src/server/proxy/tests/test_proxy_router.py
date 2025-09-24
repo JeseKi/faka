@@ -312,3 +312,161 @@ def test_unlink_proxy_from_cards_invalid_data(
     assert response.status_code == 200
     data = response.json()
     assert "成功解绑 0 个充值卡" in data["message"]
+
+
+def test_proxy_get_users_success(test_client: TestClient, test_db_session: Session):
+    """测试通过proxy路由成功获取用户列表"""
+    # 创建测试用户
+    _ = create_user_helper(
+        test_db_session, "testuser", "test@example.com", "password123"
+    )
+
+    # 创建管理员用户
+    _ = create_user_helper(
+        test_db_session, "admin", "admin@example.com", "admin123", Role.ADMIN
+    )
+
+    # 获取管理员token
+    admin_token = get_auth_token(test_client, "admin", "admin123")
+
+    # 通过proxy路由获取用户列表
+    response = test_client.get(
+        "/api/proxy/users",
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert "users" in data
+    assert "total_count" in data
+    assert len(data["users"]) >= 1  # 至少包含创建的用户
+
+
+def test_proxy_create_user_success(test_client: TestClient, test_db_session: Session):
+    """测试通过proxy路由成功创建用户"""
+    # 创建管理员用户
+    _ = create_user_helper(
+        test_db_session, "admin", "admin@example.com", "admin123", Role.ADMIN
+    )
+
+    # 获取管理员token
+    admin_token = get_auth_token(test_client, "admin", "admin123")
+
+    # 通过proxy路由创建用户
+    user_data = {
+        "username": "newuser",
+        "email": "newuser@example.com",
+        "password": "password123",
+        "role": "user",
+    }
+
+    response = test_client.post(
+        "/api/proxy/users",
+        json=user_data,
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
+
+    assert response.status_code == 201
+    data = response.json()
+    assert data["username"] == "newuser"
+    assert data["email"] == "newuser@example.com"
+    assert data["role"] == "user"
+
+
+def test_proxy_get_user_success(test_client: TestClient, test_db_session: Session):
+    """测试通过proxy路由成功获取指定用户"""
+    # 创建测试用户
+    user = create_user_helper(
+        test_db_session, "testuser", "test@example.com", "password123"
+    )
+
+    # 创建管理员用户
+    _ = create_user_helper(
+        test_db_session, "admin", "admin@example.com", "admin123", Role.ADMIN
+    )
+
+    # 获取管理员token
+    admin_token = get_auth_token(test_client, "admin", "admin123")
+
+    # 通过proxy路由获取指定用户
+    response = test_client.get(
+        f"/api/proxy/users/{user.id}",
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["id"] == user.id
+    assert data["username"] == "testuser"
+    assert data["email"] == "test@example.com"
+
+
+def test_proxy_update_user_success(test_client: TestClient, test_db_session: Session):
+    """测试通过proxy路由成功更新用户"""
+    # 创建测试用户
+    user = create_user_helper(
+        test_db_session, "testuser", "test@example.com", "password123"
+    )
+
+    # 创建管理员用户
+    _ = create_user_helper(
+        test_db_session, "admin", "admin@example.com", "admin123", Role.ADMIN
+    )
+
+    # 获取管理员token
+    admin_token = get_auth_token(test_client, "admin", "admin123")
+
+    # 通过proxy路由更新用户
+    update_data = {"name": "Updated Name", "status": "active"}
+
+    response = test_client.put(
+        f"/api/proxy/users/{user.id}",
+        json=update_data,
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["id"] == user.id
+    assert data["name"] == "Updated Name"
+    assert data["status"] == "active"
+
+
+def test_proxy_delete_user_success(test_client: TestClient, test_db_session: Session):
+    """测试通过proxy路由成功删除用户"""
+    # 创建测试用户
+    user = create_user_helper(
+        test_db_session, "testuser", "test@example.com", "password123"
+    )
+
+    # 创建管理员用户
+    _ = create_user_helper(
+        test_db_session, "admin", "admin@example.com", "admin123", Role.ADMIN
+    )
+
+    # 获取管理员token
+    admin_token = get_auth_token(test_client, "admin", "admin123")
+
+    # 通过proxy路由删除用户
+    response = test_client.delete(
+        f"/api/proxy/users/{user.id}",
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
+
+    assert response.status_code == 200
+    assert "用户删除成功" in response.json()["message"]
+
+    # 验证用户已被删除
+    from src.server.auth.dao import UserDAO
+
+    deleted_user = UserDAO(test_db_session).get_by_id(user.id)
+    assert deleted_user is None
+
+
+def test_proxy_user_routes_unauthorized(test_client: TestClient):
+    """测试未授权访问proxy用户管理接口"""
+    # 测试访问需要管理员权限的接口
+    response = test_client.get("/api/proxy/users")
+
+    # 应该返回401或403
+    assert response.status_code in [401, 403]

@@ -59,6 +59,12 @@ class UserDAO(BaseDAO):
         self.db_session.refresh(user)
         return user
 
+    def delete(self, user: User) -> bool:
+        """删除用户"""
+        self.db_session.delete(user)
+        self.db_session.commit()
+        return True
+
     def get_staff_by_channel_id(self, channel_id: int) -> list[User]:
         """获取指定渠道的所有员工用户"""
         return (

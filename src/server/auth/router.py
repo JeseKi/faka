@@ -42,7 +42,7 @@ from .schemas import (
 )
 from src.server.utils import get_current_user, get_current_admin
 
-router = APIRouter(prefix="/api/auth", tags=["用户认证"])
+router = APIRouter(prefix="/api/auth", tags=["用户管理"])
 
 
 @router.post("/login", response_model=TokenResponse, summary="用户登录")
@@ -269,3 +269,53 @@ async def admin_get_users(
 
     users, total_count = await run_in_thread(_get_users)
     return {"users": users, "total_count": total_count}
+
+
+@router.get(
+    "/admin/users/{user_id}",
+    response_model=UserProfile,
+    summary="管理员获取指定用户",
+    responses={
+        404: {"description": "用户不存在"},
+        403: {"description": "无权限"},
+    },
+)
+async def admin_get_user(
+    user_id: int,
+    current_admin: User = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """管理员获取指定ID的用户信息"""
+    user = service.get_user_by_id(db, user_id)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="用户不存在")
+    return user
+
+
+@router.delete(
+    "/admin/users/{user_id}",
+    summary="管理员删除指定用户",
+    responses={
+        404: {"description": "用户不存在"},
+        400: {"description": "不能删除管理员用户"},
+        403: {"description": "无权限"},
+    },
+)
+async def admin_delete_user(
+    user_id: int,
+    current_admin: User = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """管理员删除指定ID的用户"""
+    try:
+        success = service.delete_user(db=db, user_id=user_id)
+        if not success:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="用户不存在"
+            )
+        return {"message": "用户删除成功"}
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )

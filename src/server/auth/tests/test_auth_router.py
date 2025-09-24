@@ -162,3 +162,167 @@ def test_admin_update_user_invalid_channel(test_client, test_db_session):
 
     assert resp.status_code == 400
     assert "渠道" in resp.json()["detail"]
+
+
+def test_admin_get_user_success(test_client, test_db_session):
+    """测试管理员成功获取指定用户信息"""
+    # 创建一个普通用户
+    user = create_user_helper(
+        test_db_session, "testuser", "test@example.com", "password123"
+    )
+
+    # 创建管理员用户
+    _ = create_user_helper(
+        test_db_session, "admin", "admin@example.com", "admin123", Role.ADMIN
+    )
+
+    # 获取管理员token
+    admin_token = get_auth_token(test_client, "admin", "admin123")
+
+    # 获取用户信息
+    resp = test_client.get(
+        f"/api/auth/admin/users/{user.id}",
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
+
+    assert resp.status_code == 200
+    user_data = resp.json()
+    assert user_data["id"] == user.id
+    assert user_data["username"] == "testuser"
+    assert user_data["email"] == "test@example.com"
+
+
+def test_admin_get_user_not_found(test_client, test_db_session):
+    """测试管理员获取不存在的用户"""
+    # 创建管理员用户
+    _ = create_user_helper(
+        test_db_session, "admin", "admin@example.com", "admin123", Role.ADMIN
+    )
+
+    # 获取管理员token
+    admin_token = get_auth_token(test_client, "admin", "admin123")
+
+    # 尝试获取不存在的用户
+    resp = test_client.get(
+        "/api/auth/admin/users/99999",
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
+
+    assert resp.status_code == 404
+    assert "用户不存在" in resp.json()["detail"]
+
+
+def test_admin_get_user_unauthorized(test_client, test_db_session):
+    """测试非管理员用户访问管理员获取用户路由"""
+    # 创建一个普通用户
+    user = create_user_helper(
+        test_db_session, "user", "user@example.com", "password123"
+    )
+
+    # 获取普通用户token
+    user_token = get_auth_token(test_client, "user", "password123")
+
+    # 尝试获取用户信息
+    resp = test_client.get(
+        f"/api/auth/admin/users/{user.id}",
+        headers={"Authorization": f"Bearer {user_token}"},
+    )
+
+    assert resp.status_code == 403
+    assert "无权限" in resp.json()["detail"]
+
+
+def test_admin_delete_user_success(test_client, test_db_session):
+    """测试管理员成功删除用户"""
+    # 创建一个普通用户
+    user = create_user_helper(
+        test_db_session, "testuser", "test@example.com", "password123"
+    )
+
+    # 创建管理员用户
+    _ = create_user_helper(
+        test_db_session, "admin", "admin@example.com", "admin123", Role.ADMIN
+    )
+
+    # 获取管理员token
+    admin_token = get_auth_token(test_client, "admin", "admin123")
+
+    # 删除用户
+    resp = test_client.delete(
+        f"/api/auth/admin/users/{user.id}",
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
+
+    assert resp.status_code == 200
+    assert "用户删除成功" in resp.json()["message"]
+
+    # 验证用户已被删除
+    from src.server.auth.dao import UserDAO
+
+    deleted_user = UserDAO(test_db_session).get_by_id(user.id)
+    assert deleted_user is None
+
+
+def test_admin_delete_user_not_found(test_client, test_db_session):
+    """测试管理员删除不存在的用户"""
+    # 创建管理员用户
+    _ = create_user_helper(
+        test_db_session, "admin", "admin@example.com", "admin123", Role.ADMIN
+    )
+
+    # 获取管理员token
+    admin_token = get_auth_token(test_client, "admin", "admin123")
+
+    # 尝试删除不存在的用户
+    resp = test_client.delete(
+        "/api/auth/admin/users/99999",
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
+
+    assert resp.status_code == 404
+    assert "用户不存在" in resp.json()["detail"]
+
+
+def test_admin_delete_user_admin_protection(test_client, test_db_session):
+    """测试管理员不能删除其他管理员用户"""
+    # 创建一个管理员用户
+    admin_user = create_user_helper(
+        test_db_session, "admin2", "admin2@example.com", "admin123", Role.ADMIN
+    )
+
+    # 创建另一个管理员用户
+    _ = create_user_helper(
+        test_db_session, "admin", "admin@example.com", "admin123", Role.ADMIN
+    )
+
+    # 获取管理员token
+    admin_token = get_auth_token(test_client, "admin", "admin123")
+
+    # 尝试删除另一个管理员用户
+    resp = test_client.delete(
+        f"/api/auth/admin/users/{admin_user.id}",
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
+
+    assert resp.status_code == 400
+    assert "不能删除管理员用户" in resp.json()["detail"]
+
+
+def test_admin_delete_user_unauthorized(test_client, test_db_session):
+    """测试非管理员用户访问管理员删除用户路由"""
+    # 创建一个普通用户
+    user = create_user_helper(
+        test_db_session, "user", "user@example.com", "password123"
+    )
+
+    # 获取普通用户token
+    user_token = get_auth_token(test_client, "user", "password123")
+
+    # 尝试删除用户
+    resp = test_client.delete(
+        f"/api/auth/admin/users/{user.id}",
+        headers={"Authorization": f"Bearer {user_token}"},
+    )
+
+    assert resp.status_code == 403
+    assert "无权限" in resp.json()["detail"]

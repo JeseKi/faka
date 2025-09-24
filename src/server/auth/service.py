@@ -203,6 +203,21 @@ def change_password(
     return True
 
 
+def delete_user(db: Session, user_id: int) -> bool:
+    """删除指定ID的用户"""
+    user_dao = UserDAO(db)
+    user = user_dao.get_by_id(user_id)
+
+    if not user:
+        return False
+
+    # 防止删除管理员用户
+    if user.role == Role.ADMIN:
+        raise ValueError("不能删除管理员用户")
+
+    return user_dao.delete(user)
+
+
 def get_users_by_role(
     db: Session, role: Optional[Role] = None, page: int = 1, page_size: int = 50
 ) -> tuple[list[User], int]:

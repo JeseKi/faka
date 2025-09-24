@@ -13,11 +13,13 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 
 from src.server.database import get_db
 from src.server.auth.router import get_current_admin
 from src.server.auth.models import User
+from src.server.auth import router as auth_router
+from src.server.auth.schemas import Role
 from .schemas import (
     ProxyCardLinkRequest,
     ProxyCardUnlinkRequest,
@@ -146,3 +148,68 @@ async def get_all_proxy_associations(
         return service.get_all_proxy_associations(db=db)
 
     return await run_in_thread(_get_associations)
+
+
+# 用户管理路由转发到 auth 模块
+@router.get(
+    "/users", response_model=auth_router.UserListResponse, summary="获取用户列表"
+)
+async def get_users(
+    role: Optional[Role] = None,
+    page: int = 1,
+    page_size: int = 50,
+    current_admin: User = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """获取用户列表（转发到 auth 模块）"""
+    return await auth_router.admin_get_users(role, page, page_size, current_admin, db)
+
+
+@router.post(
+    "/users",
+    response_model=auth_router.UserProfile,
+    status_code=201,
+    summary="创建用户",
+)
+async def create_user(
+    user_data: auth_router.AdminUserCreate,
+    current_admin: User = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """创建用户（转发到 auth 模块）"""
+    return await auth_router.admin_create_user(user_data, current_admin, db)
+
+
+@router.get(
+    "/users/{user_id}", response_model=auth_router.UserProfile, summary="获取指定用户"
+)
+async def get_user(
+    user_id: int,
+    current_admin: User = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """获取指定用户（转发到 auth 模块）"""
+    return await auth_router.admin_get_user(user_id, current_admin, db)
+
+
+@router.put(
+    "/users/{user_id}", response_model=auth_router.UserProfile, summary="更新指定用户"
+)
+async def update_user(
+    user_id: int,
+    user_data: auth_router.AdminUserUpdate,
+    current_admin: User = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """更新指定用户（转发到 auth 模块）"""
+    return await auth_router.admin_update_user(user_id, user_data, current_admin, db)
+
+
+@router.delete("/users/{user_id}", summary="删除指定用户")
+async def delete_user(
+    user_id: int,
+    current_admin: User = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """删除指定用户（转发到 auth 模块）"""
+    return await auth_router.admin_delete_user(user_id, current_admin, db)
