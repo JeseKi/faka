@@ -17,6 +17,9 @@ import PurchaseHistoryPage from './pages/user/PurchaseHistoryPage'
 import LandingPage from './pages/LandingPage'
 import RechargePlusPage from './pages/RechargePlusPage'
 import ChannelManagementPage from './pages/admin/ChannelManagementPage'
+import ProxyManagementPage from './pages/admin/ProxyManagementPage'
+import ProxyLayout from './components/layout/ProxyLayout'
+import ActivationCodesPage from './pages/proxy/ActivationCodesPage'
 
 export default function App() {
   return (
@@ -58,6 +61,7 @@ export default function App() {
               <Route path="cards" element={<CardManagementPage />} />
               <Route path="codes" element={<ActivationCodeManagementPage />} />
               <Route path="channels" element={<ChannelManagementPage />} />
+              <Route path="proxies" element={<ProxyManagementPage />} />
               <Route path="sales" element={<SalesRecordPage />} />
               <Route path="order-processing" element={<OrderProcessingPage />} />
             </Route>
@@ -72,6 +76,18 @@ export default function App() {
               }
             >
               <Route path="order-processing" element={<OrderProcessingPage />} />
+            </Route>
+
+            {/* 代理商后台（需要 proxy 角色） */}
+            <Route
+              path="/proxy"
+              element={
+                <ProtectedRoute requiredRoles={['proxy', 'admin']}>
+                  <ProxyLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="activation-codes" element={<ActivationCodesPage />} />
             </Route>
             {/* 首页 */}
             <Route path="/" element={<LandingPage />} />

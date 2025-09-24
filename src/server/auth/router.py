@@ -12,6 +12,7 @@
 - POST /api/auth/send-verification-code
 - POST /api/auth/register-with-code
 - PUT /api/auth/admin/users/{user_id}
+- GET /api/auth/admin/users
 """
 
 from __future__ import annotations
@@ -21,12 +22,14 @@ from loguru import logger
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
+from typing import Optional
 
 from src.server.database import get_db
 from src.server.config import global_config
 from .config import auth_config
 from .models import User
 from . import service
+from src.server.dao.dao_base import run_in_thread
 from .schemas import (
     PasswordChange,
     Role,
@@ -39,6 +42,7 @@ from .schemas import (
     UserRegisterWithCode,
     AdminUserCreate,
     AdminUserUpdate,
+    UserListResponse,
 )
 
 router = APIRouter(prefix="/api/auth", tags=["用户认证"])
@@ -295,3 +299,32 @@ async def admin_update_user(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e),
         )
+
+
+@router.get(
+    "/admin/users",
+    response_model=UserListResponse,
+    summary="管理员获取用户列表",
+    responses={
+        403: {"description": "无权限"},
+    },
+)
+async def admin_get_users(
+    role: Optional[Role] = None,
+    page: int = 1,
+    page_size: int = 50,
+    current_admin: User = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """管理员获取用户列表（支持按角色筛选）
+
+    - 管理员：可以查看所有用户，或指定角色筛选
+    - 支持分页查询
+    """
+    def _get_users():
+        return service.get_users_by_role(
+            db=db, role=role, page=page, page_size=page_size
+        )
+
+    users, total_count = await run_in_thread(_get_users)
+    return {"users": users, "total_count": total_count}

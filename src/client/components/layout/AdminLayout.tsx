@@ -17,6 +17,7 @@ import {
   KeyOutlined,
   ShoppingCartOutlined,
   ApiOutlined,
+  TeamOutlined,
 } from '@ant-design/icons'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
@@ -35,6 +36,7 @@ export default function AdminLayout() {
     if (path.startsWith('/admin/codes')) return ['codes']
     if (path.startsWith('/admin/channels')) return ['channels']
     if (path.startsWith('/admin/sales')) return ['sales']
+    if (path.startsWith('/admin/proxies')) return ['proxies']
     if (path.startsWith('/admin/order-processing')) return ['orders']
     return ['dashboard']
   }, [location.pathname])
@@ -65,6 +67,11 @@ export default function AdminLayout() {
           key: 'channels',
           icon: <ApiOutlined />,
           label: <Link to="/admin/channels">渠道管理</Link>,
+        },
+        {
+          key: 'proxies',
+          icon: <TeamOutlined />,
+          label: <Link to="/admin/proxies">代理商管理</Link>,
         },
         {
           key: 'sales',

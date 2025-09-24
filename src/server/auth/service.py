@@ -7,6 +7,7 @@
 - authenticate_user
 - create_access_token / create_refresh_token
 - create_user / update_user / change_password / admin_update_user
+- get_users_by_role
 - bootstrap_default_admin
 """
 
@@ -200,6 +201,24 @@ def change_password(
     user.set_password(new_password)
     db.commit()
     return True
+
+
+def get_users_by_role(
+    db: Session, role: Optional[Role] = None, page: int = 1, page_size: int = 50
+) -> tuple[list[User], int]:
+    """根据角色获取用户列表，支持分页"""
+    user_dao = UserDAO(db)
+
+    if role:
+        # 按角色筛选
+        users = user_dao.get_by_role(role, page=page, page_size=page_size)
+        total_count = user_dao.count_by_role(role)
+    else:
+        # 获取所有用户
+        users = user_dao.get_all(page=page, page_size=page_size)
+        total_count = user_dao.count_all()
+
+    return users, total_count
 
 
 def bootstrap_default_admin(session: Session) -> None:

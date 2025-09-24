@@ -6,7 +6,7 @@
 - `UserDAO`
 
 内部方法：
-- 无
+- get_by_role / count_by_role / get_all / count_all
 
 说明：
 - 提供用户读取/写入的持久化封装，业务逻辑放在 service。
@@ -66,3 +66,32 @@ class UserDAO(BaseDAO):
             .filter(User.role == Role.STAFF, User.channel_id == channel_id)
             .all()
         )
+
+    def get_by_role(self, role: Role, page: int = 1, page_size: int = 50) -> list[User]:
+        """根据角色获取用户列表，支持分页"""
+        offset = (page - 1) * page_size
+        return (
+            self.db_session.query(User)
+            .filter(User.role == role)
+            .offset(offset)
+            .limit(page_size)
+            .all()
+        )
+
+    def count_by_role(self, role: Role) -> int:
+        """根据角色统计用户数量"""
+        return self.db_session.query(User).filter(User.role == role).count()
+
+    def get_all(self, page: int = 1, page_size: int = 50) -> list[User]:
+        """获取所有用户列表，支持分页"""
+        offset = (page - 1) * page_size
+        return (
+            self.db_session.query(User)
+            .offset(offset)
+            .limit(page_size)
+            .all()
+        )
+
+    def count_all(self) -> int:
+        """统计所有用户数量"""
+        return self.db_session.query(User).count()

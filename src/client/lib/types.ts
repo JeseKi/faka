@@ -168,3 +168,51 @@ export interface ChannelUpdate {
   name?: string
   description?: string | null
 }
+
+// 代理商相关类型
+export interface UserListResponse {
+  users: UserProfile[]
+  total_count: number
+}
+
+export interface AdminUserCreate {
+  username: string
+  email: string
+  password: string
+  role: string
+  channel_id?: number | null
+}
+
+export interface AdminUserUpdate {
+  email?: string | null
+  name?: string | null
+  role?: string | null
+  status?: string | null
+  channel_id?: number | null
+}
+
+// 代理商卡密相关类型
+export interface CardSummary {
+  id: number
+  name: string
+}
+
+export interface ActivationCode {
+  id: number
+  card_id: number
+  card: CardSummary
+  code: string
+  status: 'available' | 'consuming' | 'consumed'
+  created_at: string
+  used_at: string | null
+  exported: boolean
+}
+
+export interface AvailableActivationCodesResponse {
+  codes: ActivationCode[]
+  total_count: number
+}
+
+export interface ActivationCodeExport {
+  code_ids: number[]
+}

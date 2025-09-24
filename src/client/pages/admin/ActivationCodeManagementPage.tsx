@@ -27,7 +27,8 @@ import {
 } from '@ant-design/icons'
 import { isAxiosError } from 'axios'
 import api from '../../lib/api'
-import type { ActivationCode, Card } from '../../lib/types'
+import { getProxies } from '../../lib/proxy'
+import type { ActivationCode, Card, UserProfile } from '../../lib/types'
 
 const { Title } = Typography
 const { Option } = Select
@@ -35,6 +36,7 @@ const { Option } = Select
 interface CodeFormData {
   card_id: number
   count: number
+  proxy_user_id: number
 }
 
 function resolveErrorMessage(error: unknown): string {
@@ -52,6 +54,7 @@ export default function ActivationCodeManagementPage() {
   const { message } = App.useApp()
   const [codes, setCodes] = useState<ActivationCode[]>([])
   const [cards, setCards] = useState<Card[]>([])
+  const [proxies, setProxies] = useState<UserProfile[]>([])
   const [loading, setLoading] = useState(false)
   const [modalVisible, setModalVisible] = useState(false)
   const [searchCard, setSearchCard] = useState<string>('')
@@ -71,6 +74,18 @@ export default function ActivationCodeManagementPage() {
       setCards(data)
     } catch (error) {
       console.error('获取充值卡列表失败:', error)
+    }
+  }, [])
+
+  // 获取代理商列表
+  const fetchProxies = useCallback(async () => {
+    try {
+      const { users } = await getProxies()
+      // 按照 ID 倒序排序，最新的代理商在前面
+      const sortedUsers = users.sort((a, b) => b.id - a.id)
+      setProxies(sortedUsers)
+    } catch (error) {
+      console.error('获取代理商列表失败:', error)
     }
   }, [])
 
@@ -103,7 +118,8 @@ export default function ActivationCodeManagementPage() {
 
   useEffect(() => {
     fetchCards()
-  }, [fetchCards])
+    fetchProxies()
+  }, [fetchCards, fetchProxies])
 
   useEffect(() => {
     if (searchCard) {
@@ -358,6 +374,20 @@ export default function ActivationCodeManagementPage() {
               {cards.map((card) => (
                 <Option key={card.id} value={card.id}>
                   {card.name} - ¥{card.price}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            label="选择代理商"
+            name="proxy_user_id"
+            rules={[{ required: true, message: '请选择代理商' }]}
+          >
+            <Select placeholder="请选择要分配卡密的代理商">
+              {proxies.map((proxy) => (
+                <Option key={proxy.id} value={proxy.id}>
+                  {proxy.username} ({proxy.name || '未设置姓名'})
                 </Option>
               ))}
             </Select>
