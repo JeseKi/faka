@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from src.server.database import get_db
-from src.server.auth.router import get_current_admin
+from src.server.utils import get_current_admin
 from src.server.auth.models import User
 from . import schemas, service
 
