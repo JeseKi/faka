@@ -87,19 +87,6 @@ export interface CardUpdate {
   channel_id?: number | null
 }
 
-// 卡密类型
-export interface ActivationCode {
-  id: number
-  card_id: number
-  card: {
-    id: number
-    name: string
-  }
-  code: string
-  status: 'available' | 'consuming' | 'consumed'
-  created_at: string
-  used_at: string | null
-}
 
 export interface ActivationCodeCreate {
   card_id: number
@@ -195,6 +182,7 @@ export interface AdminUserUpdate {
 export interface CardSummary {
   id: number
   name: string
+  price: number
 }
 
 export interface ActivationCode {

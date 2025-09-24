@@ -133,6 +133,13 @@ export default function ActivationCodesPage() {
       width: 150,
     },
     {
+      title: '价格',
+      dataIndex: ['card', 'price'],
+      key: 'card_price',
+      width: 100,
+      render: (price: number) => `¥${price.toFixed(2)}`,
+    },
+    {
       title: '卡密',
       dataIndex: 'code',
       key: 'code',
