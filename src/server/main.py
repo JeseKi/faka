@@ -23,7 +23,6 @@ from src.server.config import global_config
 from src.server.database import get_database_info, init_database
 from src.server.example_module.router import router as example_router
 from src.server.order.router import router as order_router
-from src.server.proxy.router import router as proxy_router
 from src.server.sale.router import router as sale_router
 
 # --- 配置与常量 ---
@@ -108,7 +107,6 @@ app.include_router(activation_code_router)
 app.include_router(sale_router)
 app.include_router(order_router)
 app.include_router(channel_router)
-app.include_router(proxy_router)
 
 
 # --- 前端 SPA 静态文件服务 ---

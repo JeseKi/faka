@@ -9,6 +9,5 @@
 
 from .models import ProxyCardAssociation
 from . import service
-from . import router
 
-__all__ = ["ProxyCardAssociation", "service", "router"]
+__all__ = ["ProxyCardAssociation", "service"]
