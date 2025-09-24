@@ -11,8 +11,7 @@ import {
   Row,
   Col,
   Statistic,
-  Tooltip,
-  message as antMessage,
+  Tooltip
 } from 'antd'
 import {
   DownloadOutlined,
@@ -165,7 +164,7 @@ export default function ActivationCodesPage() {
               size="small"
               onClick={() => {
                 navigator.clipboard.writeText(code || '')
-                antMessage.success('卡密已复制到剪贴板')
+                message.success('卡密已复制到剪贴板')
               }}
             />
           </Space>
