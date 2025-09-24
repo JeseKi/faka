@@ -20,7 +20,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from src.server.database import get_db
-from src.server.auth.router import get_current_admin, get_current_user
+from src.server.utils import get_current_admin, get_current_user
 from src.server.auth.models import User
 from .schemas import (
     ActivationCodeCreate,

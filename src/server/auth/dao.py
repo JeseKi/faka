@@ -85,12 +85,7 @@ class UserDAO(BaseDAO):
     def get_all(self, page: int = 1, page_size: int = 50) -> list[User]:
         """获取所有用户列表，支持分页"""
         offset = (page - 1) * page_size
-        return (
-            self.db_session.query(User)
-            .offset(offset)
-            .limit(page_size)
-            .all()
-        )
+        return self.db_session.query(User).offset(offset).limit(page_size).all()
 
     def count_all(self) -> int:
         """统计所有用户数量"""

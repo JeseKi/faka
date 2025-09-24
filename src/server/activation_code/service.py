@@ -226,9 +226,7 @@ def get_available_activation_codes(
     return codes, total_count
 
 
-def mark_codes_as_exported(
-    db: Session, code_ids: list[int], user: User
-) -> int:
+def mark_codes_as_exported(db: Session, code_ids: list[int], user: User) -> int:
     """批量标记卡密为已导出
 
     Args:

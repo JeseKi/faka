@@ -147,8 +147,6 @@ class ActivationCodeDAO(BaseDAO):
             query = query.filter(ActivationCode.proxy_user_id == user_id)
 
         # 更新 exported 状态为 True
-        updated_count = query.update(
-            {"exported": True}, synchronize_session=False
-        )
+        updated_count = query.update({"exported": True}, synchronize_session=False)
         self.db_session.commit()
         return updated_count

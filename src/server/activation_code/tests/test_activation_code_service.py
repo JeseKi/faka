@@ -598,7 +598,7 @@ def test_get_available_activation_codes_proxy_own(
 
     # 代理商1获取自己的卡密
     own_codes, own_count = get_available_activation_codes(test_db_session, proxy_user)
-    assert len(own_codes) == 2== 2== 2
+    assert len(own_codes) == 2 == 2 == 2
     assert own_count == 2
     for code in own_codes:
         assert code.proxy_user_id == proxy_user.id

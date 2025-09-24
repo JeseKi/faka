@@ -15,7 +15,7 @@ from loguru import logger
 from sqlalchemy.orm import Session
 
 from src.server.database import get_db
-from src.server.auth.router import get_current_user, get_current_admin
+from src.server.utils import get_current_user, get_current_admin
 from src.server.auth.models import User
 from src.server.mail_sender import (
     MailAddress,
