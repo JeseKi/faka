@@ -9,7 +9,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from src.server.dao.dao_base import BaseDAO
 from .models import Order
@@ -46,20 +46,30 @@ class OrderDAO(BaseDAO):
 
     def get(self, order_id: int) -> Order | None:
         """获取订单"""
-        return self.db_session.query(Order).filter(Order.id == order_id).first()
+        from src.server.activation_code.models import ActivationCode
+        return (
+            self.db_session.query(Order)
+            .options(joinedload(Order.activation_code_obj).joinedload(ActivationCode.card))
+            .filter(Order.id == order_id)
+            .first()
+        )
 
     def get_by_activation_code(self, activation_code: str) -> Order | None:
         """通过卡密获取订单"""
+        from src.server.activation_code.models import ActivationCode
         return (
             self.db_session.query(Order)
+            .options(joinedload(Order.activation_code_obj).joinedload(ActivationCode.card))
             .filter(Order.activation_code == activation_code)
             .first()
         )
 
     def get_orders_by_user_id(self, user_id: int) -> list[Order]:
         """获取指定用户的所有订单"""
+        from src.server.activation_code.models import ActivationCode
         return (
             self.db_session.query(Order)
+            .options(joinedload(Order.activation_code_obj).joinedload(ActivationCode.card))
             .filter(Order.user_id == user_id)
             .order_by(Order.created_at.desc())
             .all()
@@ -67,8 +77,10 @@ class OrderDAO(BaseDAO):
 
     def list_pending(self) -> list[Order]:
         """获取所有待处理订单"""
+        from src.server.activation_code.models import ActivationCode
         return (
             self.db_session.query(Order)
+            .options(joinedload(Order.activation_code_obj).joinedload(ActivationCode.card))
             .filter(Order.status == OrderStatus.PENDING)
             .order_by(Order.created_at.asc())
             .all()
@@ -76,8 +88,10 @@ class OrderDAO(BaseDAO):
 
     def list_processing(self) -> list[Order]:
         """获取所有处理中订单"""
+        from src.server.activation_code.models import ActivationCode
         return (
             self.db_session.query(Order)
+            .options(joinedload(Order.activation_code_obj).joinedload(ActivationCode.card))
             .filter(Order.status == OrderStatus.PROCESSING)
             .order_by(Order.created_at.asc())
             .all()
@@ -85,8 +99,10 @@ class OrderDAO(BaseDAO):
 
     def list_processing_by_channel(self, channel_id: int) -> list[Order]:
         """获取指定渠道的处理中订单"""
+        from src.server.activation_code.models import ActivationCode
         return (
             self.db_session.query(Order)
+            .options(joinedload(Order.activation_code_obj).joinedload(ActivationCode.card))
             .filter(
                 Order.status == OrderStatus.PROCESSING, Order.channel_id == channel_id
             )
@@ -101,7 +117,8 @@ class OrderDAO(BaseDAO):
         offset: int = 0,
     ) -> list[Order]:
         """获取所有订单"""
-        query = self.db_session.query(Order)
+        from src.server.activation_code.models import ActivationCode
+        query = self.db_session.query(Order).options(joinedload(Order.activation_code_obj).joinedload(ActivationCode.card))
 
         if status_filter:
             query = query.filter(Order.status == status_filter)
@@ -129,11 +146,13 @@ class OrderDAO(BaseDAO):
     def get_recent_orders(self, days: int = 7) -> list[Order]:
         """获取最近几天的订单"""
         from datetime import timedelta
+        from src.server.activation_code.models import ActivationCode
 
         cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
 
         return (
             self.db_session.query(Order)
+            .options(joinedload(Order.activation_code_obj).joinedload(ActivationCode.card))
             .filter(Order.created_at >= cutoff_date)
             .order_by(Order.created_at.desc())
             .all()

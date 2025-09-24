@@ -27,6 +27,7 @@ class OrderOut(BaseModel):
     remarks: Optional[str] = None
     channel_id: int
     card_name: Optional[str] = None
+    pricing: float
 
     model_config = ConfigDict(from_attributes=True)
 

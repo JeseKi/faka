@@ -12,10 +12,12 @@ from src.server.order.service import (
     list_pending_orders,
     list_orders,
     complete_order,
+    verify_activation_code,
 )
 from src.server.activation_code.models import ActivationCode, CardCodeStatus
 from src.server.order.schemas import OrderStatus
 from src.server.channel.models import Channel
+from src.server.card.models import Card
 
 
 def test_create_order(test_db_session: Session):
@@ -194,6 +196,68 @@ def test_complete_order(test_db_session: Session):
     assert completed_order.status == OrderStatus.COMPLETED
     assert completed_order.remarks == "测试完成备注"
     assert completed_order.completed_at is not None
+
+
+def test_get_order_with_pricing(test_db_session: Session):
+    """测试获取订单时包含正确的 pricing 字段"""
+    # 先创建一个渠道
+    channel = Channel(name="测试渠道_with_pricing", description="用于测试 pricing 的渠道")
+    test_db_session.add(channel)
+    test_db_session.commit()
+    test_db_session.refresh(channel)
+    
+    # 创建一个商品
+    card = Card(
+        name="测试充值卡_with_pricing",
+        description="用于测试 pricing 的充值卡",
+        price=29.99,
+        is_active=True,
+        channel_id=channel.id,
+    )
+    test_db_session.add(card)
+    test_db_session.commit()
+    test_db_session.refresh(card)
+    
+    # 创建一个卡密
+    activation_code = ActivationCode(
+        card_id=card.id,
+        code="TEST-CODE-PRICING",
+        status=CardCodeStatus.AVAILABLE,
+    )
+    test_db_session.add(activation_code)
+    test_db_session.commit()
+    test_db_session.refresh(activation_code)
+    
+    # 通过 verify_activation_code 创建订单
+    order = verify_activation_code(
+        test_db_session,
+        "TEST-CODE-PRICING",
+        channel.id,
+        "测试订单备注_with_pricing",
+        "自定义充值卡名称_with_pricing"
+    )
+    
+    # 验证返回的 OrderOut 模型
+    assert order is not None
+    assert order.activation_code == "TEST-CODE-PRICING"
+    assert order.channel_id == channel.id
+    assert order.status == OrderStatus.PROCESSING
+    assert order.remarks == "测试订单备注_with_pricing"
+    assert order.card_name == "自定义充值卡名称_with_pricing"
+    assert order.pricing == 29.99  # 验证 pricing 字段
+    
+    # 再次通过 get_order 获取订单
+    retrieved_order = get_order(test_db_session, order.id)
+    
+    # 验证返回的 OrderOut 模型
+    assert retrieved_order is not None
+    assert retrieved_order.id == order.id
+    assert retrieved_order.activation_code == "TEST-CODE-PRICING"
+    assert retrieved_order.channel_id == channel.id
+    assert retrieved_order.status == OrderStatus.PROCESSING
+    assert retrieved_order.remarks == "测试订单备注_with_pricing"
+    assert retrieved_order.card_name == "自定义充值卡名称_with_pricing"
+    assert retrieved_order.pricing == 29.99  # 验证 pricing 字段
 
 
 def test_get_order_stats(test_db_session: Session):

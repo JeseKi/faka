@@ -27,7 +27,7 @@ from fastapi import HTTPException, status
 
 from .dao import OrderDAO
 from .models import Order
-from .schemas import OrderStatus
+from .schemas import OrderStatus, OrderOut
 from src.server.activation_code.service import (
     set_code_consuming,
     get_activation_code_by_code,
@@ -47,7 +47,7 @@ def verify_activation_code(
     channel_id: int,
     remarks: str | None = None,
     card_name: str | None = None,
-) -> Order:
+) -> OrderOut:
     """验证卡密并创建订单"""
     # 首先检查卡密是否存在且可用
     activation_code = get_activation_code_by_code(db, code)
@@ -115,7 +115,21 @@ def verify_activation_code(
 
         logging.warning(f"发送新订单通知邮件失败：{e}")
 
-    return order
+    # 获取价格信息
+    pricing = card.price if card else 0.0
+    
+    # 构造 OrderOut 模型
+    return OrderOut(
+        id=order.id,
+        activation_code=order.activation_code,
+        status=OrderStatus(order.status),
+        created_at=order.created_at,
+        completed_at=order.completed_at,
+        remarks=order.remarks,
+        channel_id=order.channel_id,
+        card_name=order.card_name,
+        pricing=pricing
+    )
 
 
 def create_order(
@@ -131,35 +145,95 @@ def create_order(
     return dao.create(activation_code, channel_id, status, remarks, card_name)
 
 
-def get_order(db: Session, order_id: int) -> Order:
+def get_order(db: Session, order_id: int) -> OrderOut:
     """获取订单"""
     dao = OrderDAO(db)
     order = dao.get(order_id)
     if not order:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="订单不存在")
-    return order
+    
+    # 获取价格信息
+    pricing = 0.0
+    if order.activation_code_obj and order.activation_code_obj.card:
+        pricing = order.activation_code_obj.card.price
+    
+    # 构造 OrderOut 模型
+    return OrderOut(
+        id=order.id,
+        activation_code=order.activation_code,
+        status=OrderStatus(order.status),
+        created_at=order.created_at,
+        completed_at=order.completed_at,
+        remarks=order.remarks,
+        channel_id=order.channel_id,
+        card_name=order.card_name,
+        pricing=pricing
+    )
 
 
-def list_pending_orders(db: Session) -> list[Order]:
+def list_pending_orders(db: Session) -> list[OrderOut]:
     """获取所有待处理订单"""
     dao = OrderDAO(db)
-    return dao.list_pending()
+    orders = dao.list_pending()
+    
+    # 构造 OrderOut 模型列表
+    order_outs = []
+    for order in orders:
+        pricing = 0.0
+        if order.activation_code_obj and order.activation_code_obj.card:
+            pricing = order.activation_code_obj.card.price
+        
+        order_out = OrderOut(
+            id=order.id,
+            activation_code=order.activation_code,
+            status=OrderStatus(order.status),
+            created_at=order.created_at,
+            completed_at=order.completed_at,
+            remarks=order.remarks,
+            channel_id=order.channel_id,
+            card_name=order.card_name,
+            pricing=pricing
+        )
+        order_outs.append(order_out)
+    
+    return order_outs
 
 
-def list_processing_orders(db: Session, user: User | None = None) -> list[Order]:
+def list_processing_orders(db: Session, user: User | None = None) -> list[OrderOut]:
     """获取处理中订单"""
     dao = OrderDAO(db)
 
     # 如果没有用户（管理员）或用户是管理员，返回所有处理中订单
     if not user or user.role == Role.ADMIN:
-        return dao.list_processing()
-
+        orders = dao.list_processing()
     # 如果是员工，只返回其渠道的处理中订单
-    if user.role == Role.STAFF and user.channel_id is not None:
-        return dao.list_processing_by_channel(user.channel_id)
-
+    elif user.role == Role.STAFF and user.channel_id is not None:
+        orders = dao.list_processing_by_channel(user.channel_id)
     # 如果员工没有渠道ID，返回空列表
-    return []
+    else:
+        orders = []
+
+    # 构造 OrderOut 模型列表
+    order_outs = []
+    for order in orders:
+        pricing = 0.0
+        if order.activation_code_obj and order.activation_code_obj.card:
+            pricing = order.activation_code_obj.card.price
+        
+        order_out = OrderOut(
+            id=order.id,
+            activation_code=order.activation_code,
+            status=OrderStatus(order.status),
+            created_at=order.created_at,
+            completed_at=order.completed_at,
+            remarks=order.remarks,
+            channel_id=order.channel_id,
+            card_name=order.card_name,
+            pricing=pricing
+        )
+        order_outs.append(order_out)
+    
+    return order_outs
 
 
 def list_orders(
@@ -167,13 +241,35 @@ def list_orders(
     status_filter: OrderStatus | None = None,
     limit: int = 100,
     offset: int = 0,
-) -> list[Order]:
+) -> list[OrderOut]:
     """获取订单列表"""
     dao = OrderDAO(db)
-    return dao.list_all(status_filter, limit, offset)
+    orders = dao.list_all(status_filter, limit, offset)
+    
+    # 构造 OrderOut 模型列表
+    order_outs = []
+    for order in orders:
+        pricing = 0.0
+        if order.activation_code_obj and order.activation_code_obj.card:
+            pricing = order.activation_code_obj.card.price
+        
+        order_out = OrderOut(
+            id=order.id,
+            activation_code=order.activation_code,
+            status=OrderStatus(order.status),
+            created_at=order.created_at,
+            completed_at=order.completed_at,
+            remarks=order.remarks,
+            channel_id=order.channel_id,
+            card_name=order.card_name,
+            pricing=pricing
+        )
+        order_outs.append(order_out)
+    
+    return order_outs
 
 
-def complete_order(db: Session, order_id: int, remarks: str | None = None) -> Order:
+def complete_order(db: Session, order_id: int, remarks: str | None = None) -> OrderOut:
     """完成订单"""
     from src.server.activation_code.service import (
         set_code_consumed,
@@ -200,13 +296,54 @@ def complete_order(db: Session, order_id: int, remarks: str | None = None) -> Or
     # 将卡密状态设置为 consumed
     set_code_consumed(db, activation_code.code)
 
-    return dao.update_status(order, OrderStatus.COMPLETED, remarks)
+    # 更新订单状态
+    updated_order = dao.update_status(order, OrderStatus.COMPLETED, remarks)
+    
+    # 获取价格信息
+    pricing = 0.0
+    if updated_order.activation_code_obj and updated_order.activation_code_obj.card:
+        pricing = updated_order.activation_code_obj.card.price
+    
+    # 构造 OrderOut 模型
+    return OrderOut(
+        id=updated_order.id,
+        activation_code=updated_order.activation_code,
+        status=OrderStatus(updated_order.status),
+        created_at=updated_order.created_at,
+        completed_at=updated_order.completed_at,
+        remarks=updated_order.remarks,
+        channel_id=updated_order.channel_id,
+        card_name=updated_order.card_name,
+        pricing=pricing
+    )
 
 
-def get_orders_by_user_id(db: Session, user_id: int) -> List[Order]:
+def get_orders_by_user_id(db: Session, user_id: int) -> List[OrderOut]:
     """获取指定用户的所有订单"""
     dao = OrderDAO(db)
-    return dao.get_orders_by_user_id(user_id)
+    orders = dao.get_orders_by_user_id(user_id)
+    
+    # 构造 OrderOut 模型列表
+    order_outs = []
+    for order in orders:
+        pricing = 0.0
+        if order.activation_code_obj and order.activation_code_obj.card:
+            pricing = order.activation_code_obj.card.price
+        
+        order_out = OrderOut(
+            id=order.id,
+            activation_code=order.activation_code,
+            status=OrderStatus(order.status),
+            created_at=order.created_at,
+            completed_at=order.completed_at,
+            remarks=order.remarks,
+            channel_id=order.channel_id,
+            card_name=order.card_name,
+            pricing=pricing
+        )
+        order_outs.append(order_out)
+    
+    return order_outs
 
 
 def get_order_stats(db: Session) -> dict:
