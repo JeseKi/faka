@@ -9,7 +9,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from sqlalchemy import Integer, String, DateTime, Text
+from sqlalchemy import Integer, String, DateTime, Text, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
 from src.server.database import Base
@@ -29,10 +29,12 @@ class Order(Base):
     )
     completed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     remarks: Mapped[str | None] = mapped_column(Text, nullable=True)
-    user_id: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id"), nullable=False, index=True
+    )
 
-    # 渠道关联 - 存储渠道ID而非外键
-    channel_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    # 渠道关联 - 使用外键约束
+    channel_id: Mapped[int] = mapped_column(ForeignKey("channels.id"), nullable=False)
 
     # 充值卡名称
     card_name: Mapped[str | None] = mapped_column(String(255), nullable=True)

@@ -40,8 +40,10 @@ class ActivationCode(Base):
     )
     used_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
-    # 代理商关联 - 存储代理商用户ID而非外键
-    proxy_user_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    # 代理商关联 - 使用外键约束
+    proxy_user_id: Mapped[int | None] = mapped_column(
+        ForeignKey("users.id"), nullable=True
+    )
     # 导出状态 - 用于标记卡密是否已被代理商导出
     exported: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 

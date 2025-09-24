@@ -9,7 +9,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Integer, String, Float, Boolean
+from sqlalchemy import Integer, String, Float, Boolean, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.server.database import Base
@@ -27,8 +27,8 @@ class Card(Base):
     price: Mapped[float] = mapped_column(Float, nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
-    # 渠道关联 - 存储渠道ID而非外键
-    channel_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    # 渠道关联 - 使用外键约束
+    channel_id: Mapped[int] = mapped_column(ForeignKey("channels.id"), nullable=False)
 
     # 添加与 ActivationCode 模型的反向关联关系
     activation_codes: Mapped[list["ActivationCode"]] = relationship(

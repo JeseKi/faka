@@ -9,7 +9,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from sqlalchemy import Integer, String, Float, DateTime
+from sqlalchemy import Integer, String, Float, DateTime, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
 from src.server.database import Base
@@ -19,7 +19,9 @@ class Sale(Base):
     __tablename__ = "sales"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    user_id: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id"), nullable=False, index=True
+    )
     activation_code: Mapped[str] = mapped_column(String(36), nullable=True)
     user_email: Mapped[str] = mapped_column(String(255), nullable=True)
     sale_price: Mapped[float] = mapped_column(Float, nullable=False)
@@ -32,5 +34,5 @@ class Sale(Base):
         DateTime, default=datetime.now(timezone.utc), nullable=False
     )
 
-    # 渠道关联 - 存储渠道ID而非外键
-    channel_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    # 渠道关联 - 使用外键约束
+    channel_id: Mapped[int] = mapped_column(ForeignKey("channels.id"), nullable=False)

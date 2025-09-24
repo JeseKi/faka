@@ -10,11 +10,11 @@
 """
 
 from __future__ import annotations
-
-from datetime import datetime, timezone
 from typing import Optional
 
-from sqlalchemy import String, Integer, DateTime, Text
+from datetime import datetime, timezone
+
+from sqlalchemy import String, Integer, DateTime, Text, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
 from src.server.database import Base
@@ -39,8 +39,10 @@ class User(Base):
         default=lambda: datetime.now(timezone.utc),
     )
 
-    # 渠道关联（仅对 STAFF 角色有效）- 存储渠道ID而非外键
-    channel_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    # 渠道关联（仅对 STAFF 角色有效）- 使用外键约束
+    channel_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("channels.id"), nullable=True
+    )
 
     def set_password(self, password: str) -> None:
         salt = bcrypt.gensalt()
