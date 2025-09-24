@@ -76,6 +76,7 @@ class AdminUserCreate(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=8)
     role: Role
+    name: Optional[str] = Field(default=None, max_length=100)
     # 渠道信息（仅对 STAFF 角色有效）
     channel_id: Optional[int] = None
 

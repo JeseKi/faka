@@ -142,6 +142,7 @@ def admin_create_user(db: Session, user_data: AdminUserCreate) -> User:
         username=user_data.username,
         email=user_data.email,
         role=user_data.role,
+        name=user_data.name,
         channel_id=user_data.channel_id if user_data.role == Role.STAFF else None,
     )
     tmp_user.set_password(user_data.password)
@@ -150,6 +151,7 @@ def admin_create_user(db: Session, user_data: AdminUserCreate) -> User:
         tmp_user.email,
         tmp_user.password_hash,
         tmp_user.role,
+        tmp_user.name,
         tmp_user.channel_id,
     )
 

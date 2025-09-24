@@ -17,7 +17,7 @@ import PurchaseHistoryPage from './pages/user/PurchaseHistoryPage'
 import LandingPage from './pages/LandingPage'
 import RechargePlusPage from './pages/RechargePlusPage'
 import ChannelManagementPage from './pages/admin/ChannelManagementPage'
-import ProxyManagementPage from './pages/admin/ProxyManagementPage'
+import PersonnelManagementPage from './pages/admin/PersonnelManagementPage'
 import ProxyLayout from './components/layout/ProxyLayout'
 import ActivationCodesPage from './pages/proxy/ActivationCodesPage'
 
@@ -61,7 +61,8 @@ export default function App() {
               <Route path="cards" element={<CardManagementPage />} />
               <Route path="codes" element={<ActivationCodeManagementPage />} />
               <Route path="channels" element={<ChannelManagementPage />} />
-              <Route path="proxies" element={<ProxyManagementPage />} />
+              <Route path="proxies" element={<PersonnelManagementPage />} />
+              <Route path="personnel" element={<PersonnelManagementPage />} />
               <Route path="sales" element={<SalesRecordPage />} />
               <Route path="order-processing" element={<OrderProcessingPage />} />
             </Route>

@@ -38,6 +38,7 @@ class UserDAO(BaseDAO):
         email: str,
         password_hash: str,
         role: Role,
+        name: str | None = None,
         channel_id: int | None = None,
     ) -> User:
         user = User(
@@ -45,6 +46,7 @@ class UserDAO(BaseDAO):
             email=email,
             password_hash=password_hash,
             role=role,
+            name=name,
             channel_id=channel_id,
         )
         self.db_session.add(user)

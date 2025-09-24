@@ -15,6 +15,7 @@ import {
   Row,
   Col,
   Statistic,
+  Select,
 } from 'antd'
 import {
   PlusOutlined,
@@ -23,16 +24,18 @@ import {
   ReloadOutlined,
 } from '@ant-design/icons'
 import { isAxiosError } from 'axios'
-import { getProxies, createProxy, updateProxy, deleteProxy } from '../../lib/proxy'
-import type { UserProfile, AdminUserCreate, AdminUserUpdate } from '../../lib/types'
+import { getUsers, createUser, updateUser, deleteUser } from '../../lib/user'
+import type { UserProfile, AdminUserCreate, AdminUserUpdate, Role } from '../../lib/types'
 
 const { Title } = Typography
+const { Option } = Select
 
-interface ProxyFormData {
+interface PersonnelFormData {
   username: string
   email: string
   password: string
   name: string
+  role: Role
   status: string
 }
 
@@ -47,110 +50,153 @@ function resolveErrorMessage(error: unknown): string {
   return '操作失败，请稍后重试。'
 }
 
-export default function ProxyManagementPage() {
+export default function PersonnelManagementPage() {
   const { message } = App.useApp()
-  const [proxies, setProxies] = useState<UserProfile[]>([])
+  const [users, setUsers] = useState<UserProfile[]>([])
   const [loading, setLoading] = useState(false)
   const [modalVisible, setModalVisible] = useState(false)
-  const [editingProxy, setEditingProxy] = useState<UserProfile | null>(null)
+  const [editingUser, setEditingUser] = useState<UserProfile | null>(null)
+  const [selectedRole, setSelectedRole] = useState<Role | undefined>(undefined)
   const [stats, setStats] = useState({
     total: 0,
-    active: 0,
-    inactive: 0,
+    admin: 0,
+    staff: 0,
+    proxy: 0,
+    user: 0,
   })
 
-  const [form] = Form.useForm<ProxyFormData>()
+  const [form] = Form.useForm<PersonnelFormData>()
 
-  // 获取代理商列表
-  const fetchProxies = useCallback(async () => {
+  // 获取用户列表
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true)
-      const { users } = await getProxies()
-      // 按照 ID 倒序排序，最新的代理商在前面
+      const { users } = await getUsers(selectedRole)
+      // 按照 ID 倒序排序，最新的用户在前面
       const sortedUsers = users.sort((a, b) => b.id - a.id)
-      setProxies(sortedUsers)
+      setUsers(sortedUsers)
 
       // 计算统计信息
       const total = sortedUsers.length
-      const active = sortedUsers.filter(proxy => proxy.status === 'active').length
-      const inactive = total - active
-      setStats({ total, active, inactive })
+      const admin = sortedUsers.filter(user => user.role === 'admin').length
+      const staff = sortedUsers.filter(user => user.role === 'staff').length
+      const proxy = sortedUsers.filter(user => user.role === 'proxy').length
+      const user = sortedUsers.filter(user => user.role === 'user').length
+      setStats({ total, admin, staff, proxy, user })
     } catch (error) {
-      console.error('获取代理商列表失败:', error)
+      console.error('获取用户列表失败:', error)
       message.error(resolveErrorMessage(error))
     } finally {
       setLoading(false)
     }
-  }, [message])
+  }, [message, selectedRole])
 
   useEffect(() => {
-    fetchProxies()
-  }, [fetchProxies])
+    fetchUsers()
+  }, [fetchUsers])
 
   // 处理表单提交
-  const handleSubmit = async (values: ProxyFormData) => {
+  const handleSubmit = async (values: PersonnelFormData) => {
     try {
-      if (editingProxy) {
-        // 更新代理商
+      if (editingUser) {
+        // 更新用户
         const updateData: AdminUserUpdate = {
           email: values.email,
           name: values.name,
+          role: values.role,
           status: values.status,
         }
-        await updateProxy(editingProxy.id, updateData)
-        message.success('代理商更新成功')
+        await updateUser(editingUser.id, updateData)
+        message.success('用户更新成功')
       } else {
-        // 创建新代理商
+        // 创建新用户
         const createData: AdminUserCreate = {
           username: values.username,
+          name: values.name,
           email: values.email,
           password: values.password,
-          role: 'proxy',
+          role: values.role,
         }
-        await createProxy(createData)
-        message.success('代理商创建成功')
+        await createUser(createData)
+        message.success('用户创建成功')
       }
 
       setModalVisible(false)
       form.resetFields()
-      setEditingProxy(null)
-      fetchProxies()
+      setEditingUser(null)
+      fetchUsers()
     } catch (error) {
-      console.error('保存代理商失败:', error)
+      console.error('保存用户失败:', error)
       message.error(resolveErrorMessage(error))
     }
   }
 
-  // 删除代理商
-  const handleDelete = async (proxy: UserProfile) => {
+  // 删除用户
+  const handleDelete = async (user: UserProfile) => {
     try {
-      await deleteProxy(proxy.id)
-      message.success('代理商删除成功')
-      fetchProxies()
+      await deleteUser(user.id)
+      message.success('用户删除成功')
+      fetchUsers()
     } catch (error) {
-      console.error('删除代理商失败:', error)
+      console.error('删除用户失败:', error)
       message.error(resolveErrorMessage(error))
     }
   }
 
   // 打开编辑模态框
-  const handleEdit = (proxy: UserProfile) => {
-    setEditingProxy(proxy)
+  const handleEdit = (user: UserProfile) => {
+    setEditingUser(user)
     form.setFieldsValue({
-      username: proxy.username,
-      email: proxy.email,
-      name: proxy.name || '',
-      status: proxy.status,
+      username: user.username,
+      email: user.email,
+      name: user.name || '',
+      role: user.role as Role,
+      status: user.status,
     })
     setModalVisible(true)
   }
 
   // 打开创建模态框
   const handleCreate = () => {
-    setEditingProxy(null)
+    setEditingUser(null)
     form.resetFields()
-    form.setFieldsValue({ status: 'active' })
+    form.setFieldsValue({ status: 'active', role: 'user' })
     setModalVisible(true)
+  }
+
+  // 角色筛选器变化处理
+  const handleRoleFilterChange = (role: Role | undefined) => {
+    setSelectedRole(role)
+  }
+
+  const getRoleTagColor = (role: string) => {
+    switch (role) {
+      case 'admin':
+        return 'red'
+      case 'staff':
+        return 'blue'
+      case 'proxy':
+        return 'green'
+      case 'user':
+        return 'default'
+      default:
+        return 'default'
+    }
+  }
+
+  const getRoleText = (role: string) => {
+    switch (role) {
+      case 'admin':
+        return '管理员'
+      case 'staff':
+        return '工作人员'
+      case 'proxy':
+        return '代理商'
+      case 'user':
+        return '用户'
+      default:
+        return role
+    }
   }
 
   const columns = [
@@ -180,6 +226,17 @@ export default function ProxyManagementPage() {
       render: (name: string | null) => name || '-',
     },
     {
+      title: '角色',
+      dataIndex: 'role',
+      key: 'role',
+      width: 120,
+      render: (role: string) => (
+        <Tag color={getRoleTagColor(role)}>
+          {getRoleText(role)}
+        </Tag>
+      ),
+    },
+    {
       title: '状态',
       dataIndex: 'status',
       key: 'status',
@@ -205,7 +262,7 @@ export default function ProxyManagementPage() {
             编辑
           </Button>
           <Popconfirm
-            title="确定要删除这个代理商吗？"
+            title="确定要删除这个用户吗？"
             description="删除后无法恢复，请谨慎操作。"
             onConfirm={() => handleDelete(record)}
             okText="确定"
@@ -228,41 +285,63 @@ export default function ProxyManagementPage() {
   return (
     <div>
       <div style={{ marginBottom: 24 }}>
-        <Title level={4}>代理商管理</Title>
+        <Title level={4}>人员管理</Title>
       </div>
 
       {/* 统计信息 */}
       <Row gutter={16} style={{ marginBottom: 24 }}>
-        <Col span={8}>
+        <Col span={4}>
           <AntCard>
-            <Statistic title="总代理商数" value={stats.total} />
+            <Statistic title="总用户数" value={stats.total} />
           </AntCard>
         </Col>
-        <Col span={8}>
+        <Col span={4}>
           <AntCard>
-            <Statistic title="活跃代理商" value={stats.active} />
+            <Statistic title="管理员" value={stats.admin} />
           </AntCard>
         </Col>
-        <Col span={8}>
+        <Col span={4}>
           <AntCard>
-            <Statistic title="停用代理商" value={stats.inactive} />
+            <Statistic title="工作人员" value={stats.staff} />
+          </AntCard>
+        </Col>
+        <Col span={4}>
+          <AntCard>
+            <Statistic title="代理商" value={stats.proxy} />
+          </AntCard>
+        </Col>
+        <Col span={4}>
+          <AntCard>
+            <Statistic title="普通用户" value={stats.user} />
           </AntCard>
         </Col>
       </Row>
 
-      {/* 操作按钮 */}
+      {/* 筛选和操作按钮 */}
       <div style={{ marginBottom: 16 }}>
         <Space>
+          <Select
+            placeholder="按角色筛选"
+            allowClear
+            style={{ width: 150 }}
+            value={selectedRole}
+            onChange={handleRoleFilterChange}
+          >
+            <Option value="admin">管理员</Option>
+            <Option value="staff">工作人员</Option>
+            <Option value="proxy">代理商</Option>
+            <Option value="user">普通用户</Option>
+          </Select>
           <Button
             type="primary"
             icon={<PlusOutlined />}
             onClick={handleCreate}
           >
-            新建代理商
+            新建用户
           </Button>
           <Button
             icon={<ReloadOutlined />}
-            onClick={fetchProxies}
+            onClick={fetchUsers}
             loading={loading}
           >
             刷新
@@ -270,10 +349,10 @@ export default function ProxyManagementPage() {
         </Space>
       </div>
 
-      {/* 代理商表格 */}
+      {/* 用户表格 */}
       <Table
         columns={columns}
-        dataSource={proxies}
+        dataSource={users}
         rowKey="id"
         loading={loading}
         pagination={{
@@ -285,12 +364,12 @@ export default function ProxyManagementPage() {
 
       {/* 新建/编辑模态框 */}
       <Modal
-        title={editingProxy ? '编辑代理商' : '新建代理商'}
+        title={editingUser ? '编辑用户' : '新建用户'}
         open={modalVisible}
         onCancel={() => {
           setModalVisible(false)
           form.resetFields()
-          setEditingProxy(null)
+          setEditingUser(null)
         }}
         footer={null}
         width={600}
@@ -312,7 +391,7 @@ export default function ProxyManagementPage() {
           >
             <Input
               placeholder="请输入用户名"
-              disabled={!!editingProxy}
+              disabled={!!editingUser}
             />
           </Form.Item>
 
@@ -326,11 +405,11 @@ export default function ProxyManagementPage() {
           >
             <Input
               placeholder="请输入邮箱地址"
-              disabled={!!editingProxy}
+              disabled={!!editingUser}
             />
           </Form.Item>
 
-          {!editingProxy && (
+          {!editingUser && (
             <Form.Item
               label="密码"
               name="password"
@@ -354,6 +433,21 @@ export default function ProxyManagementPage() {
           </Form.Item>
 
           <Form.Item
+            label="角色"
+            name="role"
+            rules={[
+              { required: true, message: '请选择用户角色' },
+            ]}
+          >
+            <Select placeholder="请选择用户角色">
+              <Option value="admin">管理员</Option>
+              <Option value="staff">工作人员</Option>
+              <Option value="proxy">代理商</Option>
+              <Option value="user">普通用户</Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item
             label="状态"
             name="status"
             valuePropName="checked"
@@ -367,13 +461,13 @@ export default function ProxyManagementPage() {
                 onClick={() => {
                   setModalVisible(false)
                   form.resetFields()
-                  setEditingProxy(null)
+                  setEditingUser(null)
                 }}
               >
                 取消
               </Button>
               <Button type="primary" htmlType="submit">
-                {editingProxy ? '更新' : '创建'}
+                {editingUser ? '更新' : '创建'}
               </Button>
             </Space>
           </Form.Item>

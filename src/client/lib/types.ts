@@ -9,6 +9,9 @@ export interface AuthTokens {
   refreshToken: string
 }
 
+// 用户角色枚举
+export type Role = 'admin' | 'staff' | 'proxy' | 'user'
+
 export interface UserProfile {
   id: number
   username: string
@@ -167,6 +170,7 @@ export interface AdminUserCreate {
   email: string
   password: string
   role: string
+  name?: string | null
   channel_id?: number | null
 }
 

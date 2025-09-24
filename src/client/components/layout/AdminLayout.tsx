@@ -36,7 +36,7 @@ export default function AdminLayout() {
     if (path.startsWith('/admin/codes')) return ['codes']
     if (path.startsWith('/admin/channels')) return ['channels']
     if (path.startsWith('/admin/sales')) return ['sales']
-    if (path.startsWith('/admin/proxies')) return ['proxies']
+    if (path.startsWith('/admin/personnel')) return ['personnel']
     if (path.startsWith('/admin/order-processing')) return ['orders']
     return ['dashboard']
   }, [location.pathname])
@@ -69,9 +69,9 @@ export default function AdminLayout() {
           label: <Link to="/admin/channels">渠道管理</Link>,
         },
         {
-          key: 'proxies',
+          key: 'personnel',
           icon: <TeamOutlined />,
-          label: <Link to="/admin/proxies">代理商管理</Link>,
+          label: <Link to="/admin/personnel">人员管理</Link>,
         },
         {
           key: 'sales',

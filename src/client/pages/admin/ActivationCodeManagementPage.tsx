@@ -27,7 +27,7 @@ import {
 } from '@ant-design/icons'
 import { isAxiosError } from 'axios'
 import api from '../../lib/api'
-import { getProxies } from '../../lib/proxy'
+import { getUsers } from '../../lib/user'
 import type { ActivationCode, Card, UserProfile } from '../../lib/types'
 
 const { Title } = Typography
@@ -80,7 +80,7 @@ export default function ActivationCodeManagementPage() {
   // 获取代理商列表
   const fetchProxies = useCallback(async () => {
     try {
-      const { users } = await getProxies()
+      const { users } = await getUsers('proxy')
       // 按照 ID 倒序排序，最新的代理商在前面
       const sortedUsers = users.sort((a, b) => b.id - a.id)
       setProxies(sortedUsers)
