@@ -20,7 +20,6 @@ from src.server.card.models import Card
 from src.server.auth.models import User
 from src.server.auth.schemas import Role
 from src.server.activation_code.models import ActivationCode, CardCodeStatus
-from src.server.sale.models import Sale
 
 
 def link_proxy_to_cards(
@@ -365,25 +364,12 @@ def calculate_proxy_revenue(
             query_time_range=time_range_desc,
         )
 
-    # 获取卡密代码列表
-    activation_codes = [code.code for code in consumed_codes]
-
-    # 查询销售记录中的总销售额
-    sales_query = db.query(Sale).filter(Sale.activation_code.in_(activation_codes))
-
-    # 添加时间筛选到销售记录
-    if query_params.start_date:
-        sales_query = sales_query.filter(Sale.purchased_at >= query_params.start_date)
-    if query_params.end_date:
-        sales_query = sales_query.filter(Sale.purchased_at <= query_params.end_date)
-
-    sales = sales_query.all()
-    total_revenue = sum(sale.sale_price for sale in sales)
-
-    logger.info(
-        f"代理商 {target_proxy.username} 在 {time_range_desc} 的销售额: {total_revenue} (已消费卡密: {consumed_count})"
-    )
-
+    # 直接通过已消费的卡密计算总销售额
+    total_revenue = 0.0
+    for consumed_code in consumed_codes:
+        # 通过 ActivationCode 的 card 关联获取价格
+        if consumed_code.card and consumed_code.card.price:
+            total_revenue += consumed_code.card.price
     return RevenueResponse(
         proxy_user_id=target_proxy_id,
         proxy_username=target_proxy.username,
