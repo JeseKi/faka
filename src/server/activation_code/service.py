@@ -37,6 +37,29 @@ def create_activation_codes(
     db: Session, card_id: int, count: int, proxy_user_id: int | None = None
 ) -> list[ActivationCode]:
     """批量创建卡密"""
+    # 如果指定了代理商ID，则在生成卡密前确保建立代理商与充值卡的绑定（幂等）
+    if proxy_user_id is not None:
+        try:
+            # 为避免循环依赖，放在函数内部导入
+            from src.server.proxy.service import link_proxy_to_cards
+
+            # 幂等绑定（若已存在会跳过）
+            link_proxy_to_cards(db, proxy_user_id, [card_id])
+        except ValueError as e:
+            # 业务错误（如用户不是代理商、卡不存在或未激活等），转为 400
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
+            )
+        except Exception as e:
+            # 其他异常记录日志并返回 500
+            from loguru import logger
+
+            logger.error(f"生成卡密前绑定代理商-卡失败: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="绑定代理商与卡失败",
+            )
+
     dao = ActivationCodeDAO(db)
     return dao.create_batch(card_id, count, proxy_user_id)
 

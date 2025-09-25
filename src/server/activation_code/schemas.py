@@ -21,9 +21,7 @@ class CardCodeStatus(str, Enum):
 class ActivationCodeCreate(BaseModel):
     card_id: int = Field(..., gt=0)
     count: int = Field(..., gt=0, le=1000)  # 批量生成的数量
-    proxy_user_id: Optional[int] = Field(
-        default=None, description="代理商用户ID，用于指定卡密归属"
-    )
+    proxy_user_id: int = Field(..., gt=0, description="代理商用户ID，用于指定卡密归属")
 
 
 class CardSummary(BaseModel):
