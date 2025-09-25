@@ -20,6 +20,7 @@ import ChannelManagementPage from './pages/admin/ChannelManagementPage'
 import PersonnelManagementPage from './pages/admin/PersonnelManagementPage'
 import ProxyLayout from './components/layout/ProxyLayout'
 import ActivationCodesPage from './pages/proxy/ActivationCodesPage'
+import SalesRevenuePage from './pages/proxy/SalesRevenuePage'
 
 export default function App() {
   return (
@@ -89,6 +90,7 @@ export default function App() {
               }
             >
               <Route path="activation-codes" element={<ActivationCodesPage />} />
+              <Route path="sales-revenue" element={<SalesRevenuePage />} />
             </Route>
             {/* 首页 */}
             <Route path="/" element={<LandingPage />} />

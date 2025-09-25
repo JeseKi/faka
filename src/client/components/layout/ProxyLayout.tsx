@@ -13,6 +13,7 @@ import {
   LogoutOutlined,
   UserOutlined,
   KeyOutlined,
+  DollarOutlined,
 } from '@ant-design/icons'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
@@ -37,9 +38,15 @@ export default function ProxyLayout() {
         icon: <KeyOutlined />,
         label: <Link to="/proxy/activation-codes">我的卡密</Link>,
       },
+      {
+        key: 'sales-revenue',
+        icon: <DollarOutlined />,
+        label: <Link to="/proxy/sales-revenue">销售额查询</Link>,
+      },
     ],
     [],
   )
+
 
   const handleLogout = () => {
     logout()
