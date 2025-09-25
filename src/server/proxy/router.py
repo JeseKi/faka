@@ -14,7 +14,7 @@ from loguru import logger
 from datetime import datetime
 
 from src.server.database import get_db
-from src.server.utils import get_current_user
+from src.server.utils import get_current_proxy
 from ..auth.models import User
 from .service import calculate_proxy_revenue
 from .schemas import RevenueQueryParams, RevenueResponse
@@ -29,7 +29,7 @@ async def get_proxy_revenue(
     proxy_id: int | None = Query(None, description="代理商ID（管理员专用）"),
     username: str | None = Query(None, description="代理商用户名（管理员专用）"),
     name: str | None = Query(None, description="代理商姓名（管理员专用）"),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_proxy),
     db: Session = Depends(get_db),
 ):
     """查询代理商销售额
@@ -60,10 +60,6 @@ async def get_proxy_revenue(
 
         # 计算销售额
         result = calculate_proxy_revenue(db, current_user, query_params)
-
-        logger.info(
-            f"用户 {current_user.username} 查询了代理商 {result.proxy_username} 的销售额"
-        )
         return result
 
     except ValueError as e:

@@ -83,3 +83,13 @@ async def get_current_staff(
     if user.role != Role.STAFF and user.role != Role.ADMIN:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权限")
     return user
+
+
+async def get_current_proxy(
+    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
+) -> User:
+    """获取当前代理商"""
+    user = await get_current_user(token, db)
+    if user.role != Role.PROXY and user.role != Role.ADMIN:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权限")
+    return user
