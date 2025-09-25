@@ -17,18 +17,17 @@ from src.server.database import get_db
 from src.server.utils import get_current_proxy
 from ..auth.models import User
 from .service import calculate_proxy_revenue
-from .schemas import RevenueQueryParams, RevenueResponse
+from .schemas import RevenueQueryParams, MultiRevenueResponse
 
 router = APIRouter(prefix="/api/proxy", tags=["代理商管理"])
 
 
-@router.get("/revenue", response_model=RevenueResponse, summary="查询代理商销售额")
+@router.get("/revenue", response_model=MultiRevenueResponse, summary="查询代理商销售额")
 async def get_proxy_revenue(
     start_date: datetime | None = Query(None, description="开始时间（可选）"),
     end_date: datetime | None = Query(None, description="结束时间（可选）"),
     proxy_id: int | None = Query(None, description="代理商ID（管理员专用）"),
-    username: str | None = Query(None, description="代理商用户名（管理员专用）"),
-    name: str | None = Query(None, description="代理商姓名（管理员专用）"),
+    query: str | None = Query(None, description="代理商用户名或姓名模糊查询（管理员专用）"),
     current_user: User = Depends(get_current_proxy),
     db: Session = Depends(get_db),
 ):
@@ -54,8 +53,7 @@ async def get_proxy_revenue(
             start_date=start_date,
             end_date=end_date,
             proxy_id=proxy_id,
-            username=username,
-            name=name,
+            query=query,
         )
 
         # 计算销售额

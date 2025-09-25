@@ -10,12 +10,12 @@
 
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import List
 from sqlalchemy.orm import Session
 from loguru import logger
 
 from .models import ProxyCardAssociation
-from .schemas import ProxyCardAssociationOut, RevenueQueryParams, RevenueResponse
+from .schemas import ProxyCardAssociationOut, RevenueQueryParams, RevenueResponse, MultiRevenueResponse
 from src.server.card.models import Card
 from src.server.auth.models import User
 from src.server.auth.schemas import Role
@@ -255,7 +255,7 @@ def get_all_proxy_associations(db: Session) -> List[ProxyCardAssociationOut]:
 
 def calculate_proxy_revenue(
     db: Session, current_user: User, query_params: RevenueQueryParams
-) -> RevenueResponse:
+) -> MultiRevenueResponse:
     """计算代理商销售额
 
     代理商可以查看自己的销售额，管理员可以查询特定代理商的销售额
@@ -266,40 +266,77 @@ def calculate_proxy_revenue(
         query_params: 查询参数
 
     Returns:
-        RevenueResponse: 销售额统计结果
+        MultiRevenueResponse: 多个代理商的销售额统计结果
 
     Raises:
-        ValueError: 当用户权限不足或代理商不存在时
+        ValueError: 当用户权限不足时
     """
     # 验证用户权限
-    target_proxy: Optional[User] = None
+    target_proxies: List[User] = []
     if current_user.role == Role.PROXY:
         # 代理商只能查看自己的销售额
-        target_proxy_id = current_user.id
-        target_proxy = current_user
+        target_proxies = [current_user]
     elif current_user.role == Role.ADMIN:
         # 管理员可以查询特定代理商
         if query_params.proxy_id:
             target_proxy = (
                 db.query(User).filter(User.id == query_params.proxy_id).first()
             )
-        elif query_params.username:
-            target_proxy = (
-                db.query(User).filter(User.username == query_params.username).first()
+            if target_proxy:
+                target_proxies = [target_proxy]
+        elif query_params.query:
+            # 使用模糊查询同时匹配用户名和姓名
+            from sqlalchemy import or_
+            target_proxies = (
+                db.query(User)
+                .filter(
+                    User.role == Role.PROXY,
+                    or_(
+                        User.username.ilike(f"%{query_params.query}%"),
+                        User.name.ilike(f"%{query_params.query}%")
+                    )
+                )
+                .all()
             )
-        elif query_params.name:
-            target_proxy = db.query(User).filter(User.name == query_params.name).first()
         else:
-            raise ValueError("管理员查询必须指定代理商ID、用户名或姓名")
+            raise ValueError("管理员查询必须指定代理商ID或查询关键词")
 
-        if not target_proxy:
-            raise ValueError("指定的代理商不存在")
-        if target_proxy.role != Role.PROXY:
-            raise ValueError("指定的用户不是代理商")
-
-        target_proxy_id = target_proxy.id
+        # 验证所有目标用户都是代理商
+        for proxy in target_proxies:
+            if proxy.role != Role.PROXY:
+                raise ValueError("指定的用户不是代理商")
     else:
         raise ValueError("只有代理商和管理员才能查询销售额")
+
+    if not target_proxies:
+        # 没有找到任何代理商
+        return MultiRevenueResponse(revenues=[], total_count=0)
+
+    # 为每个代理商计算销售额
+    revenues = []
+    for target_proxy in target_proxies:
+        revenue_data = _calculate_single_proxy_revenue(
+            db, target_proxy, query_params
+        )
+        revenues.append(revenue_data)
+
+    return MultiRevenueResponse(revenues=revenues, total_count=len(revenues))
+
+
+def _calculate_single_proxy_revenue(
+    db: Session, target_proxy: User, query_params: RevenueQueryParams
+) -> RevenueResponse:
+    """计算单个代理商的销售额
+
+    Args:
+        db: 数据库会话
+        target_proxy: 目标代理商用户
+        query_params: 查询参数
+
+    Returns:
+        RevenueResponse: 单个代理商的销售额统计结果
+    """
+    target_proxy_id = target_proxy.id
 
     # 获取代理商绑定的所有充值卡ID
     associations = (

@@ -59,10 +59,9 @@ class RevenueQueryParams(BaseModel):
     start_date: Optional[datetime] = Field(default=None, description="开始时间（可选）")
     end_date: Optional[datetime] = Field(default=None, description="结束时间（可选）")
     proxy_id: Optional[int] = Field(default=None, description="代理商ID（管理员专用）")
-    username: Optional[str] = Field(
-        default=None, description="代理商用户名（管理员专用）"
+    query: Optional[str] = Field(
+        default=None, description="代理商用户名或姓名模糊查询（管理员专用）"
     )
-    name: Optional[str] = Field(default=None, description="代理商姓名（管理员专用）")
 
 
 class RevenueResponse(BaseModel):
@@ -76,3 +75,10 @@ class RevenueResponse(BaseModel):
     start_date: Optional[datetime] = Field(default=None, description="查询开始时间")
     end_date: Optional[datetime] = Field(default=None, description="查询结束时间")
     query_time_range: str = Field(..., description="查询的时间范围描述")
+
+
+class MultiRevenueResponse(BaseModel):
+    """多代理商销售额响应模型"""
+
+    revenues: List[RevenueResponse] = Field(..., description="代理商销售额列表")
+    total_count: int = Field(..., description="匹配到的代理商总数")

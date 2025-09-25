@@ -72,16 +72,18 @@ def test_calculate_proxy_revenue_self(test_db_session: Session):
 
     # 测试计算销售额
     query_params = RevenueQueryParams(
-        start_date=None, end_date=None, proxy_id=None, username=None, name=None
+        start_date=None, end_date=None, proxy_id=None, query=None
     )
     result = calculate_proxy_revenue(test_db_session, proxy_user, query_params)
 
-    assert result.proxy_user_id == proxy_user.id
-    assert result.proxy_username == proxy_user.username
-    assert result.proxy_name == proxy_user.name
-    assert result.total_revenue == 50.0
-    assert result.consumed_count == 1
-    assert result.query_time_range == "全部时间"
+    assert len(result.revenues) == 1
+    revenue = result.revenues[0]
+    assert revenue.proxy_user_id == proxy_user.id
+    assert revenue.proxy_username == proxy_user.username
+    assert revenue.proxy_name == proxy_user.name
+    assert revenue.total_revenue == 50.0
+    assert revenue.consumed_count == 1
+    assert revenue.query_time_range == "全部时间"
 
 
 def test_calculate_proxy_revenue_with_time_filter(test_db_session: Session):
@@ -158,13 +160,15 @@ def test_calculate_proxy_revenue_with_time_filter(test_db_session: Session):
     # 测试查询最近2天的销售额
     start_date = now - timedelta(days=2)
     query_params = RevenueQueryParams(
-        start_date=start_date, end_date=None, proxy_id=None, username=None, name=None
+        start_date=start_date, end_date=None, proxy_id=None, query=None
     )
     result = calculate_proxy_revenue(test_db_session, proxy_user, query_params)
 
-    assert result.total_revenue == 30.0  # 只有最近的销售记录
-    assert result.consumed_count == 1
-    assert "从" in result.query_time_range and "开始" in result.query_time_range
+    assert len(result.revenues) == 1
+    revenue = result.revenues[0]
+    assert revenue.total_revenue == 30.0  # 只有最近的销售记录
+    assert revenue.consumed_count == 1
+    assert "从" in revenue.query_time_range and "开始" in revenue.query_time_range
 
 
 def test_calculate_proxy_revenue_admin_query(test_db_session: Session):
@@ -234,16 +238,17 @@ def test_calculate_proxy_revenue_admin_query(test_db_session: Session):
         start_date=None,
         end_date=None,
         proxy_id=None,
-        username=proxy_user.username,
-        name=None,
+        query=proxy_user.username,
     )
     result = calculate_proxy_revenue(test_db_session, admin_user, query_params)
 
-    assert result.proxy_user_id == proxy_user.id
-    assert result.proxy_username == proxy_user.username
-    assert result.proxy_name == proxy_user.name
-    assert result.total_revenue == 100.0
-    assert result.consumed_count == 1
+    assert len(result.revenues) == 1
+    revenue = result.revenues[0]
+    assert revenue.proxy_user_id == proxy_user.id
+    assert revenue.proxy_username == proxy_user.username
+    assert revenue.proxy_name == proxy_user.name
+    assert revenue.total_revenue == 100.0
+    assert revenue.consumed_count == 1
 
 
 def test_calculate_proxy_revenue_no_consumed_codes(test_db_session: Session):
@@ -270,13 +275,15 @@ def test_calculate_proxy_revenue_no_consumed_codes(test_db_session: Session):
 
     # 测试计算销售额
     query_params = RevenueQueryParams(
-        start_date=None, end_date=None, proxy_id=None, username=None, name=None
+        start_date=None, end_date=None, proxy_id=None, query=None
     )
     result = calculate_proxy_revenue(test_db_session, proxy_user, query_params)
 
-    assert result.total_revenue == 0.0
-    assert result.consumed_count == 0
-    assert result.query_time_range == "无绑定卡密"
+    assert len(result.revenues) == 1
+    revenue = result.revenues[0]
+    assert revenue.total_revenue == 0.0
+    assert revenue.consumed_count == 0
+    assert revenue.query_time_range == "无绑定卡密"
 
 
 def test_calculate_proxy_revenue_invalid_permission(test_db_session: Session):
@@ -290,7 +297,7 @@ def test_calculate_proxy_revenue_invalid_permission(test_db_session: Session):
     test_db_session.commit()
 
     query_params = RevenueQueryParams(
-        start_date=None, end_date=None, proxy_id=None, username=None, name=None
+        start_date=None, end_date=None, proxy_id=None, query=None
     )
 
     # 应该抛出异常
@@ -312,13 +319,93 @@ def test_calculate_proxy_revenue_admin_invalid_proxy(test_db_session: Session):
         start_date=None,
         end_date=None,
         proxy_id=None,
-        username="nonexistent_proxy",
-        name=None,
+        query="nonexistent_proxy",
     )
 
-    # 应该抛出异常
-    with pytest.raises(ValueError, match="指定的代理商不存在"):
-        calculate_proxy_revenue(test_db_session, admin_user, query_params)
+    # 现在应该返回空结果而不是抛出异常
+    result = calculate_proxy_revenue(test_db_session, admin_user, query_params)
+    assert len(result.revenues) == 0
+    assert result.total_count == 0
+
+
+def test_calculate_proxy_revenue_admin_multiple_proxies(test_db_session: Session):
+    """测试管理员查询多个匹配的代理商"""
+    # 准备测试数据
+    admin_user = User(
+        username="admin_multiple", email="admin_multiple@example.com", role=Role.ADMIN
+    )
+    admin_user.set_password("password123")
+    test_db_session.add(admin_user)
+    test_db_session.commit()
+
+    # 创建多个相似的代理商
+    proxy_user1 = User(
+        username="proxy_test_001",
+        email="proxy_test_001@example.com",
+        role=Role.PROXY,
+        name="测试代理商001",
+    )
+    proxy_user1.set_password("password123")
+
+    proxy_user2 = User(
+        username="proxy_test_002",
+        email="proxy_test_002@example.com",
+        role=Role.PROXY,
+        name="测试代理商002",
+    )
+    proxy_user2.set_password("password123")
+
+    test_db_session.add_all([proxy_user1, proxy_user2])
+    test_db_session.commit()
+    test_db_session.refresh(proxy_user1)
+    test_db_session.refresh(proxy_user2)
+
+    # 为每个代理商创建充值卡和消费记录
+    for i, proxy_user in enumerate([proxy_user1, proxy_user2], 1):
+        card = Card(
+            name=f"Multiple Test Card {i}",
+            description="Test Description",
+            price=50.0 * i,
+            channel_id=1,
+            is_active=True,
+        )
+        test_db_session.add(card)
+        test_db_session.commit()
+        test_db_session.refresh(card)
+
+        # 绑定代理商与充值卡
+        from src.server.proxy.service import link_proxy_to_cards
+        link_proxy_to_cards(test_db_session, proxy_user.id, [card.id])
+
+        # 创建已消费的卡密
+        consumed_code = ActivationCode(
+            card_id=card.id,
+            code=f"MULTI{i}123456",
+            status=CardCodeStatus.CONSUMED,
+            proxy_user_id=proxy_user.id,
+            used_at=datetime.now(timezone.utc),
+        )
+        test_db_session.add(consumed_code)
+        test_db_session.commit()
+
+    # 管理员通过模糊查询匹配多个代理商
+    query_params = RevenueQueryParams(
+        start_date=None,
+        end_date=None,
+        proxy_id=None,
+        query="proxy_test",
+    )
+    result = calculate_proxy_revenue(test_db_session, admin_user, query_params)
+
+    assert len(result.revenues) == 2
+    assert result.total_count == 2
+
+    # 验证结果按用户名排序
+    revenues = sorted(result.revenues, key=lambda x: x.proxy_username)
+    assert revenues[0].proxy_username == "proxy_test_001"
+    assert revenues[0].total_revenue == 50.0
+    assert revenues[1].proxy_username == "proxy_test_002"
+    assert revenues[1].total_revenue == 100.0
 
 
 def test_calculate_proxy_revenue_admin_non_proxy_user(test_db_session: Session):
@@ -344,10 +431,10 @@ def test_calculate_proxy_revenue_admin_non_proxy_user(test_db_session: Session):
         start_date=None,
         end_date=None,
         proxy_id=None,
-        username=normal_user.username,
-        name=None,
+        query=normal_user.username,
     )
 
-    # 应该抛出异常
-    with pytest.raises(ValueError, match="指定的用户不是代理商"):
-        calculate_proxy_revenue(test_db_session, admin_user, query_params)
+    # 现在应该返回空结果而不是抛出异常
+    result = calculate_proxy_revenue(test_db_session, admin_user, query_params)
+    assert len(result.revenues) == 0
+    assert result.total_count == 0

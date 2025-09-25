@@ -11,7 +11,6 @@ import {
   Typography,
   App,
   Form,
-  Select,
 } from 'antd'
 import {
   DollarOutlined,
@@ -48,18 +47,22 @@ interface RevenueData {
   query_time_range: string
 }
 
+interface MultiRevenueResponse {
+  revenues: RevenueData[]
+  total_count: number
+}
+
 interface SearchParams {
   start_date?: string
   end_date?: string
-  username?: string
-  name?: string
+  query?: string
 }
 
 export default function SalesRevenuePage() {
   const { message } = App.useApp()
   const { user } = useAuth()
   const [loading, setLoading] = useState(false)
-  const [revenueData, setRevenueData] = useState<RevenueData | null>(null)
+  const [revenueData, setRevenueData] = useState<MultiRevenueResponse | null>(null)
   const [searchForm] = Form.useForm()
 
   // 判断是否为管理员
@@ -81,12 +84,8 @@ export default function SalesRevenuePage() {
 
       // 如果是管理员，添加搜索条件
       if (isAdmin) {
-        if (values.searchType && values.searchValue) {
-          if (values.searchType === 'username') {
-            params.username = values.searchValue
-          } else if (values.searchType === 'name') {
-            params.name = values.searchValue
-          }
+        if (values.searchValue) {
+          params.query = values.searchValue
         }
       }
 
@@ -117,9 +116,6 @@ export default function SalesRevenuePage() {
         <Form
           form={searchForm}
           layout="inline"
-          initialValues={{
-            searchType: 'username',
-          }}
         >
           <Form.Item label="查询时间范围" name="dateRange">
             <RangePicker
@@ -130,20 +126,12 @@ export default function SalesRevenuePage() {
           </Form.Item>
 
           {isAdmin && (
-            <>
-              <Form.Item label="搜索类型" name="searchType">
-                <Select style={{ width: 120 }}>
-                  <Select.Option value="username">用户名</Select.Option>
-                  <Select.Option value="name">姓名</Select.Option>
-                </Select>
-              </Form.Item>
-              <Form.Item label="搜索内容" name="searchValue">
-                <Input
-                  placeholder="请输入用户名或姓名"
-                  style={{ width: 200 }}
-                />
-              </Form.Item>
-            </>
+            <Form.Item label="代理商查询" name="searchValue">
+              <Input
+                placeholder="请输入代理商用户名或姓名"
+                style={{ width: 200 }}
+              />
+            </Form.Item>
           )}
 
           <Form.Item>
@@ -168,66 +156,62 @@ export default function SalesRevenuePage() {
       </AntCard>
 
       {/* 统计信息 */}
-      {revenueData && (
-        <Row gutter={16} style={{ marginBottom: 24 }}>
-          <Col span={8}>
-            <AntCard>
-              <Statistic
-                title="代理商用户名"
-                value={revenueData.proxy_username}
-                prefix={<UserOutlined />}
-              />
-            </AntCard>
-          </Col>
-          <Col span={8}>
-            <AntCard>
-              <Statistic
-                title="总销售额"
-                value={revenueData.total_revenue}
-                precision={2}
-                prefix={<DollarOutlined />}
-                suffix="元"
-              />
-            </AntCard>
-          </Col>
-          <Col span={8}>
-            <AntCard>
-              <Statistic
-                title="已消费卡密数"
-                value={revenueData.consumed_count}
-                prefix={<SearchOutlined />}
-              />
-            </AntCard>
-          </Col>
-        </Row>
-      )}
-
-      {/* 查询结果详情 */}
-      {revenueData && (
-        <AntCard title="查询详情">
-          <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-            <div>
-              <strong>代理商姓名：</strong>
-              {revenueData.proxy_name || '未设置'}
-            </div>
-            <div>
-              <strong>查询时间范围：</strong>
-              {revenueData.query_time_range}
-            </div>
-            <div>
-              <strong>代理商ID：</strong>
-              {revenueData.proxy_user_id}
-            </div>
-          </Space>
-        </AntCard>
+      {revenueData && revenueData.revenues.length > 0 && (
+        <div style={{ marginBottom: 24 }}>
+          <div style={{ marginBottom: 16 }}>
+            <strong>共找到 {revenueData.total_count} 个匹配的代理商</strong>
+          </div>
+          <Row gutter={16}>
+            {revenueData.revenues.map((revenue) => (
+              <Col span={24} key={revenue.proxy_user_id} style={{ marginBottom: 16 }}>
+                <AntCard
+                  title={`代理商: ${revenue.proxy_username} ${revenue.proxy_name ? `(${revenue.proxy_name})` : ''}`}
+                  type="inner"
+                >
+                  <Row gutter={16}>
+                    <Col span={6}>
+                      <Statistic
+                        title="代理商ID"
+                        value={revenue.proxy_user_id}
+                        prefix={<UserOutlined />}
+                      />
+                    </Col>
+                    <Col span={6}>
+                      <Statistic
+                        title="总销售额"
+                        value={revenue.total_revenue}
+                        precision={2}
+                        prefix={<DollarOutlined />}
+                        suffix="元"
+                      />
+                    </Col>
+                    <Col span={6}>
+                      <Statistic
+                        title="已消费卡密数"
+                        value={revenue.consumed_count}
+                        prefix={<SearchOutlined />}
+                      />
+                    </Col>
+                    <Col span={6}>
+                      <Statistic
+                        title="查询时间范围"
+                        value={revenue.query_time_range}
+                      />
+                    </Col>
+                  </Row>
+                </AntCard>
+              </Col>
+            ))}
+          </Row>
+        </div>
       )}
 
       {/* 空状态提示 */}
-      {!revenueData && !loading && (
+      {(!revenueData || revenueData.revenues.length === 0) && !loading && (
         <AntCard>
           <div style={{ textAlign: 'center', padding: '40px 0' }}>
             <DollarOutlined style={{ fontSize: 48, color: '#d9d9d9', marginBottom: 16 }} />
-            <p style={{ color: '#666' }}>请设置查询条件并点击查询按钮</p>
+            <p style={{ color: '#666' }}>未找到匹配的代理商，请检查查询条件</p>
           </div>
         </AntCard>
       )}
