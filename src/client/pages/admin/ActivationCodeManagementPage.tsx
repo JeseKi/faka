@@ -59,7 +59,7 @@ export default function ActivationCodeManagementPage() {
   const [modalVisible, setModalVisible] = useState(false)
   const [searchCard, setSearchCard] = useState<string>('')
   const [searchProxy, setSearchProxy] = useState<string>('')
-  const [includeUsed, setIncludeUsed] = useState(false)
+  const [status, setStatus] = useState<string>('available')
   const [stats, setStats] = useState({
     total: 0,
     used: 0,
@@ -71,7 +71,7 @@ export default function ActivationCodeManagementPage() {
   // 获取充值卡列表
   const fetchCards = useCallback(async () => {
     try {
-      const { data } = await api.get<Card[]>('/cards?include_inactive=false')
+      const { data } = await api.get<Card[]>('/cards')
       setCards(data)
     } catch (error) {
       console.error('获取充值卡列表失败:', error)
@@ -101,9 +101,11 @@ export default function ActivationCodeManagementPage() {
       setLoading(true)
       // 构建查询参数
       const params = new URLSearchParams()
-      params.append('include_used', includeUsed.toString())
       if (searchProxy) {
         params.append('proxy_user_id', searchProxy)
+      }
+      if (status !== 'all') {
+        params.append('status', status)
       }
 
       const { data } = await api.get<ActivationCode[]>(`/activation-codes/${targetCardId}?${params.toString()}`)
@@ -122,7 +124,7 @@ export default function ActivationCodeManagementPage() {
     } finally {
       setLoading(false)
     }
-  }, [searchCard, searchProxy, includeUsed, message])
+  }, [searchCard, searchProxy, status, message])
 
   useEffect(() => {
     fetchCards()
@@ -133,7 +135,7 @@ export default function ActivationCodeManagementPage() {
     if (searchCard) {
       fetchCodes()
     }
-  }, [includeUsed, searchCard, searchProxy, fetchCodes])
+  }, [status, searchCard, searchProxy, fetchCodes])
 
   // 处理表单提交
   const handleSubmit = async (values: CodeFormData) => {
@@ -331,12 +333,17 @@ export default function ActivationCodeManagementPage() {
           >
             刷新
           </Button>
-          <Button
-            onClick={() => setIncludeUsed(!includeUsed)}
-            type={includeUsed ? 'primary' : 'default'}
+          <Select
+            placeholder="选择状态"
+            style={{ width: 150 }}
+            value={status}
+            onChange={setStatus}
           >
-            {includeUsed ? '显示全部' : '仅未使用'}
-          </Button>
+            <Option value="all">显示全部</Option>
+            <Option value="available">未使用</Option>
+            <Option value="consuming">消费中</Option>
+            <Option value="consumed">已消费</Option>
+          </Select>
           {searchCard && (
             <Popconfirm
               title={`确定要删除 ${cards.find(c => c.id.toString() === searchCard)?.name || searchCard} 的所有卡密吗？`}

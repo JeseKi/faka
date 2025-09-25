@@ -210,3 +210,7 @@ export interface AvailableActivationCodesResponse {
 export interface ActivationCodeExport {
   code_ids: number[]
 }
+
+export interface ActivationCodeStatus {
+  status: 'available' | 'consuming' | 'consumed'
+}

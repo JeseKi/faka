@@ -82,7 +82,9 @@ async def get_available_activation_codes(
     """
 
     def _get_available():
-        return service.get_available_activation_codes(db=db, user=current_user, proxy_user_id=proxy_user_id)
+        return service.get_available_activation_codes(
+            db=db, user=current_user, proxy_user_id=proxy_user_id
+        )
 
     codes, total_count = await run_in_thread(_get_available)
 
@@ -111,21 +113,24 @@ async def check_code_availability(
 )
 async def list_activation_codes(
     card_id: int,
-    include_used: bool = False,
-    proxy_user_id: int | None = Query(None, description="代理商ID（可选，用于筛选特定代理商的卡密）"),
-    status: CardCodeStatus | None = Query(None, description="卡密状态（可选，用于筛选特定状态的卡密）"),
+    proxy_user_id: int | None = Query(
+        None, description="代理商ID（可选，用于筛选特定代理商的卡密）"
+    ),
+    status: CardCodeStatus | None = Query(
+        None, description="卡密状态（可选，用于筛选特定状态的卡密）"
+    ),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_admin),
 ):
     """获取指定充值卡的所有卡密（管理员权限）
 
-    - include_used: 是否包含已使用的卡密
     - proxy_user_id: 代理商ID，可选，用于筛选特定代理商的卡密
+    - status: 卡密状态，可选，用于筛选特定状态的卡密
     """
 
     def _list():
         return service.list_activation_codes_by_card(
-            db=db, card_id=card_id, include_used=include_used, proxy_user_id=proxy_user_id
+            db=db, card_id=card_id, proxy_user_id=proxy_user_id, status=status
         )
 
     return await run_in_thread(_list)

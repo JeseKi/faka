@@ -151,13 +151,13 @@ def test_list_activation_codes_by_card(test_db_session: Session, setup_test_data
 
     # 只获取未使用的 (available 状态)
     unused_codes = list_activation_codes_by_card(
-        test_db_session, card_id, include_used=False
+        test_db_session, card_id, status=CardCodeStatus.AVAILABLE
     )
     assert len(unused_codes) == 2
 
     # 获取所有
     all_codes = list_activation_codes_by_card(
-        test_db_session, card_id, include_used=True
+        test_db_session, card_id, status=CardCodeStatus.AVAILABLE
     )
     assert len(all_codes) == 2
 
