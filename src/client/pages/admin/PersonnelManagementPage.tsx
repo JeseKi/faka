@@ -25,7 +25,8 @@ import {
 } from '@ant-design/icons'
 import { isAxiosError } from 'axios'
 import { getUsers, createUser, updateUser, deleteUser } from '../../lib/user'
-import type { UserProfile, AdminUserCreate, AdminUserUpdate, Role } from '../../lib/types'
+import { getChannels } from '../../lib/channel'
+import type { UserProfile, AdminUserCreate, AdminUserUpdate, Role, Channel } from '../../lib/types'
 
 const { Title } = Typography
 const { Option } = Select
@@ -37,6 +38,7 @@ interface PersonnelFormData {
   name: string
   role: Role
   status: string
+  channel_id: number | null
 }
 
 function resolveErrorMessage(error: unknown): string {
@@ -53,6 +55,7 @@ function resolveErrorMessage(error: unknown): string {
 export default function PersonnelManagementPage() {
   const { message } = App.useApp()
   const [users, setUsers] = useState<UserProfile[]>([])
+  const [channels, setChannels] = useState<Channel[]>([])
   const [loading, setLoading] = useState(false)
   const [modalVisible, setModalVisible] = useState(false)
   const [editingUser, setEditingUser] = useState<UserProfile | null>(null)
@@ -66,6 +69,7 @@ export default function PersonnelManagementPage() {
   })
 
   const [form] = Form.useForm<PersonnelFormData>()
+  const role = Form.useWatch('role', form)
 
   // 获取用户列表
   const fetchUsers = useCallback(async () => {
@@ -91,9 +95,21 @@ export default function PersonnelManagementPage() {
     }
   }, [message, selectedRole])
 
+  // 获取渠道列表
+  const fetchChannels = useCallback(async () => {
+    try {
+      const channelsData = await getChannels()
+      setChannels(channelsData)
+    } catch (error) {
+      console.error('获取渠道列表失败:', error)
+      message.error('获取渠道列表失败，请稍后重试')
+    }
+  }, [message])
+
   useEffect(() => {
     fetchUsers()
-  }, [fetchUsers])
+    fetchChannels()
+  }, [fetchUsers, fetchChannels])
 
   // 处理表单提交
   const handleSubmit = async (values: PersonnelFormData) => {
@@ -105,6 +121,7 @@ export default function PersonnelManagementPage() {
           name: values.name,
           role: values.role,
           status: values.status,
+          channel_id: values.role === 'staff' ? values.channel_id : null,
         }
         await updateUser(editingUser.id, updateData)
         message.success('用户更新成功')
@@ -116,6 +133,7 @@ export default function PersonnelManagementPage() {
           email: values.email,
           password: values.password,
           role: values.role,
+          channel_id: values.role === 'staff' ? values.channel_id : null,
         }
         await createUser(createData)
         message.success('用户创建成功')
@@ -152,6 +170,7 @@ export default function PersonnelManagementPage() {
       name: user.name || '',
       role: user.role as Role,
       status: user.status,
+      channel_id: user.channel_id || null,
     })
     setModalVisible(true)
   }
@@ -160,7 +179,7 @@ export default function PersonnelManagementPage() {
   const handleCreate = () => {
     setEditingUser(null)
     form.resetFields()
-    form.setFieldsValue({ status: 'active', role: 'user' })
+    form.setFieldsValue({ status: 'active', role: 'user', channel_id: null })
     setModalVisible(true)
   }
 
@@ -246,6 +265,17 @@ export default function PersonnelManagementPage() {
           {status === 'active' ? '活跃' : '停用'}
         </Tag>
       ),
+    },
+    {
+      title: '渠道',
+      dataIndex: 'channel_id',
+      key: 'channel_id',
+      width: 120,
+      render: (channelId: number | null) => {
+        if (!channelId) return '-'
+        const channel = channels.find(c => c.id === channelId)
+        return channel ? channel.name : `ID: ${channelId}`
+      },
     },
     {
       title: '操作',
@@ -444,6 +474,26 @@ export default function PersonnelManagementPage() {
               <Option value="staff">工作人员</Option>
               <Option value="proxy">代理商</Option>
               <Option value="user">普通用户</Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            label="渠道"
+            name="channel_id"
+            rules={[
+              { required: false, message: '请选择关联渠道' },
+            ]}
+          >
+            <Select
+              placeholder="请选择关联渠道"
+              allowClear
+              disabled={role !== 'staff'}
+            >
+              {channels.map((channel) => (
+                <Option key={channel.id} value={channel.id}>
+                  {channel.name}
+                </Option>
+              ))}
             </Select>
           </Form.Item>
 

@@ -19,6 +19,7 @@ export interface UserProfile {
   name: string | null
   role: string
   status: string
+  channel_id?: number | null
 }
 
 export interface LoginPayload {
