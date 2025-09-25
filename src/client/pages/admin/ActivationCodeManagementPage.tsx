@@ -57,9 +57,15 @@ export default function ActivationCodeManagementPage() {
   const [proxies, setProxies] = useState<UserProfile[]>([])
   const [loading, setLoading] = useState(false)
   const [modalVisible, setModalVisible] = useState(false)
+  const [filterModalVisible, setFilterModalVisible] = useState(false)
   const [searchCard, setSearchCard] = useState<string>('')
   const [searchProxy, setSearchProxy] = useState<string>('')
   const [status, setStatus] = useState<string>('available')
+
+  // 临时筛选状态，用于模态框
+  const [tempSearchCard, setTempSearchCard] = useState<string>('')
+  const [tempSearchProxy, setTempSearchProxy] = useState<string>('')
+  const [tempStatus, setTempStatus] = useState<string>('available')
   const [stats, setStats] = useState({
     total: 0,
     used: 0,
@@ -134,6 +140,10 @@ export default function ActivationCodeManagementPage() {
   useEffect(() => {
     if (searchCard) {
       fetchCodes()
+    } else {
+      // 清空数据和统计信息
+      setCodes([])
+      setStats({ total: 0, used: 0, unused: 0 })
     }
   }, [status, searchCard, searchProxy, fetchCodes])
 
@@ -170,14 +180,35 @@ export default function ActivationCodeManagementPage() {
     setModalVisible(true)
   }
 
-  // 搜索卡密
-  const handleSearch = () => {
-    if (searchCard) {
-      fetchCodes()
-    } else {
-      message.warning('请选择要查看的充值卡')
-    }
+  // 打开筛选模态框
+  const handleOpenFilter = () => {
+    // 初始化临时筛选状态为当前筛选状态
+    setTempSearchCard(searchCard)
+    setTempSearchProxy(searchProxy)
+    setTempStatus(status)
+    setFilterModalVisible(true)
   }
+
+  // 应用筛选条件
+  const handleApplyFilter = () => {
+    setSearchCard(tempSearchCard)
+    setSearchProxy(tempSearchProxy)
+    setStatus(tempStatus)
+    setFilterModalVisible(false)
+  }
+
+  // 取消筛选
+  const handleCancelFilter = () => {
+    setFilterModalVisible(false)
+  }
+
+  // 重置筛选条件
+  const handleResetFilter = () => {
+    setTempSearchCard('')
+    setTempSearchProxy('')
+    setTempStatus('available')
+  }
+
 
   const columns = [
     {
@@ -284,81 +315,99 @@ export default function ActivationCodeManagementPage() {
         </Col>
       </Row>
 
-      {/* 操作按钮 */}
-      <div style={{ marginBottom: 16 }}>
-        <Space>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={handleGenerate}
-          >
-            批量生成卡密
-          </Button>
-          <Select
-            placeholder="选择充值卡"
-            style={{ width: 200 }}
-            value={searchCard}
-            onChange={setSearchCard}
-          >
-            {cards.map((card) => (
-              <Option key={card.id} value={card.id.toString()}>
-                {card.name} - ¥{card.price}
-              </Option>
-            ))}
-          </Select>
-          <Select
-            placeholder="选择代理商（可选）"
-            style={{ width: 200 }}
-            value={searchProxy}
-            onChange={setSearchProxy}
-            allowClear
-          >
-            {proxies.map((proxy) => (
-              <Option key={proxy.id} value={proxy.id.toString()}>
-                {proxy.username} ({proxy.name || '未设置姓名'})
-              </Option>
-            ))}
-          </Select>
-          <Button
-            icon={<SearchOutlined />}
-            onClick={handleSearch}
-            type="primary"
-          >
-            查看卡密
-          </Button>
-          <Button
-            icon={<ReloadOutlined />}
-            onClick={() => fetchCodes()}
-            loading={loading}
-          >
-            刷新
-          </Button>
-          <Select
-            placeholder="选择状态"
-            style={{ width: 150 }}
-            value={status}
-            onChange={setStatus}
-          >
-            <Option value="all">显示全部</Option>
-            <Option value="available">未使用</Option>
-            <Option value="consuming">消费中</Option>
-            <Option value="consumed">已消费</Option>
-          </Select>
-          {searchCard && (
-            <Popconfirm
-              title={`确定要删除 ${cards.find(c => c.id.toString() === searchCard)?.name || searchCard} 的所有卡密吗？`}
-              description="此操作不可恢复，请谨慎操作。"
-              onConfirm={() => handleDeleteAll(searchCard)}
-              okText="确定"
-              cancelText="取消"
-            >
-              <Button danger icon={<DeleteOutlined />}>
-                删除所有卡密
+      {/* 筛选和操作区域 */}
+      <AntCard style={{ marginBottom: 24 }}>
+        <Row gutter={[16, 16]} align="middle">
+          {/* 左侧筛选标签区域 */}
+          <Col flex="auto">
+            <Row gutter={[16, 8]} align="middle">
+              <Col>
+                <span style={{ fontWeight: 500, color: '#262626', marginRight: 8 }}>当前筛选：</span>
+              </Col>
+              {searchCard && (
+                <Col>
+                  <Tag
+                    closable
+                    onClose={() => setSearchCard('')}
+                    color="blue"
+                  >
+                    充值卡：{cards.find(c => c.id.toString() === searchCard)?.name || searchCard}
+                  </Tag>
+                </Col>
+              )}
+              {searchProxy && (
+                <Col>
+                  <Tag
+                    closable
+                    onClose={() => setSearchProxy('')}
+                    color="green"
+                  >
+                    代理商：{proxies.find(p => p.id.toString() === searchProxy)?.username || searchProxy}
+                  </Tag>
+                </Col>
+              )}
+              {status !== 'available' && (
+                <Col>
+                  <Tag
+                    closable
+                    onClose={() => setStatus('available')}
+                    color="orange"
+                  >
+                    状态：{status === 'all' ? '全部' : status === 'consuming' ? '消费中' : '已消费'}
+                  </Tag>
+                </Col>
+              )}
+              {(!searchCard && !searchProxy && status === 'available') && (
+                <Col>
+                  <span style={{ color: '#999' }}>暂无筛选条件</span>
+                </Col>
+              )}
+            </Row>
+          </Col>
+
+          {/* 右侧操作区域 */}
+          <Col>
+            <Space>
+              <Button
+                icon={<SearchOutlined />}
+                onClick={handleOpenFilter}
+                disabled={loading}
+              >
+                高级筛选
               </Button>
-            </Popconfirm>
-          )}
-        </Space>
-      </div>
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={handleGenerate}
+                disabled={loading}
+              >
+                批量生成卡密
+              </Button>
+              <Button
+                icon={<ReloadOutlined />}
+                onClick={() => fetchCodes()}
+                loading={loading}
+                disabled={!searchCard}
+              >
+                刷新
+              </Button>
+              {searchCard && (
+                <Popconfirm
+                  title={`确定要删除 ${cards.find(c => c.id.toString() === searchCard)?.name || searchCard} 的所有卡密吗？`}
+                  description="此操作不可恢复，请谨慎操作。"
+                  onConfirm={() => handleDeleteAll(searchCard)}
+                  okText="确定"
+                  cancelText="取消"
+                >
+                  <Button danger icon={<DeleteOutlined />} disabled={loading}>
+                    删除所有卡密
+                  </Button>
+                </Popconfirm>
+              )}
+            </Space>
+          </Col>
+        </Row>
+      </AntCard>
 
       {/* 卡密表格 */}
       <Table
@@ -451,6 +500,80 @@ export default function ActivationCodeManagementPage() {
                 生成
               </Button>
             </Space>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* 高级筛选模态框 */}
+      <Modal
+        title="高级筛选"
+        open={filterModalVisible}
+        onCancel={handleCancelFilter}
+        footer={[
+          <Button key="reset" onClick={handleResetFilter}>
+            重置
+          </Button>,
+          <Button key="cancel" onClick={handleCancelFilter}>
+            取消
+          </Button>,
+          <Button key="apply" type="primary" onClick={handleApplyFilter}>
+            应用筛选
+          </Button>,
+        ]}
+        width={600}
+      >
+        <Form layout="vertical">
+          <Form.Item label="选择充值卡">
+            <Select
+              placeholder="请选择充值卡"
+              style={{ width: '100%' }}
+              value={tempSearchCard}
+              onChange={setTempSearchCard}
+              showSearch
+              filterOption={(input, option) =>
+                (option?.children as unknown as string)?.toLowerCase().includes(input.toLowerCase())
+              }
+            >
+              {cards.map((card) => (
+                <Option key={card.id} value={card.id.toString()}>
+                  {card.name} - ¥{card.price}
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item label="选择代理商（可选）">
+            <Select
+              placeholder="选择代理商（可选）"
+              style={{ width: '100%' }}
+              value={tempSearchProxy}
+              onChange={setTempSearchProxy}
+              allowClear
+              showSearch
+              filterOption={(input, option) =>
+                (option?.children as unknown as string)?.toLowerCase().includes(input.toLowerCase())
+              }
+            >
+              {proxies.map((proxy) => (
+                <Option key={proxy.id} value={proxy.id.toString()}>
+                  {proxy.username} ({proxy.name || '未设置姓名'})
+                </Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item label="筛选状态">
+            <Select
+              placeholder="筛选状态"
+              style={{ width: '100%' }}
+              value={tempStatus}
+              onChange={setTempStatus}
+            >
+              <Option value="all">显示全部</Option>
+              <Option value="available">未使用</Option>
+              <Option value="consuming">消费中</Option>
+              <Option value="consumed">已消费</Option>
+            </Select>
           </Form.Item>
         </Form>
       </Modal>
