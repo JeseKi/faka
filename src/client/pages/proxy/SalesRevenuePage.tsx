@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import {
   Card as AntCard,
   Row,
@@ -68,11 +68,28 @@ export default function SalesRevenuePage() {
   // 判断是否为管理员
   const isAdmin = user?.role === 'admin'
 
-  // 查询销售额
-  const handleSearch = useCallback(async () => {
+  // 数据获取函数 - 专门负责API调用
+  const fetchData = useCallback(async (params: SearchParams = {}) => {
     try {
       setLoading(true)
+      const { data } = await api.get('/proxy/revenue', { params })
+      setRevenueData(data)
+    } catch (error) {
+      console.error('查询销售额失败:', error)
+      message.error(resolveErrorMessage(error))
+    } finally {
+      setLoading(false)
+    }
+  }, [message])
 
+  // 页面加载时自动查询全部时间的销售额
+  useEffect(() => {
+    fetchData()
+  }, [fetchData]) // 空依赖数组，确保只在组件首次加载时执行
+
+  // 查询销售额 - 专门处理表单验证和参数构建
+  const handleSearch = useCallback(async () => {
+    try {
       const values = await searchForm.validateFields()
       const params: SearchParams = {}
 
@@ -89,21 +106,19 @@ export default function SalesRevenuePage() {
         }
       }
 
-      const { data } = await api.get('/proxy/revenue', { params })
-      setRevenueData(data)
-    } catch (error) {
-      console.error('查询销售额失败:', error)
-      message.error(resolveErrorMessage(error))
-    } finally {
-      setLoading(false)
+      fetchData(params)
+    } catch (formError) {
+      // 表单验证失败时的处理
+      console.log('表单验证失败:', formError)
     }
-  }, [searchForm, isAdmin, message])
+  }, [searchForm, isAdmin, fetchData])
 
   // 重置查询
   const handleReset = useCallback(() => {
     searchForm.resetFields()
-    setRevenueData(null)
-  }, [searchForm])
+    // 重置后重新加载全部时间的销售额
+    fetchData()
+  }, [searchForm, fetchData])
 
   return (
     <div>
