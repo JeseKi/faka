@@ -47,9 +47,12 @@ class OrderDAO(BaseDAO):
     def get(self, order_id: int) -> Order | None:
         """获取订单"""
         from src.server.activation_code.models import ActivationCode
+
         return (
             self.db_session.query(Order)
-            .options(joinedload(Order.activation_code_obj).joinedload(ActivationCode.card))
+            .options(
+                joinedload(Order.activation_code_obj).joinedload(ActivationCode.card)
+            )
             .filter(Order.id == order_id)
             .first()
         )
@@ -57,9 +60,12 @@ class OrderDAO(BaseDAO):
     def get_by_activation_code(self, activation_code: str) -> Order | None:
         """通过卡密获取订单"""
         from src.server.activation_code.models import ActivationCode
+
         return (
             self.db_session.query(Order)
-            .options(joinedload(Order.activation_code_obj).joinedload(ActivationCode.card))
+            .options(
+                joinedload(Order.activation_code_obj).joinedload(ActivationCode.card)
+            )
             .filter(Order.activation_code == activation_code)
             .first()
         )
@@ -67,9 +73,12 @@ class OrderDAO(BaseDAO):
     def get_orders_by_user_id(self, user_id: int) -> list[Order]:
         """获取指定用户的所有订单"""
         from src.server.activation_code.models import ActivationCode
+
         return (
             self.db_session.query(Order)
-            .options(joinedload(Order.activation_code_obj).joinedload(ActivationCode.card))
+            .options(
+                joinedload(Order.activation_code_obj).joinedload(ActivationCode.card)
+            )
             .filter(Order.user_id == user_id)
             .order_by(Order.created_at.desc())
             .all()
@@ -78,9 +87,12 @@ class OrderDAO(BaseDAO):
     def list_pending(self) -> list[Order]:
         """获取所有待处理订单"""
         from src.server.activation_code.models import ActivationCode
+
         return (
             self.db_session.query(Order)
-            .options(joinedload(Order.activation_code_obj).joinedload(ActivationCode.card))
+            .options(
+                joinedload(Order.activation_code_obj).joinedload(ActivationCode.card)
+            )
             .filter(Order.status == OrderStatus.PENDING)
             .order_by(Order.created_at.asc())
             .all()
@@ -89,9 +101,12 @@ class OrderDAO(BaseDAO):
     def list_processing(self) -> list[Order]:
         """获取所有处理中订单"""
         from src.server.activation_code.models import ActivationCode
+
         return (
             self.db_session.query(Order)
-            .options(joinedload(Order.activation_code_obj).joinedload(ActivationCode.card))
+            .options(
+                joinedload(Order.activation_code_obj).joinedload(ActivationCode.card)
+            )
             .filter(Order.status == OrderStatus.PROCESSING)
             .order_by(Order.created_at.asc())
             .all()
@@ -100,9 +115,12 @@ class OrderDAO(BaseDAO):
     def list_processing_by_channel(self, channel_id: int) -> list[Order]:
         """获取指定渠道的处理中订单"""
         from src.server.activation_code.models import ActivationCode
+
         return (
             self.db_session.query(Order)
-            .options(joinedload(Order.activation_code_obj).joinedload(ActivationCode.card))
+            .options(
+                joinedload(Order.activation_code_obj).joinedload(ActivationCode.card)
+            )
             .filter(
                 Order.status == OrderStatus.PROCESSING, Order.channel_id == channel_id
             )
@@ -118,7 +136,10 @@ class OrderDAO(BaseDAO):
     ) -> list[Order]:
         """获取所有订单"""
         from src.server.activation_code.models import ActivationCode
-        query = self.db_session.query(Order).options(joinedload(Order.activation_code_obj).joinedload(ActivationCode.card))
+
+        query = self.db_session.query(Order).options(
+            joinedload(Order.activation_code_obj).joinedload(ActivationCode.card)
+        )
 
         if status_filter:
             query = query.filter(Order.status == status_filter)
@@ -152,7 +173,9 @@ class OrderDAO(BaseDAO):
 
         return (
             self.db_session.query(Order)
-            .options(joinedload(Order.activation_code_obj).joinedload(ActivationCode.card))
+            .options(
+                joinedload(Order.activation_code_obj).joinedload(ActivationCode.card)
+            )
             .filter(Order.created_at >= cutoff_date)
             .order_by(Order.created_at.desc())
             .all()

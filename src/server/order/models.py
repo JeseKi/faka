@@ -14,8 +14,10 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.server.database import Base
 from src.server.order.schemas import OrderStatus
+
 # 为了避免循环导入，通常在类型检查时才导入
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from src.server.activation_code.models import ActivationCode
 
@@ -42,12 +44,12 @@ class Order(Base):
 
     # 充值卡名称
     card_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    
+
     # 与 ActivationCode 的关联关系
     activation_code_obj: Mapped["ActivationCode"] = relationship(
         "ActivationCode",
         primaryjoin="Order.activation_code == ActivationCode.code",
         foreign_keys=[activation_code],
         uselist=False,
-        lazy="select"  # 默认是 select，可以显式指定
+        lazy="select",  # 默认是 select，可以显式指定
     )

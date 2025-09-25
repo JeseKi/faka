@@ -9,7 +9,7 @@
 """
 
 from pydantic import BaseModel, Field, ConfigDict
-from typing import List
+from typing import List, Optional
 from datetime import datetime
 
 
@@ -51,3 +51,28 @@ class ProxyCardListResponse(BaseModel):
     proxy_user_id: int
     cards: List[dict] = Field(..., description="绑定的充值卡信息列表")
     total_count: int = Field(..., description="绑定卡数量")
+
+
+class RevenueQueryParams(BaseModel):
+    """销售额查询参数模型"""
+
+    start_date: Optional[datetime] = Field(default=None, description="开始时间（可选）")
+    end_date: Optional[datetime] = Field(default=None, description="结束时间（可选）")
+    proxy_id: Optional[int] = Field(default=None, description="代理商ID（管理员专用）")
+    username: Optional[str] = Field(
+        default=None, description="代理商用户名（管理员专用）"
+    )
+    name: Optional[str] = Field(default=None, description="代理商姓名（管理员专用）")
+
+
+class RevenueResponse(BaseModel):
+    """销售额响应模型"""
+
+    proxy_user_id: int
+    proxy_username: str
+    proxy_name: Optional[str]
+    total_revenue: float = Field(..., description="总销售额")
+    consumed_count: int = Field(..., description="已消费卡密数量")
+    start_date: Optional[datetime] = Field(default=None, description="查询开始时间")
+    end_date: Optional[datetime] = Field(default=None, description="查询结束时间")
+    query_time_range: str = Field(..., description="查询的时间范围描述")

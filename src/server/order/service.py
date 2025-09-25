@@ -117,7 +117,7 @@ def verify_activation_code(
 
     # 获取价格信息
     pricing = card.price if card else 0.0
-    
+
     # 构造 OrderOut 模型
     return OrderOut(
         id=order.id,
@@ -128,7 +128,7 @@ def verify_activation_code(
         remarks=order.remarks,
         channel_id=order.channel_id,
         card_name=order.card_name,
-        pricing=pricing
+        pricing=pricing,
     )
 
 
@@ -151,12 +151,12 @@ def get_order(db: Session, order_id: int) -> OrderOut:
     order = dao.get(order_id)
     if not order:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="订单不存在")
-    
+
     # 获取价格信息
     pricing = 0.0
     if order.activation_code_obj and order.activation_code_obj.card:
         pricing = order.activation_code_obj.card.price
-    
+
     # 构造 OrderOut 模型
     return OrderOut(
         id=order.id,
@@ -167,7 +167,7 @@ def get_order(db: Session, order_id: int) -> OrderOut:
         remarks=order.remarks,
         channel_id=order.channel_id,
         card_name=order.card_name,
-        pricing=pricing
+        pricing=pricing,
     )
 
 
@@ -175,14 +175,14 @@ def list_pending_orders(db: Session) -> list[OrderOut]:
     """获取所有待处理订单"""
     dao = OrderDAO(db)
     orders = dao.list_pending()
-    
+
     # 构造 OrderOut 模型列表
     order_outs = []
     for order in orders:
         pricing = 0.0
         if order.activation_code_obj and order.activation_code_obj.card:
             pricing = order.activation_code_obj.card.price
-        
+
         order_out = OrderOut(
             id=order.id,
             activation_code=order.activation_code,
@@ -192,10 +192,10 @@ def list_pending_orders(db: Session) -> list[OrderOut]:
             remarks=order.remarks,
             channel_id=order.channel_id,
             card_name=order.card_name,
-            pricing=pricing
+            pricing=pricing,
         )
         order_outs.append(order_out)
-    
+
     return order_outs
 
 
@@ -219,7 +219,7 @@ def list_processing_orders(db: Session, user: User | None = None) -> list[OrderO
         pricing = 0.0
         if order.activation_code_obj and order.activation_code_obj.card:
             pricing = order.activation_code_obj.card.price
-        
+
         order_out = OrderOut(
             id=order.id,
             activation_code=order.activation_code,
@@ -229,10 +229,10 @@ def list_processing_orders(db: Session, user: User | None = None) -> list[OrderO
             remarks=order.remarks,
             channel_id=order.channel_id,
             card_name=order.card_name,
-            pricing=pricing
+            pricing=pricing,
         )
         order_outs.append(order_out)
-    
+
     return order_outs
 
 
@@ -245,14 +245,14 @@ def list_orders(
     """获取订单列表"""
     dao = OrderDAO(db)
     orders = dao.list_all(status_filter, limit, offset)
-    
+
     # 构造 OrderOut 模型列表
     order_outs = []
     for order in orders:
         pricing = 0.0
         if order.activation_code_obj and order.activation_code_obj.card:
             pricing = order.activation_code_obj.card.price
-        
+
         order_out = OrderOut(
             id=order.id,
             activation_code=order.activation_code,
@@ -262,10 +262,10 @@ def list_orders(
             remarks=order.remarks,
             channel_id=order.channel_id,
             card_name=order.card_name,
-            pricing=pricing
+            pricing=pricing,
         )
         order_outs.append(order_out)
-    
+
     return order_outs
 
 
@@ -298,12 +298,12 @@ def complete_order(db: Session, order_id: int, remarks: str | None = None) -> Or
 
     # 更新订单状态
     updated_order = dao.update_status(order, OrderStatus.COMPLETED, remarks)
-    
+
     # 获取价格信息
     pricing = 0.0
     if updated_order.activation_code_obj and updated_order.activation_code_obj.card:
         pricing = updated_order.activation_code_obj.card.price
-    
+
     # 构造 OrderOut 模型
     return OrderOut(
         id=updated_order.id,
@@ -314,7 +314,7 @@ def complete_order(db: Session, order_id: int, remarks: str | None = None) -> Or
         remarks=updated_order.remarks,
         channel_id=updated_order.channel_id,
         card_name=updated_order.card_name,
-        pricing=pricing
+        pricing=pricing,
     )
 
 
@@ -322,14 +322,14 @@ def get_orders_by_user_id(db: Session, user_id: int) -> List[OrderOut]:
     """获取指定用户的所有订单"""
     dao = OrderDAO(db)
     orders = dao.get_orders_by_user_id(user_id)
-    
+
     # 构造 OrderOut 模型列表
     order_outs = []
     for order in orders:
         pricing = 0.0
         if order.activation_code_obj and order.activation_code_obj.card:
             pricing = order.activation_code_obj.card.price
-        
+
         order_out = OrderOut(
             id=order.id,
             activation_code=order.activation_code,
@@ -339,10 +339,10 @@ def get_orders_by_user_id(db: Session, user_id: int) -> List[OrderOut]:
             remarks=order.remarks,
             channel_id=order.channel_id,
             card_name=order.card_name,
-            pricing=pricing
+            pricing=pricing,
         )
         order_outs.append(order_out)
-    
+
     return order_outs
 
 

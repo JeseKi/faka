@@ -188,15 +188,19 @@ def test_list_orders_with_pricing(test_client, test_db_session):
     """测试获取订单列表时，每个订单都包含正确的 pricing 字段"""
     # 确保管理员用户存在
     from src.server.auth.service import bootstrap_default_admin
+
     bootstrap_default_admin(test_db_session)
-    
+
     # 管理员登录（使用test token）
     import os
+
     os.environ.setdefault("APP_ENV", "test")
     from src.server.auth.config import auth_config
 
     # 先创建一个渠道
-    channel = Channel(name="测试渠道_list_with_pricing", description="用于测试订单列表 pricing 的渠道")
+    channel = Channel(
+        name="测试渠道_list_with_pricing", description="用于测试订单列表 pricing 的渠道"
+    )
     test_db_session.add(channel)
     test_db_session.commit()
     test_db_session.refresh(channel)
@@ -217,7 +221,7 @@ def test_list_orders_with_pricing(test_client, test_db_session):
 
     # 创建卡密和订单
     codes = create_activation_codes(test_db_session, card.id, 2)
-    
+
     for i, code in enumerate(codes):
         # 创建订单
         order_data = {
@@ -228,7 +232,7 @@ def test_list_orders_with_pricing(test_client, test_db_session):
 
         resp = test_client.post("/api/orders/create", json=order_data)
         assert resp.status_code == 201
-    
+
     # 获取订单列表
     orders_resp = test_client.get(
         "/api/orders",
@@ -239,11 +243,15 @@ def test_list_orders_with_pricing(test_client, test_db_session):
     assert isinstance(orders_data, list)
     # 至少应该有我们刚刚创建的2个订单
     assert len(orders_data) >= 2
-    
+
     # 验证每个订单都包含 pricing 字段且值正确
-    matched_orders = [order for order in orders_data if order["activation_code"] in [code.code for code in codes]]
+    matched_orders = [
+        order
+        for order in orders_data
+        if order["activation_code"] in [code.code for code in codes]
+    ]
     assert len(matched_orders) == 2
-    
+
     for order in matched_orders:
         assert "pricing" in order
         assert order["pricing"] == 49.99
@@ -252,7 +260,9 @@ def test_list_orders_with_pricing(test_client, test_db_session):
 def test_create_order_with_pricing(test_client, test_db_session):
     """测试创建订单时返回的 JSON 数据包含正确的 pricing 字段"""
     # 先创建一个渠道
-    channel = Channel(name="测试渠道_with_pricing", description="用于测试 pricing 的渠道")
+    channel = Channel(
+        name="测试渠道_with_pricing", description="用于测试 pricing 的渠道"
+    )
     test_db_session.add(channel)
     test_db_session.commit()
     test_db_session.refresh(channel)
