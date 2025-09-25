@@ -134,7 +134,11 @@ async def list_activation_codes(
 
     def _list():
         return service.list_activation_codes_by_card(
-            db=db, card_id=card_id, proxy_user_id=proxy_user_id, status=status, exported=exported
+            db=db,
+            card_id=card_id,
+            proxy_user_id=proxy_user_id,
+            status=status,
+            exported=exported,
         )
 
     return await run_in_thread(_list)

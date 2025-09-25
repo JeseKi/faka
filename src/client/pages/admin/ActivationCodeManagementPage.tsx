@@ -236,42 +236,43 @@ export default function ActivationCodeManagementPage() {
       return
     }
 
-    try {
-      // DEBUG：导出前记录关键数据，便于定位问题
-      console.log('导出调试：已选 keys =', selectedRowKeys, '当前列表长度 =', codes.length, '实际导出数量 =', exportTargets.length)
+    // DEBUG：导出前记录关键数据，便于定位问题
+    console.log('导出调试：已选 keys =', selectedRowKeys, '当前列表长度 =', codes.length, '实际导出数量 =', exportTargets.length)
 
-      // 调用导出API
-      await api.post('/activation-codes/export', { code_ids: exportTargets.map(code => code.id) })
+    // 先生成并下载 CSV，不阻塞于后端标记逻辑
+    const header = ['ID', '卡密', '使用状态', '导出状态'].join(',')
+    const rows = exportTargets.map(code => [
+      code.id,
+      code.code,
+      code.status === 'available' ? '未使用' : code.status === 'consuming' ? '消费中' : '已消费',
+      code.exported ? '已导出' : '未导出'
+    ].join(','))
+    // 为了更好兼容 Excel，加入 UTF-8 BOM
+    const csvContent = '\ufeff' + [header, ...rows].join('\n')
 
-      // 生成CSV内容
-      const csvContent = [
-        ['ID', '卡密', '使用状态', '导出状态'].join(','),
-        ...exportTargets.map(code => [
-          code.id,
-          code.code,
-          code.status === 'available' ? '未使用' : code.status === 'consuming' ? '消费中' : '已消费',
-          code.exported ? '已导出' : '未导出'
-        ].join(','))
-      ].join('\n')
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    link.setAttribute('download', `activation_codes_${new Date().toISOString().split('T')[0]}.csv`)
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
 
-      // 创建并下载CSV文件
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
-      const link = document.createElement('a')
-      const url = URL.createObjectURL(blob)
-      link.setAttribute('href', url)
-      link.setAttribute('download', `activation_codes_${new Date().toISOString().split('T')[0]}.csv`)
-      link.style.visibility = 'hidden'
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
+    message.success(`成功导出 ${exportTargets.length} 个卡密`)
 
-      message.success(`成功导出 ${exportTargets.length} 个卡密`)
-      setSelectedRowKeys([]) // 清空选择
-      fetchCodes() // 刷新列表
-    } catch (error) {
-      console.error('导出卡密失败:', error)
-      message.error(resolveErrorMessage(error))
-    }
+    // 后台标记为已导出（不阻塞下载）
+    api
+      .post('/activation-codes/export', { code_ids: exportTargets.map(code => code.id) })
+      .then(() => {
+        setSelectedRowKeys([])
+        fetchCodes()
+      })
+      .catch((error) => {
+        console.error('导出标记失败:', error)
+        message.warning(`导出文件已下载，但标记失败：${resolveErrorMessage(error)}`)
+      })
   }
 
 

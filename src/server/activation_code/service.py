@@ -23,7 +23,6 @@
 
 from __future__ import annotations
 
-from loguru import logger
 from sqlalchemy.orm import Session, joinedload
 from fastapi import HTTPException, status
 from .dao import ActivationCodeDAO
