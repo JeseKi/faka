@@ -58,6 +58,7 @@ export default function ActivationCodeManagementPage() {
   const [loading, setLoading] = useState(false)
   const [modalVisible, setModalVisible] = useState(false)
   const [searchCard, setSearchCard] = useState<string>('')
+  const [searchProxy, setSearchProxy] = useState<string>('')
   const [includeUsed, setIncludeUsed] = useState(false)
   const [stats, setStats] = useState({
     total: 0,
@@ -98,7 +99,14 @@ export default function ActivationCodeManagementPage() {
 
     try {
       setLoading(true)
-      const { data } = await api.get<ActivationCode[]>(`/activation-codes/${targetCardId}?include_used=${includeUsed}`)
+      // 构建查询参数
+      const params = new URLSearchParams()
+      params.append('include_used', includeUsed.toString())
+      if (searchProxy) {
+        params.append('proxy_user_id', searchProxy)
+      }
+
+      const { data } = await api.get<ActivationCode[]>(`/activation-codes/${targetCardId}?${params.toString()}`)
       setCodes(data)
 
       // 计算统计信息
@@ -114,7 +122,7 @@ export default function ActivationCodeManagementPage() {
     } finally {
       setLoading(false)
     }
-  }, [searchCard, includeUsed, message])
+  }, [searchCard, searchProxy, includeUsed, message])
 
   useEffect(() => {
     fetchCards()
@@ -125,7 +133,7 @@ export default function ActivationCodeManagementPage() {
     if (searchCard) {
       fetchCodes()
     }
-  }, [includeUsed, searchCard, fetchCodes])
+  }, [includeUsed, searchCard, searchProxy, fetchCodes])
 
   // 处理表单提交
   const handleSubmit = async (values: CodeFormData) => {
@@ -293,6 +301,19 @@ export default function ActivationCodeManagementPage() {
             {cards.map((card) => (
               <Option key={card.id} value={card.id.toString()}>
                 {card.name} - ¥{card.price}
+              </Option>
+            ))}
+          </Select>
+          <Select
+            placeholder="选择代理商（可选）"
+            style={{ width: 200 }}
+            value={searchProxy}
+            onChange={setSearchProxy}
+            allowClear
+          >
+            {proxies.map((proxy) => (
+              <Option key={proxy.id} value={proxy.id.toString()}>
+                {proxy.username} ({proxy.name || '未设置姓名'})
               </Option>
             ))}
           </Select>

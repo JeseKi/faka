@@ -101,17 +101,36 @@ def set_code_consumed(db: Session, code: str) -> ActivationCode:
 
 
 def list_activation_codes_by_card(
-    db: Session, card_id: int, include_used: bool = False
+    db: Session, card_id: int, include_used: bool = False, proxy_user_id: int | None = None, status: CardCodeStatus | None = None
 ) -> list[ActivationCode]:
-    """获取指定充值卡的所有卡密"""
+    """获取指定充值卡的所有卡密
+
+    Args:
+        db: 数据库会话
+        card_id: 充值卡ID
+        include_used: 是否包含已使用的卡密
+        proxy_user_id: 代理商ID，可选，用于筛选特定代理商的卡密
+        status: 卡密状态，可选，用于筛选特定状态的卡密
+    Returns:
+        list[ActivationCode]: 卡密列表
+    """
     # 使用 joinedload 预加载关联的 Card 对象，避免 N+1 查询
     query = (
         db.query(ActivationCode)
         .options(joinedload(ActivationCode.card))
         .filter(ActivationCode.card_id == card_id)
     )
+
+    # 如果指定了代理商ID，则添加筛选条件
+    if proxy_user_id:
+        query = query.filter(ActivationCode.proxy_user_id == proxy_user_id)
+
+    if status:
+        query = query.filter(ActivationCode.status == status)
+
     if not include_used:
         query = query.filter(ActivationCode.status == CardCodeStatus.AVAILABLE)
+
     return query.order_by(ActivationCode.created_at.desc()).all()
 
 
