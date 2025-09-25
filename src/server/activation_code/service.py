@@ -179,7 +179,7 @@ def is_code_available_for_user(db: Session, code: str, user: User) -> bool:
 
 
 def get_available_activation_codes(
-    db: Session, user: User
+    db: Session, user: User, proxy_user_id: int | None = None
 ) -> tuple[list[ActivationCode], int]:
     """根据用户角色获取可用卡密列表
 
@@ -208,7 +208,8 @@ def get_available_activation_codes(
 
     # 根据用户角色和参数筛选
     if user.role == Role.ADMIN:
-        pass
+        if proxy_user_id:
+            query = query.filter(ActivationCode.proxy_user_id == proxy_user_id)
     else:
         # 代理商只能查看自己名下的卡密
         query = query.filter(ActivationCode.proxy_user_id == user.id)

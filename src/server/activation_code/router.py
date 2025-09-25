@@ -16,7 +16,7 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Query
 from sqlalchemy.orm import Session
 
 from src.server.database import get_db
@@ -69,6 +69,7 @@ async def generate_activation_codes(
     },
 )
 async def get_available_activation_codes(
+    proxy_user_id: int | None = Query(None, description="代理商ID（管理员专用）"),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -80,7 +81,7 @@ async def get_available_activation_codes(
     """
 
     def _get_available():
-        return service.get_available_activation_codes(db=db, user=current_user)
+        return service.get_available_activation_codes(db=db, user=current_user, proxy_user_id=proxy_user_id)
 
     codes, total_count = await run_in_thread(_get_available)
 
