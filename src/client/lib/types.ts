@@ -131,6 +131,7 @@ export interface Order {
   remarks: string | null
   channel_id: number | null
   card_name: string | null
+  pricing: number
 }
 
 export interface OrderVerify {

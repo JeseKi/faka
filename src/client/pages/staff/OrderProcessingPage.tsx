@@ -136,26 +136,26 @@ export default function OrderProcessingPage() {
       title: '订单ID',
       dataIndex: 'id',
       key: 'id',
-      width: 100,
+      width: 80,
     },
     ...(isAdmin ? [{
       title: '渠道 ID',
       dataIndex: 'channel_id',
       key: 'channel_id',
-      width: 100,
+      width: 80,
       render: (channelId: number | null) => channelId || '-',
     }] : []),
     {
       title: '卡密',
       dataIndex: 'activation_code',
       key: 'activation_code',
-      width: 200,
+      width: 160,
       render: (activation_code: string) => {
         const maskedCode = activation_code
-          ? activation_code.replace(/./g, '*').slice(0, 8) + '...'
+          ? activation_code.replace(/./g, '*').slice(0, 6) + '...'
           : '-'
         return (
-          <Space size="middle">
+          <Space size="small">
             <span>{maskedCode}</span>
             <Tooltip title={activation_code || '-'} placement="topLeft">
               <Button
@@ -182,14 +182,22 @@ export default function OrderProcessingPage() {
       title: '充值卡名称',
       dataIndex: 'card_name',
       key: 'card_name',
-      width: 150,
+      width: 120,
+      ellipsis: true,
       render: (card_name: string | null) => card_name || '-',
+    },
+    {
+      title: '价格',
+      dataIndex: 'pricing',
+      key: 'pricing',
+      width: 80,
+      render: (pricing: number) => `¥${pricing.toFixed(2)}`,
     },
     {
       title: '状态',
       dataIndex: 'status',
       key: 'status',
-      width: 100,
+      width: 80,
       render: (status: string) => {
         const statusMap = {
           pending: { color: 'default', text: '未消费' },
@@ -204,26 +212,29 @@ export default function OrderProcessingPage() {
       title: '创建时间',
       dataIndex: 'created_at',
       key: 'created_at',
-      width: 180,
+      width: 140,
+      ellipsis: true,
       render: (date: string) => new Date(date).toLocaleString('zh-CN'),
     },
     {
       title: '完成时间',
       dataIndex: 'completed_at',
       key: 'completed_at',
-      width: 180,
+      width: 140,
+      ellipsis: true,
       render: (date: string | null) => date ? new Date(date).toLocaleString('zh-CN') : '-',
     },
     {
       title: '备注',
       dataIndex: 'remarks',
       key: 'remarks',
+      width: 120,
       ellipsis: true,
       render: (remarks: string | null) => {
         if (!remarks) return '-'
-        const displayText = remarks.length > 20 ? `${remarks.slice(0, 20)}...` : remarks
+        const displayText = remarks.length > 15 ? `${remarks.slice(0, 15)}...` : remarks
         return (
-          <Space size="middle">
+          <Space size="small">
             <Tooltip title={remarks} placement="topLeft">
               <span>{displayText}</span>
             </Tooltip>
@@ -243,7 +254,7 @@ export default function OrderProcessingPage() {
     {
       title: '操作',
       key: 'action',
-      width: 200,
+      width: 150,
       render: (_: unknown, record: Order) => (
         <Space size="small">
           <Button
@@ -336,6 +347,7 @@ export default function OrderProcessingPage() {
         dataSource={orders}
         rowKey="id"
         loading={loading}
+        scroll={{ x: 1200 }}
         pagination={{
           showSizeChanger: true,
           showQuickJumper: true,
@@ -433,6 +445,12 @@ export default function OrderProcessingPage() {
               <Text strong>充值卡名称：</Text>
               <br />
               <Text>{selectedOrder.card_name || '未设置'}</Text>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <Text strong>价格：</Text>
+              <br />
+              <Text>¥{selectedOrder.pricing.toFixed(2)}</Text>
             </div>
 
             <Row gutter={16}>
