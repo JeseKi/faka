@@ -66,7 +66,6 @@ def send_verification_code(email: str) -> str:
             raise RuntimeError("验证码邮件发送失败")
         logger.warning("开发/测试环境忽略邮件发送失败，验证码仍可使用")
 
-    logger.info(f"验证码已发送到 {email}")
     return code
 
 

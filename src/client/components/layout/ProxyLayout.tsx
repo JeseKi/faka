@@ -12,7 +12,6 @@ import {
 import {
   LogoutOutlined,
   UserOutlined,
-  KeyOutlined,
   DollarOutlined,
 } from '@ant-design/icons'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
@@ -27,17 +26,12 @@ export default function ProxyLayout() {
   const { user, logout } = useAuth()
 
   const selectedKeys = useMemo(() => {
-    const path = location.pathname.split('/')[2] || 'activation-codes'
+    const path = location.pathname.split('/')[2] || 'sales-revenue'
     return [path]
   }, [location.pathname])
 
   const navItems = useMemo<MenuProps['items']>(
     () => [
-      {
-        key: 'activation-codes',
-        icon: <KeyOutlined />,
-        label: <Link to="/proxy/activation-codes">我的卡密</Link>,
-      },
       {
         key: 'sales-revenue',
         icon: <DollarOutlined />,

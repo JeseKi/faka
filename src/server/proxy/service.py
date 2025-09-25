@@ -79,7 +79,6 @@ def link_proxy_to_cards(
     for association in associations:
         db.refresh(association)
 
-    logger.info(f"代理商 {proxy_user_id} 已绑定 {len(associations)} 个充值卡")
     return [
         ProxyCardAssociationOut.model_validate(association)
         for association in associations
@@ -121,7 +120,6 @@ def unlink_proxy_from_cards(
 
     db.commit()
 
-    logger.info(f"代理商 {proxy_user_id} 已解绑 {deleted_count} 个充值卡")
     return deleted_count
 
 

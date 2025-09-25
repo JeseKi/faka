@@ -119,6 +119,9 @@ async def list_activation_codes(
     status: CardCodeStatus | None = Query(
         None, description="卡密状态（可选，用于筛选特定状态的卡密）"
     ),
+    exported: bool | None = Query(
+        None, description="导出状态（可选，用于筛选特定导出状态的卡密）"
+    ),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_admin),
 ):
@@ -126,11 +129,12 @@ async def list_activation_codes(
 
     - proxy_user_id: 代理商ID，可选，用于筛选特定代理商的卡密
     - status: 卡密状态，可选，用于筛选特定状态的卡密
+    - exported: 导出状态，可选，用于筛选特定导出状态的卡密
     """
 
     def _list():
         return service.list_activation_codes_by_card(
-            db=db, card_id=card_id, proxy_user_id=proxy_user_id, status=status
+            db=db, card_id=card_id, proxy_user_id=proxy_user_id, status=status, exported=exported
         )
 
     return await run_in_thread(_list)

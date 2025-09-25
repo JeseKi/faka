@@ -98,14 +98,25 @@ class ActivationCodeDAO(BaseDAO):
         return activation_code
 
     def list_by_card_id(
-        self, card_id: int, include_used: bool = False
+        self, card_id: int, include_used: bool = False, exported: bool | None = None
     ) -> list[ActivationCode]:
-        """获取指定充值卡的所有卡密"""
+        """获取指定充值卡的所有卡密
+
+        Args:
+            card_id: 充值卡ID
+            include_used: 是否包含已使用的卡密
+            exported: 导出状态筛选，可选值为 True（已导出）、False（未导出）或 None（全部）
+        """
         query = self.db_session.query(ActivationCode).filter(
             ActivationCode.card_id == card_id
         )
         if not include_used:
             query = query.filter(ActivationCode.status == CardCodeStatus.AVAILABLE)
+
+        # 添加导出状态筛选
+        if exported is not None:
+            query = query.filter(ActivationCode.exported == exported)
+
         return query.order_by(ActivationCode.created_at.desc()).all()
 
     def count_by_card_id(self, card_id: int, only_unused: bool = True) -> int:

@@ -105,6 +105,7 @@ def list_activation_codes_by_card(
     card_id: int,
     proxy_user_id: int | None = None,
     status: CardCodeStatus | None = None,
+    exported: bool | None = None,
 ) -> list[ActivationCode]:
     """获取指定充值卡的所有卡密
 
@@ -113,6 +114,7 @@ def list_activation_codes_by_card(
         card_id: 充值卡ID
         proxy_user_id: 代理商ID，可选，用于筛选特定代理商的卡密
         status: 卡密状态，可选，用于筛选特定状态的卡密
+        exported: 导出状态筛选，可选值为 True（已导出）、False（未导出）或 None（全部）
     Returns:
         list[ActivationCode]: 卡密列表
     """
@@ -129,6 +131,10 @@ def list_activation_codes_by_card(
 
     if status:
         query = query.filter(ActivationCode.status == status)
+
+    # 添加导出状态筛选
+    if exported is not None:
+        query = query.filter(ActivationCode.exported == exported)
 
     return query.order_by(ActivationCode.created_at.desc()).all()
 
@@ -150,11 +156,8 @@ def delete_activation_codes_by_card(db: Session, card_id: int) -> int:
 def is_code_available(db: Session, code: str) -> ActivationCodeCheckResult:
     """检查卡密是否可用"""
     dao = ActivationCodeDAO(db)
-    logger.info(f"code: {code}")
     activation_code = dao.get_by_code(code)
-    logger.info(f"activation_code: {activation_code}")
     if not activation_code:
-        logger.info("activation_code not found")
         return ActivationCodeCheckResult(available=False, channel_id=None)
 
     # 检查卡密状态是否为可用

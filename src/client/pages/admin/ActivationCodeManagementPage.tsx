@@ -24,6 +24,7 @@ import {
   SearchOutlined,
   EyeOutlined,
   CopyOutlined,
+  DownloadOutlined,
 } from '@ant-design/icons'
 import { isAxiosError } from 'axios'
 import api from '../../lib/api'
@@ -61,16 +62,19 @@ export default function ActivationCodeManagementPage() {
   const [searchCard, setSearchCard] = useState<string>('')
   const [searchProxy, setSearchProxy] = useState<string>('')
   const [status, setStatus] = useState<string>('available')
+  const [exported, setExported] = useState<boolean | null>(null)
 
   // 临时筛选状态，用于模态框
   const [tempSearchCard, setTempSearchCard] = useState<string>('')
   const [tempSearchProxy, setTempSearchProxy] = useState<string>('')
   const [tempStatus, setTempStatus] = useState<string>('available')
+  const [tempExported, setTempExported] = useState<boolean | null>(null)
   const [stats, setStats] = useState({
     total: 0,
     used: 0,
     unused: 0,
   })
+  const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([])
 
   const [form] = Form.useForm<CodeFormData>()
 
@@ -113,6 +117,9 @@ export default function ActivationCodeManagementPage() {
       if (status !== 'all') {
         params.append('status', status)
       }
+      if (exported !== null) {
+        params.append('exported', exported.toString())
+      }
 
       const { data } = await api.get<ActivationCode[]>(`/activation-codes/${targetCardId}?${params.toString()}`)
       setCodes(data)
@@ -130,7 +137,7 @@ export default function ActivationCodeManagementPage() {
     } finally {
       setLoading(false)
     }
-  }, [searchCard, searchProxy, status, message])
+  }, [searchCard, searchProxy, status, exported, message])
 
   useEffect(() => {
     fetchCards()
@@ -139,13 +146,16 @@ export default function ActivationCodeManagementPage() {
 
   useEffect(() => {
     if (searchCard) {
+      // 清空之前的选中状态
+      setSelectedRowKeys([])
       fetchCodes()
     } else {
       // 清空数据和统计信息
       setCodes([])
       setStats({ total: 0, used: 0, unused: 0 })
+      setSelectedRowKeys([])
     }
-  }, [status, searchCard, searchProxy, fetchCodes])
+  }, [status, searchCard, searchProxy, exported, fetchCodes])
 
   // 处理表单提交
   const handleSubmit = async (values: CodeFormData) => {
@@ -186,6 +196,7 @@ export default function ActivationCodeManagementPage() {
     setTempSearchCard(searchCard)
     setTempSearchProxy(searchProxy)
     setTempStatus(status)
+    setTempExported(exported)
     setFilterModalVisible(true)
   }
 
@@ -194,6 +205,8 @@ export default function ActivationCodeManagementPage() {
     setSearchCard(tempSearchCard)
     setSearchProxy(tempSearchProxy)
     setStatus(tempStatus)
+    setExported(tempExported)
+    setSelectedRowKeys([]) // 清空选中状态
     setFilterModalVisible(false)
   }
 
@@ -207,6 +220,58 @@ export default function ActivationCodeManagementPage() {
     setTempSearchCard('')
     setTempSearchProxy('')
     setTempStatus('available')
+    setTempExported(null)
+  }
+
+  // 计算当前已选中的卡密（仅限当前列表内）
+  const selectedCodes = codes.filter(code => selectedRowKeys.includes(code.id.toString()))
+
+  // 导出卡密
+  const handleExportCodes = async () => {
+    // 优先导出已选；如未选择，则导出当前筛选结果（即当前列表）
+    const exportTargets = selectedCodes.length > 0 ? selectedCodes : codes
+
+    if (exportTargets.length === 0) {
+      message.warning('当前列表为空，无法导出')
+      return
+    }
+
+    try {
+      // DEBUG：导出前记录关键数据，便于定位问题
+      console.log('导出调试：已选 keys =', selectedRowKeys, '当前列表长度 =', codes.length, '实际导出数量 =', exportTargets.length)
+
+      // 调用导出API
+      await api.post('/activation-codes/export', { code_ids: exportTargets.map(code => code.id) })
+
+      // 生成CSV内容
+      const csvContent = [
+        ['ID', '卡密', '使用状态', '导出状态'].join(','),
+        ...exportTargets.map(code => [
+          code.id,
+          code.code,
+          code.status === 'available' ? '未使用' : code.status === 'consuming' ? '消费中' : '已消费',
+          code.exported ? '已导出' : '未导出'
+        ].join(','))
+      ].join('\n')
+
+      // 创建并下载CSV文件
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+      const link = document.createElement('a')
+      const url = URL.createObjectURL(blob)
+      link.setAttribute('href', url)
+      link.setAttribute('download', `activation_codes_${new Date().toISOString().split('T')[0]}.csv`)
+      link.style.visibility = 'hidden'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+
+      message.success(`成功导出 ${exportTargets.length} 个卡密`)
+      setSelectedRowKeys([]) // 清空选择
+      fetchCodes() // 刷新列表
+    } catch (error) {
+      console.error('导出卡密失败:', error)
+      message.error(resolveErrorMessage(error))
+    }
   }
 
 
@@ -357,7 +422,18 @@ export default function ActivationCodeManagementPage() {
                   </Tag>
                 </Col>
               )}
-              {(!searchCard && !searchProxy && status === 'available') && (
+              {exported !== null && (
+                <Col>
+                  <Tag
+                    closable
+                    onClose={() => setExported(null)}
+                    color="purple"
+                  >
+                    导出状态：{exported ? '已导出' : '未导出'}
+                  </Tag>
+                </Col>
+              )}
+              {(!searchCard && !searchProxy && status === 'available' && exported === null) && (
                 <Col>
                   <span style={{ color: '#999' }}>暂无筛选条件</span>
                 </Col>
@@ -391,6 +467,14 @@ export default function ActivationCodeManagementPage() {
               >
                 刷新
               </Button>
+              <Button
+                type="primary"
+                icon={<DownloadOutlined />}
+                onClick={handleExportCodes}
+                disabled={codes.length === 0 || loading}
+              >
+                {selectedCodes.length > 0 ? `导出已选 (${selectedCodes.length})` : `导出当前列表 (${codes.length})`}
+              </Button>
               {searchCard && (
                 <Popconfirm
                   title={`确定要删除 ${cards.find(c => c.id.toString() === searchCard)?.name || searchCard} 的所有卡密吗？`}
@@ -413,8 +497,13 @@ export default function ActivationCodeManagementPage() {
       <Table
         columns={columns}
         dataSource={codes}
-        rowKey="id"
+        rowKey={(record) => record.id.toString()}
         loading={loading}
+        rowSelection={{
+          selectedRowKeys,
+          onChange: (keys) => setSelectedRowKeys(keys.map(String)),
+          preserveSelectedRowKeys: false,
+        }}
         pagination={{
           showSizeChanger: true,
           showQuickJumper: true,
@@ -573,6 +662,20 @@ export default function ActivationCodeManagementPage() {
               <Option value="available">未使用</Option>
               <Option value="consuming">消费中</Option>
               <Option value="consumed">已消费</Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item label="筛选导出状态">
+            <Select
+              placeholder="筛选导出状态"
+              style={{ width: '100%' }}
+              value={tempExported}
+              onChange={setTempExported}
+              allowClear
+            >
+              <Option value={null}>显示全部</Option>
+              <Option value={false}>未导出</Option>
+              <Option value={true}>已导出</Option>
             </Select>
           </Form.Item>
         </Form>

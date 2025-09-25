@@ -63,7 +63,6 @@ async def get_proxy_revenue(
         return result
 
     except ValueError as e:
-        logger.warning(f"查询销售额失败: {e}")
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         logger.error(f"查询销售额时发生错误: {e}")

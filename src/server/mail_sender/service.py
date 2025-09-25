@@ -103,7 +103,6 @@ def send_mail(mail: MailContent) -> MailSendResult:
         logger.error(f"邮件发送失败：{exc}")
         return MailSendResult(success=False, error=str(exc))
 
-    logger.info("邮件发送成功")
     return MailSendResult(success=True, error=None)
 
 

@@ -19,7 +19,6 @@ import RechargePlusPage from './pages/RechargePlusPage'
 import ChannelManagementPage from './pages/admin/ChannelManagementPage'
 import PersonnelManagementPage from './pages/admin/PersonnelManagementPage'
 import ProxyLayout from './components/layout/ProxyLayout'
-import ActivationCodesPage from './pages/proxy/ActivationCodesPage'
 import SalesRevenuePage from './pages/proxy/SalesRevenuePage'
 
 export default function App() {
@@ -89,7 +88,6 @@ export default function App() {
                 </ProtectedRoute>
               }
             >
-              <Route path="activation-codes" element={<ActivationCodesPage />} />
               <Route path="sales-revenue" element={<SalesRevenuePage />} />
             </Route>
             {/* 首页 */}
