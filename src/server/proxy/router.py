@@ -27,7 +27,9 @@ async def get_proxy_revenue(
     start_date: datetime | None = Query(None, description="开始时间（可选）"),
     end_date: datetime | None = Query(None, description="结束时间（可选）"),
     proxy_id: int | None = Query(None, description="代理商ID（管理员专用）"),
-    query: str | None = Query(None, description="代理商用户名或姓名模糊查询（管理员专用）"),
+    query: str | None = Query(
+        None, description="代理商用户名或姓名模糊查询（管理员专用）"
+    ),
     current_user: User = Depends(get_current_proxy),
     db: Session = Depends(get_db),
 ):

@@ -47,9 +47,7 @@ def create_activation_codes(
             link_proxy_to_cards(db, proxy_user_id, [card_id])
         except ValueError as e:
             # 业务错误（如用户不是代理商、卡不存在或未激活等），转为 400
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
-            )
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
         except Exception as e:
             # 其他异常记录日志并返回 500
             from loguru import logger

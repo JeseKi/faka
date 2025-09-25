@@ -375,6 +375,7 @@ def test_calculate_proxy_revenue_admin_multiple_proxies(test_db_session: Session
 
         # 绑定代理商与充值卡
         from src.server.proxy.service import link_proxy_to_cards
+
         link_proxy_to_cards(test_db_session, proxy_user.id, [card.id])
 
         # 创建已消费的卡密
